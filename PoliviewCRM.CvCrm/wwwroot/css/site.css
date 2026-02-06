@@ -1,0 +1,139 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.action-button:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 0.1rem rgba(255,255,255,0.9), 0 0 0 0.25rem var(--ui-card-icon-color, #ED6F23);
+}
+
+/* Remover foco azul padrão em .btn-link e botões de ação das páginas específicas */
+.btn-link:focus,
+.btn-link:active:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 0.1rem rgba(255,255,255,0.9), 0 0 0 0.25rem var(--ui-card-icon-color, #ED6F23);
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    margin-top: 60px;
+    margin-bottom: 60px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/* Títulos das páginas: tamanho reduzido para melhor apresentação */
+.page-title {
+  font-size: 1.5rem; /* menor que o h1 padrão do Bootstrap */
+  line-height: 1.2;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+@media (min-width: 992px) {
+  .page-title {
+    font-size: 1.6rem; /* ligeiro aumento em telas grandes para legibilidade */
+  }
+}
+
+/* Visualização de PDF em tela cheia (ocupa o viewport exceto a barra de ações) */
+.pdf-view {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pdf-toolbar {
+  flex: 0 0 auto;
+}
+.pdf-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  background: #fff;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+/* Spinner/Ampulheta global discreto */
+#global-spinner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  display: none; /* oculto por padrão */
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35); /* overlay sutil */
+  z-index: 1050; /* acima dos conteúdos */
+}
+#global-spinner .spinner-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+#global-spinner .label { font-size: .95rem; color: #495057; }
+#global-spinner .hourglass-icon { width: 20px; height: 20px; color: #0d6efd; }
+
+/* Animação de "virar" a ampulheta */
+@keyframes flip-hourglass {
+  0% { transform: rotate(0deg); }
+  45% { transform: rotate(0deg); }
+  55% { transform: rotate(180deg); }
+  100% { transform: rotate(180deg); }
+}
+#global-spinner .hourglass-icon { animation: flip-hourglass 1.4s ease-in-out infinite; }
+
+/* Botão OK estilizado com cores da UI */
+.ui-btn-ok {
+  background-color: var(--ui-card-icon-color, #ED6F23);
+  border-color: var(--ui-card-icon-color, #ED6F23);
+  color: #ffffff;
+}
+.ui-btn-ok:hover,
+.ui-btn-ok:focus {
+  background-color: var(--ui-card-icon-bgcolor, #FDF0E9);
+  border-color: var(--ui-card-icon-color, #ED6F23);
+  color: var(--ui-card-icon-color, #ED6F23);
+}
+
+/* Botão VOLTAR estilizado com cores da UI */
+.ui-btn-voltar {
+  background-color: var(--ui-card-icon-bgcolor, #FDF0E9);
+  border-color: var(--ui-card-icon-color, #ED6F23);
+  color: var(--ui-card-icon-color, #ED6F23);
+}
+.ui-btn-voltar:hover,
+.ui-btn-voltar:focus {
+  background-color: var(--ui-card-icon-color, #ED6F23);
+  border-color: var(--ui-card-icon-color, #ED6F23);
+  color: #ffffff;
+}

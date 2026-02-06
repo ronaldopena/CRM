@@ -1,0 +1,217 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    ViewData["Title"] = "Informe de Rendimentos";
+    var status = ViewBag.SieconStatusCode as int?;
+    var contentType = ViewBag.SieconContentType as string;
+    var content = ViewBag.SieconResponseContent as string;
+    var error = ViewBag.SieconError as string;
+    var jsontxt = ViewBag.jsonText as string;
+    var url = ViewBag.SieconUrl as string;
+    var debug = (bool?)ViewBag.Debug ?? false;
+    var iconColor = ViewBag.CardIconColor as string;
+    var pageBg = ViewBag.PageBackgroundColor as string;
+    var iconBg = ViewBag.CardIconBgColor as string;
+    var anoatual = ViewBag.anoAtual as int? ?? DateTime.Now.Year;
+    // Propagar a query string com os dados da unidade (Base64) para ações POST
+    var qsDadosUnidadeSp7 = Context.Request.Query["dadosunidadesp7"].FirstOrDefault();
+    // URL de geração de PDF vinda do appsettings (SieconApi:GerarPdfUrl)
+    var gerarPdfUrl = Configuration.GetValue<string>("SieconApi:GerarPdfUrl");
+    // Email do cliente vindo do Controller
+    var email = ViewBag.Email as string;
+}
+
+<script>
+    // Cria objeto com estrutura exigida a partir da query string 'dadosunidadesp7'
+    (function() {
+        try {
+            const raw = '@qsDadosUnidadeSp7';
+            let jsonStr = '';
+            try { jsonStr = atob(raw); } catch(_) { try { jsonStr = decodeURIComponent(raw); } catch { jsonStr = raw; } }
+            const dados = JSON.parse(jsonStr || '{}');
+
+            window.cvcrmUnidadeObj = {
+                EmpreendimentoSP7: Number(dados?.EmpreendimentoSP7 ?? 0),
+                BlocoSP7: Number(dados?.BlocoSP7 ?? 0),
+                UnidadeSP7: String(dados?.UnidadeSP7 ?? ''),
+                ContratoSP7: String(dados?.ContratoSP7 ?? ''),
+                ClienteSP7: String(dados?.ClienteSP7 ?? ''),
+                Email: '@(email ?? "")'
+            };
+        } catch (e) {
+            console.error('Falha ao montar cvcrmUnidadeObj:', e);
+            window.cvcrmUnidadeObj = { EmpreendimentoSP7: 0, BlocoSP7: 0, UnidadeSP7: '', ContratoSP7: '', ClienteSP7: '', Email: '' };
+        }
+    })();
+</script>
+
+<style>
+    body { background-color: @pageBg; }
+    .page-container {
+        display: flex;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 20px;
+    }
+    .form-container {
+        max-width: 400px;
+        margin: 0;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+    .buttons-container {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .action-icon {
+        width: 60px;
+        height: 60px;
+        background-color: @iconBg;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        color: @iconColor;
+    }
+    .action-label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+</style>
+
+<h1 class="page-title">Informe de Rendimentos</h1>
+
+@{
+    var pdfDataUrl = ViewBag.PdfDataUrl as string;
+    var pdfUrl = ViewBag.PdfUrl as string;
+}
+
+@if (!string.IsNullOrEmpty(pdfDataUrl) || !string.IsNullOrEmpty(pdfUrl))
+{
+    <div class="pdf-view">
+        <div class="pdf-toolbar">
+            <button type="button" class="btn ui-btn-voltar" onclick="history.back()">VOLTAR</button>
+        </div>
+        <iframe src="@(pdfDataUrl ?? pdfUrl)" class="pdf-frame"></iframe>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(TempData["Mensagem"] as string))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensagem"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Erro:</strong> @error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="page-container" style="@(string.IsNullOrEmpty(pdfDataUrl) && string.IsNullOrEmpty(pdfUrl) ? "" : "display:none;")">
+    <div class="form-container">
+    <form method="post" action="@Url.Action("ProcessarAcao", "InformeRendimentos", new { dadosunidadesp7 = qsDadosUnidadeSp7 })" data-spinner="true">
+        <div class="form-group">
+            <label for="ano">Ano</label>
+                <input type="number" id="ano" name="ano" class="form-control" value="@anoatual" min="2000" max="@DateTime.Now.Year" required />
+        </div>
+
+        <div class="buttons-container">
+            <button type="submit" name="action" value="baixar" class="action-button">
+                <div class="action-icon">
+                    <i data-lucide="file-text" style="width: 24px; height: 24px;"></i>
+                </div>
+                <span class="action-label">Visualizar</span>
+            </button>
+
+                <button type="button" name="action" class="action-button" value="email" onclick="EnviarEmailPdf('@email', { tiporelatorio: 3, contrato: (window.cvcrmUnidadeObj?.ContratoSP7 || ''), cobranca: 0, recebimento: 0, ano: @anoatual, codigoclientesp7: (window.cvcrmUnidadeObj?.ClienteSP7 || '') }, '@gerarPdfUrl')">
+                <div class="action-icon">
+                    <i data-lucide="mail" style="width: 24px; height: 24px;"></i>
+                </div>
+                <span class="action-label">e-mail</span>
+            </button>
+        </div>
+        <!-- Campo de email (Informe de Rendimentos) que aparece dinamicamente -->
+
+    </form>
+    </div>
+</div>
+
+<!-- URL para envio por email (evita Razor dentro de string JS) -->
+<input type="hidden" id="informeEnviarEmailUrl" value="@Url.Action("ProcessarAcao", "InformeRendimentos", new { dadosunidadesp7 = qsDadosUnidadeSp7 })" />
+
+
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Erro:</strong> @error
+    </div>
+}
+
+@if (debug)
+{
+    <div class="mt-4">
+        <h5>Informações de Debug</h5>
+        <p><em>Status Code:</em> <code>@(status?.ToString() ?? "-")</code></p>
+        @if (!string.IsNullOrEmpty(contentType))
+        {
+            <p><em>Content-Type:</em> <code>@contentType</code></p>
+        }
+        if (!string.IsNullOrEmpty(url))
+        {
+            <p><em>URL:</em> <code>@url</code></p>
+        }
+        if (!string.IsNullOrEmpty(jsontxt))
+        {
+            <h6>Request JSON:</h6>
+            <pre>@jsontxt</pre>
+        }
+        if (!string.IsNullOrEmpty(content))
+        {
+            <h6>Response Content:</h6>
+            <pre>@content</pre>
+        }
+        else if (status.HasValue)
+        {
+            <p>Nenhum conteúdo retornado.</p>
+        }
+    </div>
+}
+
+<p>
+    <button type="button" class="btn ui-btn-voltar" onclick="history.back()">Voltar</button>
+</p>

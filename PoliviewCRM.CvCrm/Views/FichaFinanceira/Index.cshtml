@@ -1,0 +1,295 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    ViewData["Title"] = "Posição Financeira";
+    var status = ViewBag.SieconStatusCode as int?;
+    var contentType = ViewBag.SieconContentType as string;
+    var content = ViewBag.SieconResponseContent as string;
+    var error = ViewBag.SieconError as string;
+    var jsontxt = ViewBag.jsonText as string;
+    var url = ViewBag.SieconUrl as string;
+    var debug = (bool?)ViewBag.Debug ?? false;
+    var iconColor = ViewBag.CardIconColor as string ?? "#007bff";
+    var pageBg = ViewBag.PageBackgroundColor as string ?? "#f8f9fa";
+    var iconBg = ViewBag.CardIconBgColor as string ?? "#e3f2fd";
+    var contrato = ViewBag.Contrato as string;
+    var email = ViewBag.Email as string;
+    var cliente = ViewBag.Cliente as string;
+    var anofichafinanceira = ViewBag.Ano as int?;
+    var informacoes = ViewBag.Informacoes as string;
+    // Propagar a query string com os dados da unidade (Base64) para ações POST
+    var qsDadosUnidadeSp7 = Context.Request.Query["dadosunidadesp7"].FirstOrDefault();
+    // URL de geração de PDF vinda do appsettings (SieconApi:GerarPdfUrl)
+    var gerarPdfUrl = Configuration.GetValue<string>("SieconApi:GerarPdfUrl");
+}
+
+<script>
+    // Cria objeto com estrutura exigida a partir da query string 'dadosunidadesp7'
+    (function() {
+        try {
+            const raw = '@qsDadosUnidadeSp7';
+            let jsonStr = '';
+            try { jsonStr = atob(raw); } catch(_) { try { jsonStr = decodeURIComponent(raw); } catch { jsonStr = raw; } }
+            const dados = JSON.parse(jsonStr || '{}');
+
+            window.cvcrmUnidadeObj = {
+                EmpreendimentoSP7: Number(dados?.EmpreendimentoSP7 ?? 0),
+                BlocoSP7: Number(dados?.BlocoSP7 ?? 0),
+                UnidadeSP7: String(dados?.UnidadeSP7 ?? ''),
+                ContratoSP7: String(dados?.ContratoSP7 ?? ''),
+                ClienteSP7: String(dados?.ClienteSP7 ?? ''),
+                Email: '@(email ?? "")'
+            };
+        } catch (e) {
+            console.error('Falha ao montar cvcrmUnidadeObj:', e);
+            window.cvcrmUnidadeObj = { EmpreendimentoSP7: 0, BlocoSP7: 0, UnidadeSP7: '', ContratoSP7: '', ClienteSP7: '', Email: '' };
+        }
+    })();
+</script>
+
+<style>
+    body { background-color: @pageBg; }
+    .page-container {
+        display: flex;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 20px;
+    }
+    .form-container {
+        max-width: 400px;
+        margin: 0;
+        padding: 20px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+    }
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+    .buttons-container {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+    .action-icon {
+        width: 60px;
+        height: 60px;
+        background-color: @iconBg;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        color: @iconColor;
+    }
+    .action-label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+    }
+    .content-section {
+        margin-top: 30px;
+    }
+</style>
+
+<h1 class="page-title">Posição Financeira</h1>
+
+@if (!string.IsNullOrEmpty(TempData["Mensagem"] as string))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensagem"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Erro:</strong> @error
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@{
+    var pdfDataUrl = ViewBag.PdfDataUrl as string;
+    var pdfUrl = ViewBag.PdfUrl as string;
+}
+
+@if (!string.IsNullOrEmpty(pdfDataUrl) || !string.IsNullOrEmpty(pdfUrl))
+{
+    <div class="pdf-view">
+        <div class="pdf-toolbar">
+            <button type="button" class="btn ui-btn-voltar" onclick="history.back()">VOLTAR</button>
+        </div>
+        <iframe src="@(pdfDataUrl ?? pdfUrl)" class="pdf-frame"></iframe>
+    </div>
+}
+
+<div class="page-container" style="@(string.IsNullOrEmpty(pdfDataUrl) && string.IsNullOrEmpty(pdfUrl) ? "" : "display:none;")">
+    <div class="form-container">
+        <form method="post" action="@Url.Action("ProcessarAcao", "FichaFinanceira", new { dadosunidadesp7 = qsDadosUnidadeSp7 })" data-spinner="true">
+            <div class="form-group">
+                <label for="contrato">Contrato</label>
+                <input type="text" id="contrato" name="contrato" class="form-control" value="@contrato" readonly />
+            </div>
+
+            <div class="buttons-container">
+                <button type="submit" name="action" value="baixar" class="action-button">
+                    <div class="action-icon">
+                        <i data-lucide="file-text" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <span class="action-label">Visualizar</span>
+                </button>
+
+                <button type="button" name="action" value="email" class="action-button" onclick="EnviarEmailPdf('@email', { tiporelatorio: 2, contrato: (window.cvcrmUnidadeObj?.ContratoSP7 || ''), cobranca: 0, recebimento: 0, ano: 0, codigoclientesp7: (window.cvcrmUnidadeObj?.ClienteSP7 || '') }, '@gerarPdfUrl')">
+                    <div class="action-icon">
+                        <i data-lucide="mail" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <span class="action-label">e-mail</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="content-section">
+
+    @if (debug)
+    {
+        <div class="mt-4">
+            <h5>Informações de Debug</h5>
+            <p><em>Status Code:</em> <code>@(status?.ToString() ?? "-")</code></p>
+            @if (!string.IsNullOrEmpty(contentType))
+            {
+                <p><em>Content-Type:</em> <code>@contentType</code></p>
+            }
+            @if (!string.IsNullOrEmpty(url))
+            {
+                <p><em>URL:</em> <code>@url</code></p>
+            }
+            @if (!string.IsNullOrEmpty(jsontxt))
+            {
+                <h6>Request JSON:</h6>
+                <pre>@jsontxt</pre>
+            }
+            @if (!string.IsNullOrEmpty(content))
+            {
+                <h6>Response Content:</h6>
+                <pre>@content</pre>
+            }
+            else if (status.HasValue)
+            {
+                <p>Nenhum conteúdo retornado.</p>
+            }
+        </div>
+    }
+</div>
+
+<p>
+    <button type="button" class="btn ui-btn-voltar" onclick="history.back()">Voltar</button>
+</p>
+
+<script>
+var processarAcaoUrl = '@Url.Action("ProcessarAcao", "FichaFinanceira")';
+
+function mostrarCampoEmailFicha() {
+    const emailSection = document.getElementById('email-section');
+    const emailInput = document.getElementById('email-input');
+
+    emailSection.style.display = 'block';
+    // Pré-preencher com email padrão do cliente (se disponível)
+    try { emailInput.value = (window.DEFAULT_CLIENT_EMAIL || '').trim(); } catch(_) { emailInput.value = ''; }
+    emailInput.focus();
+}
+
+function cancelarEmailFicha() {
+    const emailSection = document.getElementById('email-section');
+    const emailInput = document.getElementById('email-input');
+
+    emailSection.style.display = 'none';
+    emailInput.value = '';
+}
+
+function enviarFichaPorEmail() {
+    const emailInput = document.getElementById('email-input');
+    const email = emailInput.value.trim();
+
+    if (!email) {
+        alert("e-mail é obrigatório!");
+        emailInput.focus();
+        return;
+    }
+
+    // Validação básica de email
+    const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+    if (!emailRegex.test(email)) {
+        alert("Por favor, digite um email válido!");
+        emailInput.focus();
+        return;
+    }
+
+    const contrato = document.getElementById('contrato').value;
+
+    // Criar formulário para envio
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = processarAcaoUrl;
+
+    // Adicionar campos
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'email';
+    form.appendChild(actionInput);
+
+    const contratoInput = document.createElement('input');
+    contratoInput.type = 'hidden';
+    contratoInput.name = 'contrato';
+    contratoInput.value = contrato;
+    form.appendChild(contratoInput);
+
+    const emailFormInput = document.createElement('input');
+    emailFormInput.type = 'hidden';
+    emailFormInput.name = 'email';
+    emailFormInput.value = email;
+    form.appendChild(emailFormInput);
+
+    // Adicionar ao DOM e enviar
+    document.body.appendChild(form);
+    // Esconde a seção imediatamente e mostra spinner para feedback
+    try { document.getElementById('email-section').style.display = 'none'; } catch(_){}
+    try { if (window.showSpinner) window.showSpinner(); } catch(_){}
+    form.submit();
+}
+</script>
+
+<script>
+  // Define email padrão do cliente e visibilidade inicial do campo
+  window.DEFAULT_CLIENT_EMAIL = '@(ViewBag.ClientEmail ?? "")';
+  window.SHOW_EMAIL = @(Convert.ToBoolean(ViewBag.ShowEmail ?? false).ToString().ToLower());
+  // Se SHOW_EMAIL=true, abrir automaticamente a seção de email
+  try { if (window.SHOW_EMAIL === true) { mostrarCampoEmailFicha(); } } catch(_){}
+</script>

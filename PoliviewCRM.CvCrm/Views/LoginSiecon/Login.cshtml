@@ -1,0 +1,341 @@
+@{
+    ViewData["Title"] = "Financeiro";
+    var token = ViewBag.Token as string;
+    var queryParams = ViewBag.QueryParams as IDictionary<string, string>;
+    var bodyText = ViewBag.BodyText as string;
+    var contentType = ViewBag.ContentType as string;
+    var debug = (bool?)ViewBag.Debug ?? false;
+    var iconColor = ViewBag.CardIconColor as string ?? "#ED6F23";
+    var pageBg = ViewBag.PageBackgroundColor as string ?? "#F8F8FB";
+    var apiPessoaStatusCode = ViewBag.ApiPessoaStatusCode as int?;
+    var apiPessoaContentType = ViewBag.ApiPessoaContentType as string;
+    var apiPessoaResponseContent = ViewBag.ApiPessoaResponseContent as string;
+    var apiPessoaError = ViewBag.ApiPessoaError as string;
+    var apiPessoaFields = ViewBag.ApiPessoaFields as List<KeyValuePair<string, string>>;
+    var apiUnidadeStatusCode = ViewBag.ApiUnidadeStatusCode as int?;
+    var apiUnidadeContentType = ViewBag.ApiUnidadeContentType as string;
+    var apiUnidadeResponseContent = ViewBag.ApiUnidadeResponseContent as string;
+    var apiUnidadeError = ViewBag.ApiUnidadeError as string;
+    var apiUnidadeInfo = ViewBag.ApiUnidadeInfo as string;
+    var apiUnidadeFields = ViewBag.ApiUnidadeFields as List<KeyValuePair<string, string>>;
+    var apiSieconUnidadeStatusCode = ViewBag.ApiSieconUnidadeStatusCode as int?;
+    var apiSieconUnidadeContentType = ViewBag.ApiSieconUnidadeContentType as string;
+    var apiSieconUnidadeResponseContent = ViewBag.ApiSieconUnidadeResponseContent as string;
+    var apiSieconUnidadeError = ViewBag.ApiSieconUnidadeError as string;
+    var apiSieconUnidadeFields = ViewBag.ApiSieconUnidadeFields as List<KeyValuePair<string, string>>;
+    var apiSieconUrl = ViewBag.ApiSieconUrl as string;
+    var apiSieconAuthHeader = (bool?)ViewBag.ApiSieconAuthHeader ?? false;
+    var apiSieconPayload = ViewBag.ApiSieconPayload as string;
+    // Conteúdo JSON da unidade (retorno do /cvcrm) para propagar via query string
+    var dadosUnidadeSp7Json = ViewBag.ApiSieconUnidadeResponseContent as string;
+    string dadosUnidadeSp7B64 = string.Empty;
+    if (!string.IsNullOrEmpty(dadosUnidadeSp7Json))
+    {
+        try
+        {
+            var bytes = System.Text.Encoding.UTF8.GetBytes(dadosUnidadeSp7Json);
+            dadosUnidadeSp7B64 = System.Convert.ToBase64String(bytes);
+        }
+        catch { dadosUnidadeSp7B64 = string.Empty; }
+    }
+}
+<style>
+    body { background-color: @pageBg; }
+    .card-icon { width: 36px; height: 36px; display: inline-block; background-color: @(ViewBag.CardIconBgColor as string ?? "#FDF0E9"); border-radius: 8px; padding: 6px; }
+    .top-cards-row { margin-top: 20px; }
+    /* Cards do topo: largura responsiva com limite máximo de 500px */
+    .top-cards-row .card { max-width: 500px; width: 100%; }
+</style>
+@* <h1>Login Siecon</h1> *@
+
+<!-- Cards no topo -->
+<div class="row mb-4 top-cards-row">
+    <div class="col-12 mb-3">
+        <a href="@Url.Action("Index", "Boletos", new { dadosunidadesp7 = dadosUnidadeSp7B64 })" class="text-decoration-none text-reset" style="display:block;">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="card-icon" data-lucide="receipt" style="color:@iconColor"></i>
+                    <div>
+                        <h5 class="card-title mb-1 fw-bold">Boletos</h5>
+                        <p class="card-text text-muted mb-0 fw-normal">Consulte seus boletos</p>
+                    </div>
+                </div>
+                    <span class="text-muted" style="font-size: 1.5rem;">›</span>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 mb-3">
+        <a href="@Url.Action("Index", "FichaFinanceira", new { dadosunidadesp7 = dadosUnidadeSp7B64 })" class="text-decoration-none text-reset" style="display:block;">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="card-icon" data-lucide="wallet" style="color:@iconColor"></i>
+                        <div>
+                            <h5 class="card-title mb-1 fw-bold">Posição Financeira</h5>
+                            <p class="card-text text-muted mb-0 fw-normal">Consulte sua posição financeira</p>
+                        </div>
+                    </div>
+                    <span class="text-muted" style="font-size: 1.5rem;">›</span>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 mb-3">
+        <a href="@Url.Action("Index", "InformeRendimentos", new { dadosunidadesp7 = dadosUnidadeSp7B64 })" class="text-decoration-none text-reset" style="display:block;">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                        <i class="card-icon" data-lucide="file-text" style="color:@iconColor"></i>
+                    <div>
+                        <h5 class="card-title mb-1 fw-bold">Informe de rendimentos</h5>
+                        <p class="card-text text-muted mb-0 fw-normal">Consulte seu informe de rendimentos</p>
+                    </div>
+                </div>
+                    <span class="text-muted" style="font-size: 1.5rem;">›</span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+@if (debug)
+{
+    @if (!string.IsNullOrEmpty(token))
+    {
+        <div>
+            <strong>Token recebido:</strong>
+            <code>@token</code>
+        </div>
+    }
+    else
+    {
+        <p>Nenhum token informado ainda.</p>
+    }
+
+<hr/>
+<h2>Query string recebida</h2>
+@if (queryParams != null && queryParams.Count > 0)
+{
+    <ul>
+    @foreach (var kv in queryParams)
+    {
+        <li><strong>@kv.Key</strong>: <code>@kv.Value</code></li>
+    }
+    </ul>
+}
+else
+{
+    <p>Nenhum parâmetro na query string.</p>
+}
+
+<hr/>
+<h2>Corpo da requisição</h2>
+@if (!string.IsNullOrWhiteSpace(bodyText))
+{
+    if (!string.IsNullOrEmpty(contentType))
+    {
+        <p><em>Content-Type:</em> <code>@contentType</code></p>
+    }
+    <pre>@bodyText</pre>
+}
+else
+{
+    <p>Nenhum corpo foi enviado.</p>
+}
+
+<hr/>
+<h2>Resposta da API - Pessoa</h2>
+@if (!string.IsNullOrEmpty(token))
+{
+    if (!string.IsNullOrEmpty(apiPessoaError))
+    {
+        <div style="color: #b00020;">
+            <strong>Erro ao consultar API de Pessoa:</strong>
+            <pre>@apiPessoaError</pre>
+        </div>
+    }
+    else if (apiPessoaResponseContent != null)
+    {
+        <p><em>Status Code:</em> <code>@(apiPessoaStatusCode?.ToString() ?? "-")</code></p>
+        @if (!string.IsNullOrEmpty(apiPessoaContentType))
+        {
+            <p><em>Content-Type:</em> <code>@apiPessoaContentType</code></p>
+        }
+        if (apiPessoaFields != null && apiPessoaFields.Count > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var kv in apiPessoaFields)
+                {
+                    <tr>
+                        <td>@kv.Key</td>
+                        <td>@kv.Value</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Nenhum campo simples encontrado para exibição tabular.</p>
+        }
+        <pre>@apiPessoaResponseContent</pre>
+    }
+    else
+    {
+        <p>Nenhuma resposta foi recebida da API de Pessoa.</p>
+    }
+}
+else
+{
+    <p>Informe um token para consultar a API.</p>
+}
+
+<hr/>
+<h2>Resposta da API - Unidade</h2>
+@if (!string.IsNullOrEmpty(token))
+{
+    if (!string.IsNullOrEmpty(apiUnidadeError))
+    {
+        <div style="color: #b00020;">
+            <strong>Erro ao consultar API de Unidade:</strong>
+            <pre>@apiUnidadeError</pre>
+        </div>
+    }
+    else if (apiUnidadeResponseContent != null)
+    {
+        <p><em>Status Code:</em> <code>@(apiUnidadeStatusCode?.ToString() ?? "-")</code></p>
+        @if (!string.IsNullOrEmpty(apiUnidadeContentType))
+        {
+            <p><em>Content-Type:</em> <code>@apiUnidadeContentType</code></p>
+        }
+        if (apiUnidadeFields != null && apiUnidadeFields.Count > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var kv in apiUnidadeFields)
+                {
+                    <tr>
+                        <td>@kv.Key</td>
+                        <td>@kv.Value</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Nenhum campo simples encontrado para exibição tabular.</p>
+        }
+        <pre>@apiUnidadeResponseContent</pre>
+    }
+    else
+    {
+        if (!string.IsNullOrEmpty(apiUnidadeInfo))
+        {
+            <p>@apiUnidadeInfo</p>
+        }
+        else
+        {
+            <p>Nenhuma resposta foi recebida da API de Unidade.</p>
+        }
+    }
+}
+else
+{
+    <p>Informe um token para consultar a API.</p>
+}
+
+<hr/>
+<h2>Payload da consulta à API - SIECON CvCRM</h2>
+@if (!string.IsNullOrEmpty(token))
+{
+    <p><em>URL:</em> <code>@apiSieconUrl</code></p>
+    <p><em>Authorization header incluído:</em> <code>@(apiSieconAuthHeader ? "Sim" : "Não")</code></p>
+    @if (!string.IsNullOrWhiteSpace(apiSieconPayload))
+    {
+        <div class="card mb-3">
+            <div class="card-header">Payload JSON</div>
+            <div class="card-body">
+                <pre class="mb-0">@apiSieconPayload</pre>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Nenhum payload foi preparado ainda. Execute a consulta para gerar o payload.</p>
+    }
+}
+else
+{
+    <p>Informe um token para preparar o payload.</p>
+}
+
+<hr/>
+<h2>Resposta da API - Dados da Unidade (SIECON CvCRM)</h2>
+@if (!string.IsNullOrEmpty(token))
+{
+    if (!string.IsNullOrEmpty(apiSieconUnidadeError))
+    {
+        <div style="color: #b00020;">
+            <strong>Erro ao consultar API CvCRM:</strong>
+            <pre>@apiSieconUnidadeError</pre>
+        </div>
+    }
+    else if (apiSieconUnidadeResponseContent != null)
+    {
+        <p><em>Status Code:</em> <code>@(apiSieconUnidadeStatusCode?.ToString() ?? "-")</code></p>
+        @if (!string.IsNullOrEmpty(apiSieconUnidadeContentType))
+        {
+            <p><em>Content-Type:</em> <code>@apiSieconUnidadeContentType</code></p>
+        }
+        if (apiSieconUnidadeFields != null && apiSieconUnidadeFields.Count > 0)
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var kv in apiSieconUnidadeFields)
+                {
+                    <tr>
+                        <td>@kv.Key</td>
+                        <td>@kv.Value</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Nenhum campo simples encontrado para exibição tabular.</p>
+        }
+        <pre>@apiSieconUnidadeResponseContent</pre>
+    }
+    else
+    {
+        <p>Nenhuma resposta foi recebida da API CvCRM.</p>
+    }
+}
+else
+{
+    <p>Informe um token para consultar a API.</p>
+}
+}

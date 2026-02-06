@@ -1,0 +1,193 @@
+@using System.Globalization
+@model IEnumerable<PoliviewCrm.CvCrm.Models.BoletoDto>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    ViewData["Title"] = "Boletos";
+    // Cores dos ícones e fundo vindas do appsettings.json (Ui) — forçar uso exclusivo do appsettings
+    var iconColor = ViewBag.CardIconColor as string;
+    var pageBg = ViewBag.PageBackgroundColor as string;
+    var iconBg = ViewBag.CardIconBgColor as string;
+    var debug = (bool?)ViewBag.Debug ?? false;
+    var status = ViewBag.SieconStatusCode as int?;
+    var contentType = ViewBag.SieconContentType as string;
+    var content = ViewBag.SieconResponseContent as string;
+    var error = ViewBag.SieconError as string;
+    var jsontxt = ViewBag.jsonText as string;
+    var url = ViewBag.SieconUrl as string;
+    var culture = new CultureInfo("pt-BR");
+    var email = ViewBag.Email as string;
+    var codigoClienteSp7 = ViewBag.CodigoClienteSP7 as string;
+    // Propagar a query string com os dados da unidade (Base64) para ações POST
+    var qsDadosUnidadeSp7 = Context.Request.Query["dadosunidadesp7"].FirstOrDefault();
+    // URL de geração de PDF vinda do appsettings (SieconApi:GerarPdfUrl)
+    var gerarPdfUrl = Configuration.GetValue<string>("SieconApi:GerarPdfUrl");
+}
+<style>
+    body { background-color: @pageBg; }
+    .boleto-card { border-radius: 12px; }
+    .boleto-card .label { color: #6c757d; font-size: .85rem; }
+    .boleto-card .value { font-weight: 600; }
+    /* Forçar a cor dos ícones Lucide e o fundo conforme appsettings */
+    .boleto-actions .btn.btn-link { color: inherit; } /* evita azul padrão do Bootstrap */
+    .boleto-actions .card-icon,
+    .boleto-actions [data-lucide],
+    .boleto-actions .lucide {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: @iconBg !important;
+        border-radius: 8px;
+        padding: 6px;
+        color: @iconColor !important;     /* afeta currentColor */
+        stroke: @iconColor !important;    /* ícones lucide (stroke-based) */
+        fill: none;                       /* manter ícones sem preenchimento */
+    }
+    .boleto-actions .action { text-align: center; }
+    .boleto-actions .action span { display: block; margin-top: 4px; color: #6c757d; }
+    .linha-digitavel { font-size: .9rem; }
+    .top-title { margin-bottom: 12px; }
+</style>
+
+<h1 class="page-title">Boletos</h1>
+
+@{
+    var pdfDataUrl = ViewBag.PdfDataUrl as string;
+    var pdfUrl = ViewBag.PdfUrl as string;
+}
+
+@if (!string.IsNullOrEmpty(pdfDataUrl) || !string.IsNullOrEmpty(pdfUrl))
+{
+    <div class="pdf-view">
+        <div class="pdf-toolbar">
+            <button type="button" class="btn ui-btn-voltar" onclick="history.back()">VOLTAR</button>
+        </div>
+        <iframe src="@(pdfDataUrl ?? pdfUrl)" class="pdf-frame"></iframe>
+    </div>
+}
+
+@if (TempData["Mensagem"] is string msg && !string.IsNullOrWhiteSpace(msg))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @msg
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p>Nenhum boleto encontrado.</p>
+}
+else if (string.IsNullOrEmpty(pdfDataUrl) && string.IsNullOrEmpty(pdfUrl))
+{
+    <div class="row g-3">
+        @foreach (var b in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow-sm boleto-card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <div class="label">Vencimento</div>
+                                <div class="value">@b.BOLETODTVENC</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="label">Valor</div>
+                                <div class="value">@b.BOLETOVALOR.ToString("C", culture)</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between text-center mb-2">
+                            <div>
+                                <div class="label">Recto</div>
+                                <div class="value">@b.RECTO</div>
+                            </div>
+                            <div>
+                                <div class="label">Cobrança</div>
+                                <div class="value">@b.COBRANCA</div>
+                            </div>
+                            <div>
+                                <div class="label">Contrato</div>
+                                <div class="value">@b.CONTRATO</div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <div class="label">Linha digitável</div>
+                            <div class="linha-digitavel">@b.LINHADIGITAVEL</div>
+                        </div>
+
+                        <div class="row boleto-actions">
+                            <div class="col-4 action">
+                                <form method="post" action="@Url.Action("GerarPdf", "Boletos", new { dadosunidadesp7 = qsDadosUnidadeSp7 })" data-spinner="true">
+                                    <input type="hidden" name="numero" value="@b.LINHADIGITAVEL" />
+                                    <input type="hidden" name="recto" value="@b.RECTO" />
+                                    <input type="hidden" name="cobranca" value="@b.COBRANCA" />
+                                    <input type="hidden" name="contrato" value="@b.CONTRATO" />
+                                    <button type="submit" class="btn btn-link text-decoration-none">
+                                        <i class="card-icon" data-lucide="file-text" style="color:@iconColor"></i>
+                                        <span>Visualizar</span>
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-4 action">
+                                <form method="post" action="@Url.Action("EnviarEmail", "Boletos", new { dadosunidadesp7 = qsDadosUnidadeSp7 })" data-spinner="true">
+                                    <input type="hidden" name="numero" value="@b.LINHADIGITAVEL" />
+                                    <input type="hidden" name="recto" value="@b.RECTO" />
+                                    <input type="hidden" name="cobranca" value="@b.COBRANCA" />
+                                    <input type="hidden" name="contrato" value="@b.CONTRATO" />
+                                    <button type="button" class="btn btn-link text-decoration-none" onclick="EnviarEmailPdf('@email', { tiporelatorio: 1, contrato: '@b.CONTRATO', cobranca: @b.COBRANCA, recebimento: @b.RECTO, ano: 0, codigoclientesp7: '@codigoClienteSp7' }, '@gerarPdfUrl')">
+                                        <i class="card-icon" data-lucide="mail" style="color:@iconColor"></i>
+                                        <span>e-mail</span>
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="col-4 action">
+                                <button type="button" class="btn btn-link text-decoration-none" onclick="copiarLinhaDigitavel('@b.LINHADIGITAVEL')">
+                                    <i class="card-icon" data-lucide="copy"  style="color:@iconColor"></i>
+                                    <span>Copiar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<hr />
+
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Erro:</strong> @error
+    </div>
+}
+
+@if (debug)
+{
+    <p><em>Status Code:</em> <code>@(status?.ToString() ?? "-")</code></p>
+    @if (!string.IsNullOrEmpty(contentType))
+    {
+        <p><em>Content-Type:</em> <code>@contentType</code></p>
+    }
+    if (!string.IsNullOrEmpty(url))
+    {
+        <p><em>URL:</em> <code>@url</code></p>
+    }
+    if (!string.IsNullOrEmpty(jsontxt))
+    {
+        <pre>@jsontxt</pre>
+    }
+    if (!string.IsNullOrEmpty(content))
+    {
+        <pre>@content</pre>
+    }
+}
+
+<p>
+    <button type="button" class="btn ui-btn-voltar" onclick="history.back()">Voltar</button>
+</p>
+

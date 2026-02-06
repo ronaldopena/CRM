@@ -1,0 +1,55 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PoliviewCrm.CvCrm</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PoliviewCrm.CvCrm.styles.css" asp-append-version="true" />
+    @{ 
+        var cardIconColor = Configuration["Ui:CardIconColor"] ?? "#ED6F23";
+        var cardIconBgColor = Configuration["Ui:CardIconBgColor"] ?? "#FDF0E9";
+    }
+    <style>
+        :root { 
+            --ui-card-icon-color: @cardIconColor; 
+            --ui-card-icon-bgcolor: @cardIconBgColor;
+        }
+    </style>
+</head>
+<body>
+    @{
+        // Cor da ampulheta definida em appsettings.json: Ui:CardIconColor
+        var hourglassColor = Configuration["Ui:CardIconColor"] ?? "#0d6efd"; // fallback para tema padrão
+    }
+    <!-- Spinner/Ampulheta global discreto (estilo em wwwroot/css/site.css) -->
+    <div id="global-spinner" aria-live="polite" aria-atomic="true">
+        <div class="spinner-panel">
+            <i data-lucide="hourglass" class="hourglass-icon" aria-hidden="true" style="color:@hourglassColor"></i>
+            <span class="label">Aguarde...</span>
+        </div>
+    </div>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Inicializa substituição dos ícones em toda a aplicação
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
