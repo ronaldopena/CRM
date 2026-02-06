@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
@@ -21,8 +21,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.service.email"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.mobuss.integracao", "Poliview.crm.mobuss.integracao\Poliview.crm.mobuss.integracao.csproj", "{9D82C21F-E1B4-47B0-97F1-99D03EEEC189}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.admin.api", "Poliview.crm.admin.api\Poliview.crm.admin.api.csproj", "{BA43AB83-CC97-4893-8DFF-C451D8AAD1BC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.services", "Poliview.crm.services\Poliview.crm.services.csproj", "{A206EF4E-0F5D-4E1D-9751-216D2BD7A76A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poliview.crm.instalador", "poliview.crm.instalador\poliview.crm.instalador.csproj", "{5A6A5F65-FA71-4277-BFC1-3BACCC62329F}"
@@ -31,27 +29,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poliview.crm.sla", "polivie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poliview.crm.validarbases", "poliview.crm.validarbases\poliview.crm.validarbases.csproj", "{57F075FE-544E-497E-B953-D9F24E4D2621}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poliview.crm.cessadireito", "poliview.crm.cessadireito\poliview.crm.cessadireito.csproj", "{A7A15D2A-0E83-4B77-AEF0-B8A5F83AC371}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.integracao", "Poliview.crm.integracao\Poliview.crm.integracao.csproj", "{3FDE2744-2F51-4001-BDF2-54F5E65DA9E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.monitor.service", "Poliview.crm.monitor.service\Poliview.crm.monitor.service.csproj", "{8B80FCA7-9FE7-44F6-BA59-62C592D8C80D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.apiadmin", "Poliview.crm.apiadmin\Poliview.crm.apiadmin.csproj", "{C0798A6E-E402-4B5D-B8C7-8AAECFAB8EBB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.repositorios", "Poliview.crm.repositorios\Poliview.crm.repositorios.csproj", "{2E55B1B2-6911-4E0E-8C58-CC8D22C87143}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.observador", "Poliview.crm.observador\Poliview.crm.observador.csproj", "{FD0BD872-55EE-483F-AB09-080E2FF7A4D0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Poliview.crm.acesso.api", "Poliview.crm.acesso.api\Poliview.crm.acesso.api.csproj", "{7A1FB911-03B4-4F70-9630-95666C630F49}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poliview.crm.integracao.service", "Poliview.crm.integracao.service\Poliview.crm.integracao.service.csproj", "{CBD5FDED-FBB1-470A-BC74-32EE72D129E4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poliview.crm.apicrm", "poliview.crm.apicrm\poliview.crm.apicrm.csproj", "{1BED757A-697A-4304-AD56-3D77F6A57BA5}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "poliview.crm.email", "poliview.crm.email\poliview.crm.email.csproj", "{67758AAE-299C-40C4-882C-61B64099E5E3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PoliviewCRM.Gerenciador.Service", "PoliviewCRM.Gerenciador.Service\PoliviewCRM.Gerenciador.Service.csproj", "{CDC869A2-0CA2-49B9-838A-2DE3AE7806FA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{380A7511-A354-6D7A-0CC0-8FA1F1BA7B6C}"
 	ProjectSection(SolutionItems) = preProject
@@ -105,10 +89,6 @@ Global
 		{9D82C21F-E1B4-47B0-97F1-99D03EEEC189}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D82C21F-E1B4-47B0-97F1-99D03EEEC189}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D82C21F-E1B4-47B0-97F1-99D03EEEC189}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA43AB83-CC97-4893-8DFF-C451D8AAD1BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA43AB83-CC97-4893-8DFF-C451D8AAD1BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA43AB83-CC97-4893-8DFF-C451D8AAD1BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA43AB83-CC97-4893-8DFF-C451D8AAD1BC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A206EF4E-0F5D-4E1D-9751-216D2BD7A76A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A206EF4E-0F5D-4E1D-9751-216D2BD7A76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A206EF4E-0F5D-4E1D-9751-216D2BD7A76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -125,10 +105,6 @@ Global
 		{57F075FE-544E-497E-B953-D9F24E4D2621}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57F075FE-544E-497E-B953-D9F24E4D2621}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57F075FE-544E-497E-B953-D9F24E4D2621}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A7A15D2A-0E83-4B77-AEF0-B8A5F83AC371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A7A15D2A-0E83-4B77-AEF0-B8A5F83AC371}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A7A15D2A-0E83-4B77-AEF0-B8A5F83AC371}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A7A15D2A-0E83-4B77-AEF0-B8A5F83AC371}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3FDE2744-2F51-4001-BDF2-54F5E65DA9E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3FDE2744-2F51-4001-BDF2-54F5E65DA9E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FDE2744-2F51-4001-BDF2-54F5E65DA9E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -137,38 +113,14 @@ Global
 		{8B80FCA7-9FE7-44F6-BA59-62C592D8C80D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B80FCA7-9FE7-44F6-BA59-62C592D8C80D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B80FCA7-9FE7-44F6-BA59-62C592D8C80D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C0798A6E-E402-4B5D-B8C7-8AAECFAB8EBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C0798A6E-E402-4B5D-B8C7-8AAECFAB8EBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C0798A6E-E402-4B5D-B8C7-8AAECFAB8EBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C0798A6E-E402-4B5D-B8C7-8AAECFAB8EBB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2E55B1B2-6911-4E0E-8C58-CC8D22C87143}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2E55B1B2-6911-4E0E-8C58-CC8D22C87143}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E55B1B2-6911-4E0E-8C58-CC8D22C87143}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E55B1B2-6911-4E0E-8C58-CC8D22C87143}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD0BD872-55EE-483F-AB09-080E2FF7A4D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD0BD872-55EE-483F-AB09-080E2FF7A4D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD0BD872-55EE-483F-AB09-080E2FF7A4D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD0BD872-55EE-483F-AB09-080E2FF7A4D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7A1FB911-03B4-4F70-9630-95666C630F49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7A1FB911-03B4-4F70-9630-95666C630F49}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7A1FB911-03B4-4F70-9630-95666C630F49}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7A1FB911-03B4-4F70-9630-95666C630F49}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CBD5FDED-FBB1-470A-BC74-32EE72D129E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CBD5FDED-FBB1-470A-BC74-32EE72D129E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CBD5FDED-FBB1-470A-BC74-32EE72D129E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CBD5FDED-FBB1-470A-BC74-32EE72D129E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1BED757A-697A-4304-AD56-3D77F6A57BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BED757A-697A-4304-AD56-3D77F6A57BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BED757A-697A-4304-AD56-3D77F6A57BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BED757A-697A-4304-AD56-3D77F6A57BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{67758AAE-299C-40C4-882C-61B64099E5E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{67758AAE-299C-40C4-882C-61B64099E5E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67758AAE-299C-40C4-882C-61B64099E5E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67758AAE-299C-40C4-882C-61B64099E5E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDC869A2-0CA2-49B9-838A-2DE3AE7806FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDC869A2-0CA2-49B9-838A-2DE3AE7806FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDC869A2-0CA2-49B9-838A-2DE3AE7806FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDC869A2-0CA2-49B9-838A-2DE3AE7806FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{10812617-B190-43B6-B8F8-2F5C23BA2D49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{10812617-B190-43B6-B8F8-2F5C23BA2D49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10812617-B190-43B6-B8F8-2F5C23BA2D49}.Release|Any CPU.ActiveCfg = Release|Any CPU
