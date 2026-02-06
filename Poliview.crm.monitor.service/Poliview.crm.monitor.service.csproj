@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-Poliview.crm.monitor.service-F2835EE8-0CDD-4F00-9F4A-B8D345A82422</UserSecretsId>
