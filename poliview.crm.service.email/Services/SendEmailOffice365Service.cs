@@ -1,4 +1,4 @@
-﻿using Azure.Identity;
+using Azure.Identity;
 using Microsoft.Graph;
 using Poliview.crm.domain;
 using Poliview.crm.services;
@@ -10,7 +10,8 @@ namespace Poliview.crm.service.email.Services
     {
         private static string connection = "";
         private static IConfiguration configuration;
-        private LogService _logService;
+        private readonly LogService _logService;
+        private readonly INotificacaoErro _notificacaoErro;
         private static bool verQuery = true;
         private static bool verDebug = true;
         private static bool verErros = true;
@@ -18,10 +19,11 @@ namespace Poliview.crm.service.email.Services
         private string _cliente = "não identificado";
         private static string _tituloMensagem = "Envio de Email OFFICE365";
         public IEnumerable<Email> EmailsParaEnviar { get; set; }
-        public SendEmailOffice365Service(IConfiguration _configuration, LogService logService)
+        public SendEmailOffice365Service(IConfiguration _configuration, LogService logService, INotificacaoErro notificacaoErro)
         {
             configuration = _configuration;
             _logService = logService;
+            _notificacaoErro = notificacaoErro;
             connection = configuration["conexao"].ToString();
             _cliente = configuration["cliente"] ?? "não identificado";
             verQuery = Convert.ToBoolean(configuration["verQuery"]);
@@ -30,7 +32,7 @@ namespace Poliview.crm.service.email.Services
             verInfos = Convert.ToBoolean(configuration["verInfos"]);
         }
 
-        public async void EnviarEmailAvulso(string destinatarios, string assunto, string corpo, ContaEmail conta, Serilog.ILogger log)
+        public async Task EnviarEmailAvulsoAsync(string destinatarios, string assunto, string corpo, ContaEmail conta, Serilog.ILogger log)
         {
 
             string[] scopes = { "https://graph.microsoft.com/.default" };
@@ -110,42 +112,20 @@ namespace Poliview.crm.service.email.Services
                 }
                 catch (Exception ex)
                 {
-                    log.Error($"Erro(305-SendEmailService.cs): {ex.Message} - {conta.descricaoConta}");
-
-                    // Enviar notificação via Telegram
-                    try
-                    {
-                        var mensagemErro = $"Erro no envio de email avulso - Conta: {conta.descricaoConta}\n\n" +
-                                         $"Detalhes: {ex.Message}\n\n" +
-                                         (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                        UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                    }
-                    catch (Exception telegramEx)
-                    {
-                        await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                            $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                    }
+                    log.Error($"Erro: {ex.Message} - {conta.descricaoConta}");
+                    var mensagemErro = $"Erro no envio de email avulso - Conta: {conta.descricaoConta}\n\n" +
+                                     $"Detalhes: {ex.Message}\n\n" +
+                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                    _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
                 }
             }
             catch (Exception ex)
             {
-                log.Error($"Erro(310-SendEmailService.cs): {ex.Message} - {conta.descricaoConta}");
-
-                // Enviar notificação via Telegram
-                try
-                {
-                    var mensagemErro = $"Erro geral no envio de email avulso - Conta: {conta.descricaoConta}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                log.Error($"Erro: {ex.Message} - {conta.descricaoConta}");
+                var mensagemErro = $"Erro geral no envio de email avulso - Conta: {conta.descricaoConta}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
             }
             finally
             {
@@ -409,48 +389,26 @@ namespace Poliview.crm.service.email.Services
                         catch (Exception ex)
                         {
                             UtilEmailServices.MarcarEmailComErro(email.id, ex.Message, log, connection);
-                            log.Error($"{conta.descricaoConta} - Erro: {ex.Message} email: id={email.id} {email.emaildestinatario} {email.assunto} - {conta.descricaoConta}");
-
-                            // Enviar notificação via Telegram
-                            try
-                            {
-                                var mensagemErro = $"Erro no envio de email - Conta: {conta.descricaoConta}\n\n" +
-                                                 $"Email ID: {email.id}\n\n" +
-                                                 $"Destinatário: {email.emaildestinatario}\n\n" +
-                                                 $"Assunto: {email.assunto}\n\n" +
-                                                 $"Detalhes: {ex.Message}\n\n" +
-                                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                                UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                            }
-                            catch (Exception telegramEx)
-                            {
-                                await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                                    $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                            }
+                            log.Error($"{conta.descricaoConta} - Erro: {ex.Message} email: id={email.id} {email.emaildestinatario} {email.assunto}");
+                            var mensagemErro = $"Erro no envio de email - Conta: {conta.descricaoConta}\n\n" +
+                                             $"Email ID: {email.id}\n\n" +
+                                             $"Destinatário: {email.emaildestinatario}\n\n" +
+                                             $"Assunto: {email.assunto}\n\n" +
+                                             $"Detalhes: {ex.Message}\n\n" +
+                                             (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                            _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
                         }
                     }
                     catch (Exception ex)
                     {
-                        log.Error($"{conta.descricaoConta} - Erro(586-SendEmailService.cs): {ex.Message} - {conta.descricaoConta}");
+                        log.Error($"{conta.descricaoConta} - Erro: {ex.Message}");
                         UtilEmailServices.MarcarEmailComErro(idatual, ex.Message, log, connection);
                         log.Debug($"{conta.descricaoConta} - ERRO AO ENVIAR EMAIL: " + dadosenvioemail);
-
-                        // Enviar notificação via Telegram
-                        try
-                        {
-                            var mensagemErro = $"Erro no processamento de email - Conta: {conta.descricaoConta}\n\n" +
-                                             $"Email ID: {idatual}\n\n" +
-                                             $"Detalhes: {ex.Message}\n\n" +
-                                             (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                            UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                        }
-                        catch (Exception telegramEx)
-                        {
-                            await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                                $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                        }
+                        var mensagemErro = $"Erro no processamento de email - Conta: {conta.descricaoConta}\n\n" +
+                                         $"Email ID: {idatual}\n\n" +
+                                         $"Detalhes: {ex.Message}\n\n" +
+                                         (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                        _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
                     }
 
                 }
@@ -461,21 +419,10 @@ namespace Poliview.crm.service.email.Services
                 if (verErros) log.Error($"{conta.descricaoConta} - Erro: {ex.Message} ");
                 UtilEmailServices.MarcarEmailComErro(idatual, ex.Message, log, connection);
                 if (verDebug) log.Debug($"{conta.descricaoConta} - Marcar Email com Erro. Id " + idatual);
-
-                // Enviar notificação via Telegram
-                try
-                {
-                    var mensagemErro = $"Erro geral no envio de emails - Conta: {conta.descricaoConta}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                var mensagemErro = $"Erro geral no envio de emails - Conta: {conta.descricaoConta}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
             }
             finally
             {

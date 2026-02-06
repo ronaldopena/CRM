@@ -1,28 +1,28 @@
-﻿using Poliview.crm.domain;
+using Poliview.crm.domain;
+using Poliview.crm.service.email.Services;
 using poliview.crm.service.email.Services;
 using Poliview.crm.services;
-using static ClosedXML.Excel.XLPredefinedFormat;
-using Poliview.crm.service.email.Services;
-using System.Runtime.InteropServices;
 using Poliview.crm.repositorios;
 
 namespace Poliview.crm.service.email
 {
     public class ReceberEmail
     {
-        private IConfiguration configuration;
-        private LogService _logService;
-        private string _cliente = "não identificado";
-        private static string _tituloMensagem = "Recebimento de E-mail";
+        private readonly IConfiguration configuration;
+        private readonly LogService _logService;
+        private readonly INotificacaoErro _notificacaoErro;
+        private readonly IEmailProviderFactory _providerFactory;
+        private const string TituloMensagem = "Recebimento de E-mail";
         public int tipoAutenticacao { get; set; }
-        private string connectionString { get; set; }
+        private readonly string connectionString;
 
-        public ReceberEmail(IConfiguration _configuration, LogService logService)
+        public ReceberEmail(IConfiguration config, LogService logService, INotificacaoErro notificacaoErro, IEmailProviderFactory providerFactory)
         {
-            configuration = _configuration;
+            configuration = config;
             _logService = logService;
-            _cliente = configuration["cliente"] ?? "não identificado";
-            connectionString = configuration["Conexao"].ToString();
+            _notificacaoErro = notificacaoErro;
+            _providerFactory = providerFactory;
+            connectionString = configuration["Conexao"]?.ToString() ?? "";
         }
 
         public async Task receiveAsync(ContaEmail conta, Serilog.ILogger log)
@@ -38,23 +38,9 @@ namespace Poliview.crm.service.email
                     try
                     {
                         await emailService.IniciarReceberEmails(conta.id);
-                        IReceiveEmailService service = null;
-
-                        switch (tipoAutenticacao)
-                        {
-                            case 0:
-                                service = new ReceiveEmailPadraoService(configuration, _logService);
-                                break;
-                            case 1:
-                                service = new ReceiveEmailOffice365Service(configuration, _logService);
-                                break;
-                            case 2:
-                                service = new ReceiveEmailGmailService(configuration, _logService);
-                                break;
-                            default: throw new System.Exception("Tipo de autenticação inválida!");
-                        }
-
-                        if (service != null) await service.ReceiveEmailAsync(log, conta);
+                        tipoAutenticacao = conta.tipoconta;
+                        var service = _providerFactory.GetReceiveService(tipoAutenticacao);
+                        await service.ReceiveEmailAsync(log, conta);
                     }
                     finally
                     {
@@ -68,22 +54,11 @@ namespace Poliview.crm.service.email
             }
             catch (Exception ex)
             {
-                log.Error($"{conta.descricaoConta} - ReceberEmail.cs(55) - " + ex.Message);
-
-                // Enviar notificação via Telegram
-                try
-                {
-                    var mensagemErro = $"Erro no recebimento de email - Conta: {conta.descricaoConta}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                log.Error($"{conta.descricaoConta} - ReceberEmail - " + ex.Message);
+                var mensagemErro = $"Erro no recebimento de email - Conta: {conta.descricaoConta}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro(TituloMensagem, mensagemErro);
             }
         }
     }

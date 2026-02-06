@@ -1,8 +1,11 @@
+using Microsoft.Extensions.Options;
 using Poliview.crm.domain;
 using Poliview.crm.repositorios;
+using poliview.crm.service.email;
+using poliview.crm.service.email.Options;
+using Poliview.crm.service.email.Services;
 using Poliview.crm.service.email;
 using Poliview.crm.services;
-using Poliview.crm.service.email.Services;
 using Serilog;
 
 namespace poliview.crm.service.email
@@ -18,6 +21,8 @@ namespace poliview.crm.service.email
         private readonly string? _cliente;
         private readonly ILogger<Worker> _logger;
         private readonly LogService _logService;
+        private readonly INotificacaoErro _notificacaoErro;
+        private readonly IEmailProviderFactory _providerFactory;
 
         static class TipoAutenticacao
         {
@@ -26,13 +31,15 @@ namespace poliview.crm.service.email
             public const int taGmail = 2;
         }
 
-        public Worker(ILogger<Worker> logger, IConfiguration configuration, IHostApplicationLifetime appLifetime, ITelegramService telegramService, LogService logService)
+        public Worker(ILogger<Worker> logger, IConfiguration configuration, IHostApplicationLifetime appLifetime, ITelegramService telegramService, LogService logService, INotificacaoErro notificacaoErro, IEmailProviderFactory providerFactory, IOptions<EmailWorkerOptions> options)
         {
             _logger = logger;
             _logService = logService;
             _configuration = configuration;
             _appLifetime = appLifetime;
-            _cliente = configuration["cliente"];
+            _notificacaoErro = notificacaoErro;
+            _providerFactory = providerFactory;
+            _cliente = options?.Value?.Cliente ?? configuration["cliente"];
             logEnviarEmail = new LoggerConfiguration()
                                         .MinimumLevel.Debug()
                                         .WriteTo.Console()
@@ -108,20 +115,10 @@ namespace poliview.crm.service.email
             }
             catch (Exception ex)
             {
-
-                try
-                {
-                    var mensagemErro = $"Erro no envio de email do cliente: {_cliente ?? "Não identificado"}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro("Erro no envio de e-mail", mensagemErro, _configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram {_cliente}: {telegramEx.Message}");
-                }
+                var mensagemErro = $"Erro no envio de email do cliente: {_cliente ?? "Não identificado"}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro("Erro no envio de e-mail", mensagemErro);
             }
             finally
             {
@@ -146,7 +143,7 @@ namespace poliview.crm.service.email
                         if (conta.enviaremail)
                         {
                             logReceberEmail.Debug($"{conta.descricaoConta} - NOVO CICLO DE ENVIO DE EMAIL");
-                            var sendEmailObj = new EnviarEmail(_configuration, _logService);
+                            var sendEmailObj = new EnviarEmail(_configuration, _logService, _notificacaoErro, _providerFactory);
                             sendEmailObj.tipoAutenticacao = conta.tipoconta;
                             await sendEmailObj.Send(logEnviarEmail, conta);
                         }
@@ -160,21 +157,10 @@ namespace poliview.crm.service.email
             catch (Exception ex)
             {
                 logReceberEmail.Error($" {ex.Message} ERRO AO ENVIAR EMAILS ");
-
-                try
-                {
-                    var mensagemErro = $"Erro no envio de emails - Cliente: {_cliente ?? "Não identificado"}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro("Erro no envio de e-mail", mensagemErro, _configuration);
-
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                var mensagemErro = $"Erro no envio de emails - Cliente: {_cliente ?? "Não identificado"}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro("Erro no envio de e-mail", mensagemErro);
             }
         }
 
@@ -198,7 +184,7 @@ namespace poliview.crm.service.email
                         if (conta.receberemail)
                         {
                             logReceberEmail.Debug($"{conta.descricaoConta} - NOVO CICLO DE RECEBIMENTO DE EMAIL");
-                            var receiveEmailObj = new ReceberEmail(_configuration, _logService);
+                            var receiveEmailObj = new ReceberEmail(_configuration, _logService, _notificacaoErro, _providerFactory);
                             receiveEmailObj.tipoAutenticacao = conta.tipoconta;
                             await receiveEmailObj.receiveAsync(conta, logReceberEmail);
                         }
@@ -212,22 +198,11 @@ namespace poliview.crm.service.email
             catch (Exception ex)
             {
                 logReceberEmail.Error($"{contaatual} - {ex.Message} ERRO AO RECEBER EMAILS ");
-
-                // Enviar notificação via Telegram
-                try
-                {
-                    var mensagemErro = $"Erro no recebimento de emails - Cliente: {_cliente ?? "Não identificado"}\n\n" +
-                                     $"Conta: {contaatual}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro("Erro no recebimento de e-mail", mensagemErro, _configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                var mensagemErro = $"Erro no recebimento de emails - Cliente: {_cliente ?? "Não identificado"}\n\n" +
+                                 $"Conta: {contaatual}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro("Erro no recebimento de e-mail", mensagemErro);
             }
 
         }

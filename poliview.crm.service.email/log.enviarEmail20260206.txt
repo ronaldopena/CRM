@@ -1,0 +1,45 @@
+2026-02-06 11:54:25.607 -03:00 [DBG] CONFIGURAÇÃO POP/SMTP - CONTA TESTE
+2026-02-06 11:54:25.638 -03:00 [DBG] Email: teste@2x.dev.br
+2026-02-06 11:54:25.639 -03:00 [DBG] pop: pop.hostinger.com.br
+2026-02-06 11:54:25.641 -03:00 [DBG] smtp: smtp.hostinger.com.br
+2026-02-06 11:54:25.663 -03:00 [DBG] CONTA TESTE - METODO SEND
+2026-02-06 11:54:25.693 -03:00 [DBG] CONTA TESTE - total de emails para enviar: 0 
+2026-02-06 11:54:25.698 -03:00 [DBG] CONTA TESTE - Tipo Autenticação: 0-POP/SMTP
+2026-02-06 12:00:01.297 -03:00 [DBG] CONFIGURAÇÃO POP/SMTP - CONTA TESTE
+2026-02-06 12:00:01.338 -03:00 [DBG] Email: teste@2x.dev.br
+2026-02-06 12:00:01.339 -03:00 [DBG] pop: pop.hostinger.com.br
+2026-02-06 12:00:01.340 -03:00 [DBG] smtp: smtp.hostinger.com.br
+2026-02-06 12:00:01.346 -03:00 [DBG] CONTA TESTE - METODO SEND
+2026-02-06 12:00:01.374 -03:00 [DBG] CONTA TESTE - total de emails para enviar: 0 
+2026-02-06 12:00:01.375 -03:00 [DBG] CONTA TESTE - Tipo Autenticação: 0-POP/SMTP
+2026-02-06 12:02:22.558 -03:00 [DBG] CONFIGURAÇÃO POP/SMTP - CONTA TESTE
+2026-02-06 12:02:22.582 -03:00 [DBG] Email: teste@2x.dev.br
+2026-02-06 12:02:22.583 -03:00 [DBG] pop: pop.hostinger.com.br
+2026-02-06 12:02:22.583 -03:00 [DBG] smtp: smtp.hostinger.com.br
+2026-02-06 12:02:22.589 -03:00 [DBG] CONTA TESTE - METODO SEND
+2026-02-06 12:02:22.692 -03:00 [DBG] CONTA TESTE - total de emails para enviar: 1 
+2026-02-06 12:02:22.694 -03:00 [DBG] CONTA TESTE - Tipo Autenticação: 0-POP/SMTP
+2026-02-06 12:02:22.952 -03:00 [DBG] CONTA TESTE - enviar email para ronaldo@codemaker.com.br assunto: RECUPERAÇÃO DE SENHA 
+2026-02-06 12:02:24.762 -03:00 [DBG] CONTA TESTE - email enviado com sucesso! ronaldo@codemaker.com.br
+2026-02-06 12:02:24.773 -03:00 [DBG] CONTA TESTE - Marcar Email como enviado. Id 1
+2026-02-06 12:09:12.773 -03:00 [DBG] CONFIGURAÇÃO POP/SMTP - CONTA TESTE
+2026-02-06 12:09:12.813 -03:00 [DBG] Email: teste@2x.dev.br
+2026-02-06 12:09:12.813 -03:00 [DBG] pop: pop.hostinger.com.br
+2026-02-06 12:09:12.814 -03:00 [DBG] smtp: smtp.hostinger.com.br
+2026-02-06 12:09:12.821 -03:00 [DBG] CONTA TESTE - METODO SEND
+2026-02-06 12:09:12.847 -03:00 [DBG] CONTA TESTE - total de emails para enviar: 0 
+2026-02-06 12:09:12.848 -03:00 [DBG] CONTA TESTE - Tipo Autenticação: 0-POP/SMTP
+2026-02-06 12:10:32.653 -03:00 [DBG] CONFIGURAÇÃO POP/SMTP - CONTA TESTE
+2026-02-06 12:10:32.693 -03:00 [DBG] Email: teste@2x.dev.br
+2026-02-06 12:10:32.694 -03:00 [DBG] pop: pop.hostinger.com.br
+2026-02-06 12:10:32.695 -03:00 [DBG] smtp: smtp.hostinger.com.br
+2026-02-06 12:10:32.703 -03:00 [DBG] CONTA TESTE - METODO SEND
+2026-02-06 12:10:32.733 -03:00 [DBG] CONTA TESTE - total de emails para enviar: 0 
+2026-02-06 12:10:32.734 -03:00 [DBG] CONTA TESTE - Tipo Autenticação: 0-POP/SMTP
+2026-02-06 12:11:10.054 -03:00 [DBG] CONFIGURAÇÃO POP/SMTP - CONTA TESTE
+2026-02-06 12:11:10.079 -03:00 [DBG] Email: teste@2x.dev.br
+2026-02-06 12:11:10.080 -03:00 [DBG] pop: pop.hostinger.com.br
+2026-02-06 12:11:10.082 -03:00 [DBG] smtp: smtp.hostinger.com.br
+2026-02-06 12:11:10.092 -03:00 [DBG] CONTA TESTE - METODO SEND
+2026-02-06 12:11:10.125 -03:00 [DBG] CONTA TESTE - total de emails para enviar: 0 
+2026-02-06 12:11:10.126 -03:00 [DBG] CONTA TESTE - Tipo Autenticação: 0-POP/SMTP

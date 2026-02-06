@@ -1,6 +1,7 @@
-﻿using MailKit.Net.Pop3;
+using MailKit.Net.Pop3;
 using MimeKit;
 using Poliview.crm.domain;
+using Poliview.crm.service.email.Services;
 using poliview.crm.service.email.Services;
 using Poliview.crm.services;
 using MailKit.Security;
@@ -12,7 +13,8 @@ namespace Poliview.crm.service.email.Services
     {
         private static string connection = "";
         private static IConfiguration configuration;
-        private LogService _logService;
+        private readonly LogService _logService;
+        private readonly INotificacaoErro _notificacaoErro;
         private static bool verQuery = true;
         private static bool verDebug = true;
         private static bool verErros = true;
@@ -20,10 +22,11 @@ namespace Poliview.crm.service.email.Services
         private string _cliente = "não identificado";
         private static string _tituloMensagem = "Recebimento de Email Padrão";
 
-        public ReceiveEmailPadraoService(IConfiguration _configuration, LogService logService)
+        public ReceiveEmailPadraoService(IConfiguration _configuration, LogService logService, INotificacaoErro notificacaoErro)
         {
             configuration = _configuration;
             _logService = logService;
+            _notificacaoErro = notificacaoErro;
             connection = _configuration["conexao"].ToString();
             _cliente = configuration["cliente"] ?? "não identificado";
             verQuery = Convert.ToBoolean(configuration["verQuery"]);
@@ -255,8 +258,7 @@ namespace Poliview.crm.service.email.Services
                             var mensagemErro = $"Erro ao receber email - Conta: {conta.descricaoConta}\n\n" +
                                                 $"Detalhes: {ex.Message}\n\n" +
                                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                            UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
+                            _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
 
                             log.Error($"{conta.descricaoConta} - ERRO AO RECEBER EMAIL MSG " + msg);
                             log.Error("ERRO NO LOOP RECEBER EMAIL " + ex.Message + " " + dadosDoEmail + " " + conta.descricaoConta);
@@ -270,21 +272,10 @@ namespace Poliview.crm.service.email.Services
             catch (Exception ex)
             {
                 log.Error("ERRO AO RECEBER EMAIL " + ex.Message + " " + dadosDoEmail);
-
-                // Enviar notificação via Telegram
-                try
-                {
-                    var mensagemErro = $"Erro ao receber email - Conta: {conta.descricaoConta}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                var mensagemErro = $"Erro ao receber email - Conta: {conta.descricaoConta}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
             }
         }
     }

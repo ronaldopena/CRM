@@ -1,6 +1,7 @@
-﻿using Microsoft.Graph;
+using Microsoft.Graph;
 using Azure.Identity;
 using Poliview.crm.domain;
+using Poliview.crm.service.email.Services;
 using poliview.crm.service.email.Services;
 using Poliview.crm.services;
 using Poliview.crm.repositorios;
@@ -11,7 +12,8 @@ namespace Poliview.crm.service.email.Services
     {
         private static string connection = "";
         private static IConfiguration configuration;
-        private LogService _logService;
+        private readonly LogService _logService;
+        private readonly INotificacaoErro _notificacaoErro;
         private static bool verQuery = true;
         private static bool verDebug = true;
         private static bool verErros = true;
@@ -19,10 +21,11 @@ namespace Poliview.crm.service.email.Services
         private string _cliente = "não identificado";
         private static string _tituloMensagem = "Recebimento de Email Office365";
 
-        public ReceiveEmailOffice365Service(IConfiguration _configuration, LogService logService)
+        public ReceiveEmailOffice365Service(IConfiguration _configuration, LogService logService, INotificacaoErro notificacaoErro)
         {
             configuration = _configuration;
             _logService = logService;
+            _notificacaoErro = notificacaoErro;
             _cliente = configuration["cliente"] ?? "não identificado";
             connection = configuration["conexao"].ToString();
             verQuery = Convert.ToBoolean(configuration["verQuery"]);
@@ -38,7 +41,7 @@ namespace Poliview.crm.service.email.Services
             return true;
         }
 
-        private static async Task DeletarEmailCaixaEntradaAsync(GraphServiceClient graphClient, string UserId, string MessageId, Serilog.ILogger log)
+        private async Task DeletarEmailCaixaEntradaAsync(GraphServiceClient graphClient, string UserId, string MessageId, Serilog.ILogger log)
         {
             try
             {
@@ -50,8 +53,7 @@ namespace Poliview.crm.service.email.Services
                 var mensagemErro = $"Erro ao deletar email na caixa de entrada  - Conta: {UserId}\n\n" +
                      $"Detalhes: {ex.Message}\n\n" +
                      (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
+                _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
                 log.Error(ex.Message);
             }
         }
@@ -300,8 +302,7 @@ namespace Poliview.crm.service.email.Services
                                          $"Detalhes: {ex.Message}\n\n" +
                                          (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "") +
                                          $"\n\nDados do Email: {dadosDoEmail}";
-
-                        UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
+                        _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
 
                         log.Error($"{conta.descricaoConta} - ERRO AO RECEBER EMAIL MSG " + msg);
 
@@ -312,23 +313,11 @@ namespace Poliview.crm.service.email.Services
             }
             catch (Exception ex)
             {
-                log.Error($"{conta.descricaoConta} - ERRO DE CONEXÃO COM O OFFICE 365 ReceiveEmailService.cs(461) " + conta.descricaoConta);
-                log.Error($"{conta.descricaoConta} - {ex.Message} - {dadosDoEmail}");
-
-                // Enviar notificação via Telegram
-                try
-                {
-                    var mensagemErro = $"Erro ao receber email - Conta: {conta.descricaoConta}\n\n" +
-                                     $"Detalhes: {ex.Message}\n\n" +
-                                     (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
-
-                    UtilEmailServices.NotificarErro(_tituloMensagem, mensagemErro, configuration);
-                }
-                catch (Exception telegramEx)
-                {
-                    await _logService.Log(LogRepository.OrigemLog.integracao, LogRepository.TipoLog.erro,
-                        $"Erro ao enviar notificação Telegram: {telegramEx.Message}");
-                }
+                log.Error($"{conta.descricaoConta} - ERRO DE CONEXÃO COM O OFFICE 365 - {ex.Message} - {dadosDoEmail}");
+                var mensagemErro = $"Erro ao receber email - Conta: {conta.descricaoConta}\n\n" +
+                                 $"Detalhes: {ex.Message}\n\n" +
+                                 (ex.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}" : "");
+                _notificacaoErro.NotificarErro(_tituloMensagem, mensagemErro);
             }
         }
     }
