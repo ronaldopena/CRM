@@ -1,0 +1,114 @@
+﻿
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Poliview.crm.http.services
+@using Poliview.crm.domain
+@using Poliview.crm.models
+
+@inject SweetAlertService Swal
+@inject IToastService toastService
+@inject IGrupoMidiaHttpService grupoMidiaHttpService
+@inject NavigationManager nav
+
+@page "/grupomidiaeditar/{id:int}"
+
+<div class="content-header" width="700px" >
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Cadastro de Grupo Midia</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Cadastro Grupo midia</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-horizontal">
+                            <div class="form-group row">                                
+                                <label for="codigo" class="col-sm-2 col-form-label">Código</label>
+                                <input type="text" class="form-control col-sm-10" id="codigo" placeholder="código" readonly @bind-value="@grupomidia.id">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" for="descricao">Descrição</label>
+                                <input type="text" class="form-control col-sm-10" id="descricao" placeholder="Descrição do grupo" @bind-value="@grupomidia.descricao">
+                            </div>  
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" for="linkimagem">Link Imagem</label>
+                                <input type="text" class="form-control col-sm-10" id="linkimagem" placeholder="link imagem do grupo" @bind-value="@grupomidia.linkimagem">
+                            </div>  
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-warning" @onclick="voltar">Voltar</button>
+                        <button type="button" class="btn btn-primary" @onclick="salvar">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+
+    [Parameter]
+    public int id { get; set; }
+
+    private Poliview.crm.domain.GrupoMidia? grupomidia { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"id Grupo midia = {id}");
+        if (id > 0)
+        {
+            this.grupomidia = await grupoMidiaHttpService.GetGrupoMidiaPorId(id);
+        }        
+        else
+        {
+            this.grupomidia = new Poliview.crm.domain.GrupoMidia();
+        }
+    }
+
+    protected async Task salvar()
+    {
+
+        try
+        {     
+            if (id > 0)
+            {
+                // alteração
+                await grupoMidiaHttpService.Update(grupomidia);
+            }
+            else
+            {
+                await grupoMidiaHttpService.Create(grupomidia);
+                // inclusão
+            }
+            voltar();
+
+        }
+        catch (Exception ex)
+        {
+             await Swal.FireAsync("erro",ex.Message,SweetAlertIcon.Error);
+        }
+
+    }
+
+    void voltar()
+    {
+        nav.NavigateTo("grupomidia");
+    }
+}
+
+    
+

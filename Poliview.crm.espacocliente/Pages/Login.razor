@@ -1,0 +1,120 @@
+﻿@layout LoginLayout
+
+@page "/login"
+@using Poliview.crm.infra
+@using Poliview.crm.models
+@using Poliview.crm.http.services
+
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+
+@inject HttpClient http
+@inject NavigationManager nav
+@inject ILocalStorage LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject SweetAlertService Swal
+@inject IToastService toastService
+@inject IUsuarioHttpService UsuarioHttpService
+@inject IAutenticacaoHttpService AutenticacaoHttpService
+@inject IConfiguration Configuration
+
+<div class="row" style="margin-top: 30px;">
+    <div class="col-md-3 col-sm-12" width="100%" style="background-color: #22566C; border-radius: 5px; color: white; padding: 20px; margin: 0 auto auto auto; box-shadow: unset">
+        
+        <div class="col-12" style="text-align:center">
+            <img src="https://crmengefic.opendata.center/image/portal/logo.jpg" class="img-fluid" alt="200" />
+        </div>
+
+        <div class="col-12" style="text-align:center; margin-top: 15px;">
+            <h3>POLIVIEW CRM - Espaço Cliente Admin</h3>
+            <h5 style="font-size: small">Versão 4.3.6 build 11</h5>
+        </div>
+        
+        <EditForm Model="@userInfo" OnValidSubmit="Entrar">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Usuario</label>
+                <div>
+                    <InputText Class="form-control" @bind-Value="userInfo.Email" />
+                    <ValidationMessage For="@(()=> userInfo.Email)" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Senha</label>
+                <div>
+                    <InputText Class="form-control" type="password" @bind-Value="userInfo.Senha" />
+                    <ValidationMessage For="@(()=> userInfo.Senha)" />
+                </div>
+            </div>
+            <div class="form-group" style="text-align:center;">
+                <button type="submit" class="btn btn-block" style="background-color: #E65F74; color: white">Entrar</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+
+    private UsuarioLogin? userInfo;
+    private AutenticacaoResposta? resposta;
+    public Boolean IsLoading = false;
+
+    /*
+             <div class="col-12" style="text-align:center;background-color: white;">
+            <img src="img/logo.png" class="img-fluid" alt="200" />
+        </div>
+
+     */
+
+    private async Task Entrar()
+    {
+        var objLogin = new LoginRequisicao();
+        objLogin.usuario = userInfo.Email;
+        objLogin.senha = userInfo.Senha;
+        objLogin.origem = 0;
+
+        try
+        {
+            this.IsLoading = true;
+            resposta = await AutenticacaoHttpService.Login(objLogin);              
+            this.IsLoading = false;
+
+            if (resposta.sucesso)
+            {
+                var user = new Usuario();
+                user.CD_USUARIO = resposta.objeto.CD_USUARIO;
+                user.DS_EMAIL = resposta.objeto.DS_EMAIL;
+                user.DS_SENHA = "";
+                user.IN_BLOQUEADO = resposta.objeto.IN_BLOQUEADO;
+                user.IN_STATUS = resposta.objeto.IN_STATUS;
+                user.IN_USUARIOSISTEMA = resposta.objeto.IN_USUARIOSISTEMA;
+                user.NM_USUARIO = resposta.objeto.NM_USUARIO;
+                user.NR_CPFCNPJ = resposta.objeto.NR_CPFCNPJ;
+                toastService.ShowSuccess("Acesso autorizado!");
+                await LocalStorage.SaveStringAsync("token", resposta.objeto.token);
+                nav.NavigateTo("");
+            }
+            else
+            {
+                toastService.ShowError(resposta.mensagem);
+            }
+        }
+        catch (System.Exception e)
+        {
+            toastService.ShowError(e.Message);
+        }
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        userInfo = new UsuarioLogin();
+        userInfo.Email = "usuario@empresa.com.br";
+        userInfo.Senha = "";       
+
+        // LocalStorage.RemoveAsync("token");
+        return base.OnInitializedAsync();
+    }
+    
+}

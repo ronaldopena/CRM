@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+    <WarningsAsErrors />
+    <WarningsNotAsErrors>WASM0001</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);WASM0001</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Services\**" />
+    <Content Remove="Services\**" />
+    <EmbeddedResource Remove="Services\**" />
+    <None Remove="Services\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Pages\CheckBoxList.razor" />
+    <Content Remove="Pages\MensagemEdit.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Blazored.Modal" />
+    <PackageReference Include="Blazored.Toast" />
+    <PackageReference Include="BlazorPro.Spinkit" />
+    <PackageReference Include="ClosedXML" />
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" />
+    <PackageReference Include="EPPlus" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="MudBlazor" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="WMBlazorSlickCarousel" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Poliview.crm.domain\Poliview.crm.domain.csproj" />
+    <ProjectReference Include="..\Poliview.crm.http.service\Poliview.crm.http.service.csproj" />
+    <ProjectReference Include="..\Poliview.crm.infra\Poliview.crm.infra.csproj" />
+    <ProjectReference Include="..\Poliview.crm.services\Poliview.crm.services.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\MensagemEdit.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\CheckBoxList.razor" />
+    <_ContentIncludedByDefault Remove="Pages\MensagemEdit.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\CheckBoxList.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Pages\CheckBoxList.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\appsettings.release.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

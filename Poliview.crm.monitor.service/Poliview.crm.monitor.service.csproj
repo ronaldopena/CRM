@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Poliview.crm.monitor.service-F2835EE8-0CDD-4F00-9F4A-B8D345A82422</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Poliview.crm.domain\Poliview.crm.domain.csproj" />
+    <ProjectReference Include="..\Poliview.crm.infra\Poliview.crm.infra.csproj" />
+    <ProjectReference Include="..\Poliview.crm.services\Poliview.crm.services.csproj" />
+  </ItemGroup>
+</Project>

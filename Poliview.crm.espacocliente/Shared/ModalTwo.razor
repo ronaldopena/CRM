@@ -1,0 +1,9 @@
+﻿<h1>Modal Two</h1>
+
+<button @onclick="Close">Close</button>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance Modal2 { get; set; } = default!;
+
+    private async Task Close() => await Modal2.CloseAsync();
+}

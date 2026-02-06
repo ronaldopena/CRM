@@ -1,0 +1,110 @@
+﻿@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Poliview.crm.http.services
+@using Poliview.crm.domain
+
+@inject SweetAlertService Swal
+@inject IModalService modal
+@inject IToastService toastService
+@inject IEmpreendimentoHttpService EmpreendimentoHttpService
+@inject NavigationManager nav
+
+@page "/parametroempreendimento"
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Empreendimentos</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Empreendimentos</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Default box -->
+                <div class="card">
+                    <SpinLoader IsLoading="IsLoading">
+                        <LoadingTemplate>
+                            <div class="modal-overlay">
+                                <Pulse Center="true" />
+                            </div>
+                        </LoadingTemplate>
+                        <ContentTemplate>
+                            <div class="card-body">
+                                <table id="cadastro" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Empreendimento</th>
+                                            <th>Mostrar Relatórios</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var registro in registros)
+                                        {
+                                            <tr>
+                                                <td>@registro.idemprdsp7</td>
+                                                <td>@registro.nome</td>
+                                                <td align="center">@formataMostrarRelatorio(registro.mostraRelatorioEspacoCliente)</td>
+                                                <td width="115px">
+                                                    <button type="button" class="btn btn-warning" tootip="Alterar" @onclick="@(() => Alterar(@registro.idemprdsp7))">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+
+                                    <tfoot>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </ContentTemplate>
+                    </SpinLoader>
+
+                    <div class="card-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+}
+
+@code {
+    public Boolean IsLoading = false;
+
+    private UsuarioLogin userInfo = new UsuarioLogin();
+    private List<Poliview.crm.domain.Empreendimento> registros = new List<Poliview.crm.domain.Empreendimento>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // await Validar();
+        this.IsLoading = true;
+        registros = await EmpreendimentoHttpService.Listar();
+        this.IsLoading = false;
+    }
+
+    void Alterar(int idEmprdSp7)
+    {
+        nav.NavigateTo($"parametroempreendimentoeditar/{idEmprdSp7}");
+    }
+
+    private string formataMostrarRelatorio(int mostrar)
+    {
+        if (mostrar == 0) return "Não"; else return "Sim";
+    }
+
+}

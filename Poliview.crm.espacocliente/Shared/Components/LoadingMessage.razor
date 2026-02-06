@@ -1,0 +1,14 @@
+﻿<div>
+    @if (loading)
+    {
+        <div id="app-spinner">
+            <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            <h4>Aguarde...</h4>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public bool loading { get; set; }
+}

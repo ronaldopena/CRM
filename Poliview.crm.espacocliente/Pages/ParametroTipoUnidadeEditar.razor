@@ -1,0 +1,127 @@
+﻿@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Poliview.crm.domain
+@using Poliview.crm.http.services;
+@using Poliview.crm.models
+@using Poliview.crm.services;
+
+@inject SweetAlertService Swal
+@inject IToastService toastService
+@inject ITipoUnidadeHttpService TipoUnidadeHttpService
+@inject NavigationManager nav
+
+@page "/parametrotipounidadeeditar/{id:int}"
+
+<div class="content-header" width="700px" >
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Parâmetros Tipo Unidade</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Parâmetros Tipo Unidade</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-horizontal">
+                            <div class="form-group row">                                
+                                <label for="codigo" class="col-sm-6 col-form-label">Código</label>
+                                <input type="text" class="form-control col-sm-6" id="codigo" placeholder="código" readonly @bind-value="@tipounidade.id">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-6 col-form-label" for="descricao">Descrição</label>
+                                <input type="text" class="form-control col-sm-6" id="descricao" placeholder="Descrição da mensagem" @bind-value="@tipounidade.descricao">
+                            </div>
+
+
+                            <div class="form-group row">
+                                <label class="col-sm-6 col-form-label" >Mostrar nos relatórios Espaço Cliente</label>
+                                <select value="@tipounidade.espacocliente" class="form-control col-sm-6" @onchange="mostrarRelatorioChanged">
+                                    <option value="1">Sim</option>
+                                    <option value="0">Não</option>
+                                </select>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-warning" @onclick="voltar">Voltar</button>
+                        <button type="button" class="btn btn-primary" @onclick="salvar">Salvar</button>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+
+    [Parameter]
+    public int id { get; set; }
+    public TipoUnidade? tipounidade { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        tipounidade = await TipoUnidadeHttpService.ListarPorId(id);
+    }
+
+    protected async Task salvar()
+    {
+
+        try
+        {           
+            Console.WriteLine("salvar alteração");            
+            await TipoUnidadeHttpService.Update(tipounidade);
+            toastService.ShowSuccess("Registro alterado com sucesso!");
+            voltar();
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowError(ex.Message);
+        }
+
+    }
+
+    void voltar()
+    {
+        nav.NavigateTo("parametrotipounidade");
+    }
+    
+    void toastSweetAlert(string mensagem, string titulo = "",string icone = "success")
+    {
+        var showAlertOptions = new SweetAlertOptions();
+        showAlertOptions.Toast = true;
+        showAlertOptions.Position = "top";
+        showAlertOptions.Timer = 3000;
+        showAlertOptions.TimerProgressBar = true;
+        showAlertOptions.AllowEscapeKey = true;
+        showAlertOptions.Color = "green";
+
+        var Toast = Swal.Mixin(showAlertOptions);
+
+        Toast.FireAsync(titulo, mensagem, icone);
+
+    }
+
+    void mostrarRelatorioChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            tipounidade.espacocliente = int.Parse(e.Value.ToString());
+            StateHasChanged();
+        }
+    }    
+
+}

@@ -1,0 +1,21 @@
+﻿@using Blazored.Toast
+@using Microsoft.AspNetCore.Components.Authorization
+@using Poliview.crm.infra
+@inject ILocalStorage LocalStorage
+@inject NavigationManager nav
+@inherits LayoutComponentBase
+
+<div>
+	@Body
+	<BlazoredToasts />
+</div>
+
+
+<!--
+<div class="wrapper">
+	<div class="content-wrapper">
+		@Body
+	</div>
+	<BlazoredToasts />
+</div>
+-->

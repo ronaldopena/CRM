@@ -1,0 +1,286 @@
+﻿@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Poliview.crm.http.services
+@using Poliview.crm.domain
+@using Poliview.crm.models
+@using Poliview.crm.infra
+
+@inject SweetAlertService Swal
+@inject IToastService toastService
+@inject IArquivoDownloadHttpService arquivoDownloadHttpService
+@inject IEmpreendimentoHttpService empreendimentoHttpService
+@inject IBlocoHttpService blocoHttpService
+@inject IUnidadeHttpService unidadeHttpService
+@inject IGrupoMidiaHttpService grupoMidiaHttpService
+@inject NavigationManager nav
+@inject IJSRuntime JSRuntime
+
+@page "/arquivodownloadeditar/{id:int}"
+
+<div class="content-header" width="700px" >
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Cadastro de arquivos para download</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Cadastro Arquivo</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-horizontal">
+                            <div class="form-group row">                                
+                                <label for="codigo" class="col-sm-2 col-form-label">Código</label>
+                                <input type="text" class="form-control col-sm-10" id="codigo" placeholder="código" readonly @bind-value="@arquivo.id">
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" for="descricao">Descrição</label>
+                                <input type="text" class="form-control col-sm-10" id="descricao" placeholder="Descrição do arquivo" @bind-value="@arquivo.descricao">
+                            </div>                            
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" for="urlimagem">Link Arquivo</label>
+                                <input type="text" class="form-control col-sm-10" id="urlimagem" placeholder="link arquivo" @bind-value="@arquivo.link">
+                            </div>                            
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" for="urlimagem">Grupo Midia</label>
+                                <select value="@arquivo.idgrupomidia" class="form-control col-sm-10" @onchange="GrupoMidiaChanged">
+                                    @foreach (Poliview.crm.domain.GrupoMidia grupo in grupos)
+                                    {
+                                        <option value="@grupo.id">@grupo.descricao</option>
+                                    }
+                                </select>
+                            </div>
+                             <div class="form-check row">
+                                <div class="offset-sm-2 col-sm-10">
+                                    <input type="checkbox" class="form-check-input" id="chkvariosemprds" checked="@Check1" @bind-value="@Check1">
+                                    <label class="col-sm-10 form-check-label" style="margin-bottom: 10px" for="chkmenufiquepordentro">Selecionar vários empreendimentos </label>
+                                </div>
+                            </div>
+                            @if (!Check1)
+                            {
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" >Empreendimento</label>
+                                <select value="@arquivo.idempreendimento" class="form-control col-sm-10" @onchange="EmpreendimentoChanged">
+                                    <option value="0">** Todos **</option>
+                                    @foreach (Empreendimento emp in empreendimentos)
+                                    {
+                                        <option value="@emp.id">@emp.nome</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" >Bloco</label>
+                                <select class="form-control col-sm-10" value="@arquivo.idbloco" @onchange="BlocoChanged">
+                                    <option value="0">** Todos **</option>
+                                    @foreach (Bloco blo in blocos)
+                                    {
+                                        <option value="@blo.id">@blo.nome</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label" >Unidade</label>
+                                <select class="form-control col-sm-10" value="@arquivo.idunidade" @onchange="UnidadeChanged">
+                                   <option value="0">** Todos **</option>
+                                    @foreach (Unidade uni in unidades)
+                                    {
+                                        <option value="@uni.id">@uni.nome</option>
+                                    }
+                                </select>
+                            </div>                                
+                            }
+                            else
+                            {
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label" >Empreendimentos</label>
+                                    <div class="col-sm-10" >
+                                        <CheckBoxList Data="@empreendimentos" TextField="@((item)=>item.nome)" ValueField="@((item)=>item.id)" SelectedValues="@SelectedIds" />
+                                    </div>                                   
+                                </div>  
+                            }
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label"  for="datainicial">data inicial</label>
+                                <input type="date" class="form-control col-sm-4" id="datainicial" placeholder="data inicial" @bind-value="@arquivo.datainicial">
+                                <label class="col-sm-2 col-form-label" for="datafinal">data Final</label>
+                                <input type="date" class="form-control col-sm-4" id="datafinal" placeholder="data final" @bind-value="@arquivo.datafinal">
+
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-warning" @onclick="voltar">Voltar</button>
+                        <button type="button" class="btn btn-primary" @onclick="salvar">Salvar</button>
+                        <button type="button" class="btn btn-info" @onclick="download">Download</button>
+                        <button type="button" class="btn btn-info" @onclick="visualizar">Visualizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+
+    [Parameter]
+    public int id { get; set; }
+
+    private Poliview.crm.domain.ArquivoDownload? arquivo { get; set; }
+    private List<Empreendimento>? empreendimentos { get; set; }
+    private List<Bloco>? blocos { get; set; }
+    private List<Unidade>? unidades { get; set; }
+    private ListarEmpreendimentosResposta? respostaempreendimentos { get; set; }
+    private List<Poliview.crm.domain.GrupoMidia>? grupos { get; set; }
+    private bool Check1 { get; set; } 
+    private bool Check2 { get; set; } 
+    protected List<string> SelectedIds = new List<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.grupos = await grupoMidiaHttpService.ListAll();
+        this.empreendimentos = await empreendimentoHttpService.Listar();   
+
+        if (id > 0)
+        {
+            this.arquivo = await arquivoDownloadHttpService.GetArquivoPorId(id);
+            Check1 = (arquivo.variosempreendimentos == 1);
+            blocos = await blocoHttpService.Listar(arquivo.idempreendimento);   
+            unidades = await unidadeHttpService.Listar(arquivo.idempreendimento, arquivo.idbloco);
+            var emprds = arquivo.empreendimentos.Split(",");
+
+            foreach (var item in emprds)
+            {
+                SelectedIds.Add(item);
+            }
+        }        
+        else
+        {
+            arquivo = new Poliview.crm.domain.ArquivoDownload();
+            blocos = new List<Bloco>();
+            unidades = new List<Unidade>();
+            arquivo.datainicial = DateTime.Now;
+            arquivo.datafinal = DateTime.Now;
+        }
+
+    }
+
+    protected async Task salvar()
+    {
+
+        try
+        {
+            arquivo.variosempreendimentos = Check1 ? 1 : 0;
+
+            if (arquivo.variosempreendimentos == 1)
+            {
+                arquivo.empreendimentos = "";
+                foreach (var item in SelectedIds)
+                {
+                    if (arquivo.empreendimentos == "")
+                        arquivo.empreendimentos += item.ToString();
+                    else
+                        arquivo.empreendimentos += "," + item.ToString();
+                }
+            }
+            else
+            {
+                arquivo.empreendimentos = "";
+            }
+
+            if (id > 0)
+            {
+                // alteração
+                await arquivoDownloadHttpService.Update(arquivo);
+            }
+            else
+            {
+                await arquivoDownloadHttpService.Create(arquivo);
+                // inclusão
+            }
+            voltar();
+
+        }
+        catch (Exception ex)
+        {
+            await Swal.FireAsync("erro",ex.Message,SweetAlertIcon.Error);
+        }
+
+    }
+
+    void voltar()
+    {
+        nav.NavigateTo("arquivodownload");
+    }
+
+    void download()
+    {
+        // var fileid = ExtrairIdArquivoGoogleDrive.get(arquivo.link);
+        // var url = "https://drive.google.com/u/0/uc?id=" + fileid + "&export=download";
+        var url = arquivo?.link;
+        nav.NavigateTo(url, forceLoad: true);
+    }
+
+    void visualizar()
+    {
+        // var fileid = ExtrairIdArquivoGoogleDrive.get(arquivo.link);
+        // var url = "https://drive.google.com/file/d/"+fileid+"/view?usp=drive_link";
+        var url = arquivo?.link;
+        JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+
+    async void EmpreendimentoChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            arquivo.idempreendimento = int.Parse(e.Value.ToString());
+            arquivo.idbloco = 0;
+            arquivo.idunidade = 0;
+            blocos = await blocoHttpService.Listar(arquivo.idempreendimento);
+            StateHasChanged();
+        }
+    }
+    async void BlocoChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {            
+            arquivo.idbloco = int.Parse(e.Value.ToString());
+            arquivo.idunidade = 0;
+            unidades = await unidadeHttpService.Listar(arquivo.idempreendimento, arquivo.idbloco);
+            StateHasChanged();
+        }
+    }
+
+    void UnidadeChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {            
+            arquivo.idunidade = int.Parse(e.Value.ToString());
+            StateHasChanged();
+        }
+    }
+
+    async void GrupoMidiaChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            arquivo.idgrupomidia = int.Parse(e.Value.ToString());
+            StateHasChanged();
+        }
+    }
+
+
+}
+
+    
+

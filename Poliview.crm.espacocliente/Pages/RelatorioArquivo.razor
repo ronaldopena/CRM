@@ -1,0 +1,266 @@
+﻿@inherits MainLayout;
+
+@page "/relatorioarquivo"
+@using Poliview.crm.espacocliente.Shared.Components
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Poliview.crm.http.services
+@using Poliview.crm.domain
+@using Poliview.crm.models
+@using OfficeOpenXml;
+@using OfficeOpenXml.Style;
+@using System.IO;
+
+@inject IArquivoDownloadHttpService arquivoDownloadHttpService
+@inject IEmpreendimentoHttpService empreendimentoHttpService
+@inject IBlocoHttpService blocoHttpService
+@inject IUnidadeHttpService unidadeHttpService
+@inject NavigationManager nav
+@inject IJSRuntime JSRuntime
+
+<LoadingMessage loading="@isloading"></LoadingMessage>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Relatório de ciência de download arquivo </h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Relatório de ciência de download arquivo</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-horizontal">
+                            
+                            <div class="form-group row">
+                                <MudSelect T="int" Label="Arquivos"
+                                    MultiSelection="true"
+                                    Margin="Margin.Dense"
+                                    SelectAll="true"
+                                    SelectAllText="** Todos **"
+                                    @bind-SelectedValues="arquivosSelecionados"
+                                    Variant="MudBlazor.Variant.Outlined">
+
+                                    @foreach (Poliview.crm.domain.ArquivoDownload arq in arquivos)
+                                    {
+                                        <MudSelectItem T="int" Value="@arq.id">@arq.descricao</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+
+                            <div class="form-group row">
+                                <MudSelect T="string" Label="Empreendimento"
+                                           MultiSelection="true"
+                                           Variant="MudBlazor.Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           ValueChanged="Changed"
+                                           @bind-SelectedValues="empreendimentosSelecionados">
+                                    @foreach (Empreendimento emp in empreendimentos)
+                                    {
+                                        <MudSelectItem T="string" Value="@emp.id.ToString()" onselect="selected">@emp.nome</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+
+                            <div class="form-group row">
+                                <MudSelect T="int"
+                                           Label="Bloco"
+                                           Variant="MudBlazor.Variant.Outlined"
+                                           Margin="Margin.Dense"
+                                           ValueChanged="BlocoChanged">
+                                    <MudSelectItem Value=0>** Todos **</MudSelectItem>
+                                    @foreach (Bloco blo in blocos)
+                                    {
+                                        <MudSelectItem T="int" Value="@blo.id">@blo.nome</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+                            <div class="form-group row">
+                                <MudSelect T="int" Label="Unidade" Variant="MudBlazor.Variant.Outlined" Margin="Margin.Dense" @bind-Value="@idunidade" @onchange="UnidadeChanged">
+                                    <MudSelectItem Value=0>** Todos **</MudSelectItem>
+                                    @foreach (Unidade uni in unidades)
+                                    {
+                                        <MudSelectItem Value="@uni.id">@uni.nome</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+
+                            <div class="form-group row">
+                                <MudSelect T="int" Label="Origem" class="form-control col-sm-10" Margin="Margin.Dense" Variant="MudBlazor.Variant.Outlined">
+                                    <MudSelectItem Value=0>** Todos **</MudSelectItem>
+                                    <MudSelectItem Value=1>Portal</MudSelectItem>
+                                    <MudSelectItem Value=2>APP</MudSelectItem>
+                                </MudSelect>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-success" @onclick="ExportarExcel">Exportar Excel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@code {
+    [Inject] ISnackbar Snackbar { get; set; }
+    private DateTime datainicial { get; set; } = new DateTime(1900, 1, 1, 0, 0, 0);
+    private DateTime datafinal { get; set; } = new DateTime(2100, 12, 31, 23, 59, 59);
+    private int idempreendimento { get; set; }
+    private int idbloco { get; set; }
+    private int idunidade { get; set; }
+    private int idorigem { get; set; }
+    private int idarquivodownload { get; set; }
+
+    private List<Empreendimento>? empreendimentos { get; set; }
+    private List<Bloco>? blocos { get; set; }
+    private List<Unidade>? unidades { get; set; }
+    private List<Poliview.crm.domain.ArquivoDownload>? arquivos { get; set; }
+    private RetornoRelatorio? relatorio { get; set; }
+    private bool isloading { get; set; }
+    private IEnumerable<int> arquivosSelecionados { get; set; } = new HashSet<int>() { };
+    private string valorEmpreendimentos { get; set; } = "Nenhum empreendimento selecionado";
+    private IEnumerable<string> empreendimentosSelecionados { get; set; } = new HashSet<string>() { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        empreendimentos = await empreendimentoHttpService.ListarParaRelatorios();
+        blocos = new List<Bloco>();
+        unidades = new List<Unidade>();
+        arquivos = await arquivoDownloadHttpService.ListAll();
+        datainicial = DateTime.Now;
+        datafinal = DateTime.Now;
+        relatorio = new RetornoRelatorio();
+    }
+
+    async void EmpreendimentoChanged(ChangeEventArgs e)
+    {
+        if (e != null)
+        {
+            this.idempreendimento = int.Parse(e.Value.ToString());
+            this.idbloco = 0;
+            this.idunidade = 0;
+            blocos = await blocoHttpService.Listar(this.idempreendimento);
+            StateHasChanged();
+        }
+    }
+    async void BlocoChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            this.idbloco = int.Parse(e.Value.ToString());
+            this.idunidade = 0;
+            unidades = await unidadeHttpService.ListarParaRelatorios(this.idempreendimento, this.idbloco);
+            StateHasChanged();
+        }
+    }
+
+    void UnidadeChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null)
+        {
+            this.idunidade = int.Parse(e.Value.ToString());
+            StateHasChanged();
+        }
+    }
+
+    protected void salvar()
+    {
+        voltar();
+    }
+
+    void voltar()
+    {
+        nav.NavigateTo("");
+    }
+
+    protected async Task ExportarExcel()
+    {       
+         
+        try
+        {
+            isloading = true;
+            var obj = new RelatorioCienciaArquivoRequisicao();
+            obj.idarquivoList = string.Join(", ", arquivosSelecionados.Select(x => x));
+            obj.idorigem = idorigem;
+            obj.datainicial = this.datainicial;
+            obj.datafinal = this.datafinal;
+            obj.idempreendimentoList = string.Join(", ", empreendimentosSelecionados.Select(x => x));
+            obj.idbloco = this.idbloco;
+            obj.idunidade = this.idunidade;
+            this.relatorio = await arquivoDownloadHttpService.RelatorioCienciaArquivo(obj);
+
+            while (true)
+            {
+                try
+                {
+                    var statusrel = await arquivoDownloadHttpService.StatusRelatorio(this.relatorio.nomeArquivo);
+                    if (statusrel.concluido == 1)
+                    {
+                        if (this.relatorio.urlDownload != null)
+                        {
+                            nav.NavigateTo(this.relatorio.urlDownload, forceLoad: true);
+                        }
+                        isloading = false;
+                        Snackbar.Add("Relatório gerado com sucesso!", MudBlazor.Severity.Success);
+                        break;
+                    }
+                    Thread.Sleep(10000);
+                }
+                catch (Exception ex)
+                {
+                    isloading = false;
+                    Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+                    break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            isloading = false;
+            Snackbar.Add(ex.Message, MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            isloading = false;
+        }
+
+    }
+
+    private async void Changed(string x)
+    {
+        valorEmpreendimentos = x;
+        var lista = x.Split(",");
+        blocos = [];
+        if (lista.Count() == 1)
+        {
+            this.idempreendimento = int.Parse(lista[0]);
+            this.idbloco = 0;
+            this.idunidade = 0;
+            blocos = await blocoHttpService.Listar(this.idempreendimento);
+            StateHasChanged();
+        }
+    }
+
+    private async void BlocoChanged(int idbloco)
+    {
+        this.idbloco = idbloco;
+        this.idunidade = 0;
+        unidades = await unidadeHttpService.ListarParaRelatorios(this.idempreendimento, this.idbloco);
+        StateHasChanged();
+    }
+
+
+}

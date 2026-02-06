@@ -1,0 +1,271 @@
+@using FluentValidation
+@using Poliview.crm.domain
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Email" Class="mr-2" />
+            Cadastro de Conta de Email
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Model="@Model" @ref="@form" Validation="@(contaEmailValidator.ValidateValue)">
+
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudSelect T="int" Label="Tipo Conta" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="Model.tipoconta">
+                        <MudSelectItem Value=0>POP/SMTP</MudSelectItem>
+                        <MudSelectItem Value=1>OFFICE365</MudSelectItem>
+                        <MudSelectItem Value=2>GMAIL</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="15%" Elevation="0">
+                    <MudTextField @bind-Value="Model.id" Label="Código" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="true" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex " Width="60%" Elevation="0">
+                    <MudTextField @bind-Value="Model.descricaoConta" Label="Descrição conta" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+
+            <div class="d-flex flex-grow-1 gap-1">
+                @if (Model.tipoconta == 0)
+                {
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.nomeRemetente"
+                                  For="@(() => Model.nomeRemetente)"
+                                  Immediate="true"
+                                  Label="Nome Remetente" Variant="Variant.Outlined" Margin="Margin.Dense" />
+
+                </MudPaper>
+
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.emailRemetente"
+                                  For="@(() => Model.emailRemetente)"
+                                  Immediate="true"
+                                  Label="Email Remetente" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.usuario"
+                                  For="@(() => Model.usuario)"
+                                  Immediate="true"
+                                  Label="Usuário" Variant="Variant.Outlined" Margin="Margin.Dense" />
+
+                </MudPaper>
+
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.senha"
+                                  For="@(() => Model.senha)"
+                                  InputType="InputType.Password"
+                                  Immediate="true"
+                                  Label="Senha" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+
+                }
+            </div>
+
+        <div class="d-flex flex-grow-1 gap-1">
+            <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
+                <MudSelect T="Boolean" Label="Receber Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="Model.receberemail">
+                    <MudSelectItem Value="true">SIM</MudSelectItem>
+                    <MudSelectItem Value="false">NÃO</MudSelectItem>
+                </MudSelect>
+            </MudPaper>
+            <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                <MudNumericField @bind-Value="Model.intervalorecebimento" Immediate="true" Label="Intervalo recebimento (minutos)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudPaper>
+
+            <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                <MudNumericField @bind-Value="Model.qtdeemailsrecebimento" Immediate="true" Label="Qtd Emails recebimento" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudPaper>
+
+        </div>
+
+        <div class="d-flex flex-grow-1 gap-1">
+            <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
+                <MudSelect T="Boolean" Label="Enviar Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="Model.enviaremail">
+                    <MudSelectItem Value="true">SIM</MudSelectItem>
+                    <MudSelectItem Value="false">NÃO</MudSelectItem>
+                </MudSelect>
+            </MudPaper>
+            <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                <MudNumericField @bind-Value="Model.intervaloenvio" Immediate="true" Label="Intervalo envio (minutos)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudPaper>
+            <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                <MudNumericField @bind-Value="Model.qtdeemailsenvio" Immediate="true" Label="Qtd Emails envio" Variant="Variant.Outlined" Margin="Margin.Dense" />
+            </MudPaper>
+        </div>
+
+
+            @if (Model.tipoconta == 0)
+            {
+                <div class="d-flex flex-grow-1 gap-1">
+                    <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
+                        <MudTextField @bind-Value="Model.hostpop" Immediate="true" Label="Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudNumericField @bind-Value="Model.portapop" Label="Porta Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudSelect T="Boolean" Label="SSL Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="Model.sslpop">
+                            <MudSelectItem Value="true">SIM</MudSelectItem>
+                            <MudSelectItem Value="false">NÃO</MudSelectItem>
+                        </MudSelect>
+                    </MudPaper>
+                </div>
+
+                <div class="d-flex flex-grow-1 gap-1">
+                    <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
+                        <MudTextField @bind-Value="Model.hostsmtp" Immediate="true" Label="Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudNumericField @bind-Value="Model.portasmtp" Label="Porta Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudSelect T="Boolean" Label="SSL Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="Model.sslsmtp">
+                            <MudSelectItem Value="true">SIM</MudSelectItem>
+                            <MudSelectItem Value="false">NÃO</MudSelectItem>
+                        </MudSelect>
+                    </MudPaper>
+                </div>
+            }
+            else if (Model.tipoconta == 1)
+            {
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.tenant_id" Immediate="true" Label="Tenant Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.client_id" Immediate="true" Label="Client Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.clientSecret" Immediate="true" Label="Client Secret" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudTextField @bind-Value="Model.userId" Immediate="true" Label="UserId" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+
+            }
+            else if (Model.tipoconta == 2)
+            {
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
+                    <MudTextField @bind-Value="Model.client_id" Immediate="true" Label="Client Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
+                    <MudTextField @bind-Value="Model.clientSecret" Immediate="true" Label="Client Secret" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                    <MudTextField @bind-Value="Model.refreshtoken" Immediate="true" Label="Refresh Token" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+            }
+
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
+                    <MudSelect T="int" Label="Ativo" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="Model.ativo">
+                        <MudSelectItem Value=1>SIM</MudSelectItem>
+                        <MudSelectItem Value=0>NÃO</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
+                <MudNumericField @bind-Value="Model.tamanhomaximoanexos" Label="Tamanho anexos (MBytes)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
+                <MudTextField @bind-Value="Model.emaildestinatariosuporte" Immediate="true" Label="Redirecionar TODOS emails para" Variant="Variant.Outlined" Clearable Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="Cancel" Color="Color.Secondary">Voltar</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="Submit" Color="Color.Primary">Salvar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public ContaEmail Model { get; set; } = new();
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback<ContaEmail> OnSubmit { get; set; }
+
+    MudForm form;
+    ContaEmailModelFluentValidator contaEmailValidator = new ContaEmailModelFluentValidator();
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            await OnSubmit.InvokeAsync(Model);
+        }
+    }
+
+    public class ContaEmailModelFluentValidator : AbstractValidator<ContaEmail>
+    {
+        public ContaEmailModelFluentValidator()
+        {
+            RuleFor(x => x.descricaoConta)
+                .NotEmpty().WithMessage("A descrição da conta é obrigatória.")
+                .Length(1, 100);
+
+            // Validações para Tipo 0 (POP/SMTP)
+            RuleFor(x => x.emailRemetente)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("O email do remetente é obrigatório.")
+                .EmailAddress().WithMessage("Informe um email válido.")
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.nomeRemetente)
+                .NotEmpty().WithMessage("O nome do remetente é obrigatório.")
+                .Length(1, 100)
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.usuario)
+                .NotEmpty().WithMessage("O usuário é obrigatório.")
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.senha)
+                .NotEmpty().WithMessage("A senha é obrigatória.")
+                .When(x => x.tipoconta == 0);
+
+            // Validações para Tipo 1 (Office365)
+            RuleFor(x => x.tenant_id)
+                .NotEmpty().WithMessage("O Tenant Id é obrigatório.")
+                .When(x => x.tipoconta == 1);
+
+            RuleFor(x => x.userId)
+                .NotEmpty().WithMessage("O User Id é obrigatório.")
+                .When(x => x.tipoconta == 1);
+
+            // Validações compartilhadas (Office365 e Gmail)
+            RuleFor(x => x.client_id)
+                .NotEmpty().WithMessage("O Client Id é obrigatório.")
+                .When(x => x.tipoconta == 1 || x.tipoconta == 2);
+
+            RuleFor(x => x.clientSecret)
+                .NotEmpty().WithMessage("O Client Secret é obrigatório.")
+                .When(x => x.tipoconta == 1 || x.tipoconta == 2);
+
+            // Validações para Tipo 2 (Gmail)
+            RuleFor(x => x.refreshtoken)
+                .NotEmpty().WithMessage("O Refresh Token é obrigatório.")
+                .When(x => x.tipoconta == 2);
+        }
+
+        public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+        {
+            var result = await ValidateAsync(ValidationContext<ContaEmail>.CreateWithOptions((ContaEmail)model, x => x.IncludeProperties(propertyName)));
+            if (result.IsValid)
+                return Array.Empty<string>();
+            return result.Errors.Select(e => e.ErrorMessage);
+        };
+    }
+}

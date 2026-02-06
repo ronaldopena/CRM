@@ -1,0 +1,128 @@
+﻿@layout LoginLayout
+@page "/loginteste"
+@using Poliview.crm.infra
+@using Poliview.crm.models
+@using Poliview.crm.http.services
+@inject HttpClient http
+@inject NavigationManager nav
+@inject ILocalStorage LocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+
+@inject SweetAlertService Swal
+@inject IToastService toastService
+@inject IUsuarioHttpService UsuarioHttpService
+
+<div class="row" style="margin-top: 30px;">
+    <div class="login-box">
+      <div class="login-logo">
+        <img src="/img/logo.png" class="img-fluid" alt="200" height="57px" />
+      </div>
+      <!-- /.login-logo -->
+      <div class="card">
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">ESPAÇO CLIENTE CRM</p>
+          <p class="login-box-msg">Versão 3.16.0</p>
+
+          <form action="../../index3.html" method="post">
+            <div class="input-group mb-3">
+              <input type="email" class="form-control" placeholder="Email">
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-envelope"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <input type="password" class="form-control" placeholder="Password">
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-8">
+                <div class="icheck-primary">
+                  <input type="checkbox" id="remember">
+                  <label for="remember">
+                    Remember Me
+                  </label>
+                </div>
+              </div>
+              <!-- /.col -->
+              <div class="col-4">
+                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+              </div>
+              <!-- /.col -->
+            </div>
+          </form>
+
+          <div class="social-auth-links text-center mb-3">
+            <p>- OR -</p>
+            <a href="#" class="btn btn-block btn-primary">
+              <i class="fab fa-facebook mr-2"></i> Sign in using Facebook
+            </a>
+            <a href="#" class="btn btn-block btn-danger">
+              <i class="fab fa-google-plus mr-2"></i> Sign in using Google+
+            </a>
+          </div>
+          <!-- /.social-auth-links -->
+
+          <p class="mb-1">
+            <a href="forgot-password.html">I forgot my password</a>
+          </p>
+          <p class="mb-0">
+            <a href="register.html" class="text-center">Register a new membership</a>
+          </p>
+        </div>
+        <!-- /.login-card-body -->
+      </div>
+    </div>
+</div>
+
+@code {
+
+    private UsuarioLogin? userInfo;
+    private LoginResposta? resposta;
+
+    private async Task Entrar()
+    {
+        var objLogin = new LoginRequisicao();
+        objLogin.usuario = userInfo.Email;
+        objLogin.senha = userInfo.Senha;
+        objLogin.origem = 0;
+
+        try
+        {
+            resposta = await UsuarioHttpService.Login(objLogin);
+            var token = string.IsNullOrEmpty(resposta.token)? "": resposta.token;
+            if (resposta.CD_USUARIO > 0)
+            {            
+                toastService.ShowSuccess("Acesso autorizado!");
+                await LocalStorage.SaveStringAsync("token", token);
+                nav.NavigateTo("");
+            }            
+        }
+        catch (System.Exception e)
+        {
+            toastService.ShowError(e.Message);
+        }
+        
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        userInfo = new UsuarioLogin();
+        LocalStorage.RemoveAsync("usrinfo");
+        return base.OnInitializedAsync();
+    }
+
+    private void Logout()
+    {
+        ((CustomAuthStateProvider)AuthenticationStateProvider).MarkUserAsLoggedOut();
+    }
+
+}

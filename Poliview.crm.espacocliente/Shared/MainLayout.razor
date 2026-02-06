@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Poliview.crm.infra
+@inject ILocalStorage LocalStorage
+@inject NavigationManager nav
+@inherits LayoutComponentBase
+
+<div class="wrapper">
+	<Header />
+	<Menu />		
+	<div class="content-wrapper">		
+		@Body
+	</div>
+	<Footer />
+	<MudThemeProvider/>
+	<MudPopoverProvider/>
+	<MudDialogProvider/>
+	<MudSnackbarProvider/>
+</div> 
+
+@code {
+	private bool loggedIn;
+	private string? token;
+
+	protected override async Task OnInitializedAsync()
+	{
+		token = await LocalStorage.GetStringAsync("token");
+
+		loggedIn = !string.IsNullOrEmpty(token);
+		if (!loggedIn)
+		{
+			nav.NavigateTo("login");
+		}
+		// await base.OnInitializedAsync();
+	}
+}

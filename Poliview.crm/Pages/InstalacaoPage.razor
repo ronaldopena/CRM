@@ -1,0 +1,42 @@
+﻿@page "/instalacaopage"
+@using Newtonsoft.Json.Linq
+@using Poliview.crm.domain
+@inject HttpClient _httpClient
+
+<h3>Instalacoes</h3>
+
+@code {
+    private Instalacao? instalacao;
+    private List<Instalacao>? Instalacoes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await this.ListarTodos();
+    }
+
+    private async Task ListarTodos()
+    {
+        try
+        {
+            var url = _httpClient.BaseAddress.ToString() + $"instalacao";
+            var response = await _httpClient.GetAsync(url);
+            var resp = response.EnsureSuccessStatusCode();
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+
+            JObject jObject = JObject.Parse(jsonResult);
+            string? values = jObject.SelectToken("objeto").ToString();
+
+            if (string.IsNullOrWhiteSpace(values)) this.Instalacoes = null;
+            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Instalacao>>(values);            
+            this.Instalacoes = data.ToList();
+            
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+}

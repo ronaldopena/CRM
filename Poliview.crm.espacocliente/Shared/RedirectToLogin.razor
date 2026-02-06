@@ -1,0 +1,22 @@
+@page "/auth/reditecttologin"
+
+@inject NavigationManager nav
+@inject ILocalStorage LocalStorage
+@using Blazored.Toast
+@using Microsoft.AspNetCore.Components.Authorization
+@using Poliview.crm.infra
+
+
+@code 
+{
+    protected override async Task OnInitializedAsync()
+    {
+        var userString = await LocalStorage.GetStringAsync("usrinfo");
+        Console.WriteLine("Localstorage=" + userString);
+        if (string.IsNullOrEmpty(userString))
+            nav.NavigateTo("login", false);
+        else
+            nav.NavigateTo("", false);
+    } 
+
+}

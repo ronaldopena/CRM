@@ -1,0 +1,14 @@
+.logo {
+    background-color: red;
+}
+
+.logo img {
+    width: 100%;
+    height: 57px;    
+}
+
+.imglogo {
+    margin-bottom: 5px;
+    width: 0px;
+    height: 0px; 
+}

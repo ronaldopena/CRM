@@ -1,0 +1,158 @@
+﻿@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+@using Poliview.crm.http.services
+@using Poliview.crm.domain
+
+@inject SweetAlertService Swal
+@inject IModalService modal
+@inject IToastService toastService
+@inject IGrupoMidiaHttpService grupoMidiaHttpService
+@inject NavigationManager nav
+
+@page "/grupomidia"
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Cadastro de grupo mídia</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Cadastro Grupo Mídia</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Default box -->
+                <div class="card">
+                    <SpinLoader IsLoading="IsLoading">
+                        <LoadingTemplate>
+                            <div class="modal-overlay">
+                                <Pulse Center="true"/>
+                            </div>
+                        </LoadingTemplate>
+                        <ContentTemplate>
+                            <div class="card-header">
+                                <button type="button" class="btn btn-success" tooltip="Incluir" @onclick="@(() => Incluir())">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <table id="cadastro" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Descrição</th>
+                                            <th>ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var registro in registros)
+                                        {
+                                            <tr>
+                                                <td>@registro.id</td>
+                                                <td>@registro.descricao</td>
+                                                <td width="115px">
+                                                    <button type="button" class="btn btn-warning" tootip="Alterar" @onclick="@(() => Alterar(@registro.id))">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger" toottipo="Excluir" @onclick="@(() => Excluir(@registro.id, @registro.descricao))">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+
+                                    <tfoot>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </ContentTemplate>
+                    </SpinLoader>
+
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+}
+
+@code {
+    public Boolean IsLoading = false;
+
+    private UsuarioLogin userInfo = new UsuarioLogin();
+    private List<Poliview.crm.domain.GrupoMidia> registros = new List<Poliview.crm.domain.GrupoMidia>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.IsLoading = true;
+        await AtualizarGrid();
+        this.IsLoading = false;
+    }
+
+    private async Task AtualizarGrid()
+    {
+        this.registros = await grupoMidiaHttpService.ListAll();
+    }
+
+    void Incluir()
+    {
+        nav.NavigateTo("grupomidiaeditar/0");
+    }
+
+    void Alterar(int id)
+    {
+        nav.NavigateTo($"grupomidiaeditar/{id}");
+    }
+
+    async Task Excluir(int id, string descricao)
+    {
+        SweetAlertResult result = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirma exclusão do registro?",
+                Text = descricao,
+                Icon = SweetAlertIcon.Success,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Sim!",
+                CancelButtonText = "Não"
+            });
+
+        if (!string.IsNullOrEmpty(result.Value))
+        {
+            this.IsLoading = true;
+            await grupoMidiaHttpService.Delete(id);
+            await AtualizarGrid();
+            this.IsLoading = false;
+
+
+            await Swal.FireAsync(
+                "Excluído",
+                "o registro foi excluído!",
+                SweetAlertIcon.Info
+                );
+        }
+        else if (result.Dismiss == DismissReason.Cancel)
+        {
+            await Swal.FireAsync(
+                "Cancelado",
+                "O registro NÃO foi excluído!",
+                SweetAlertIcon.Error
+                );
+        }
+
+    }
+}
+

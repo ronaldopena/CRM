@@ -1,0 +1,20 @@
+﻿@page "/logout"
+@using Poliview.crm.infra
+@inject HttpClient http
+@inject NavigationManager nav
+@inject ILocalStorage LocalStorage
+
+<h1>Logout</h1>
+
+@code {
+
+    private UsuarioLogin userInfo = new UsuarioLogin();
+
+    protected override async Task OnInitializedAsync()
+    {
+        userInfo = new UsuarioLogin();        
+        await LocalStorage.RemoveAsync("token");
+        nav.NavigateTo("/sw7sac/espacocliente/login");
+    }
+
+}

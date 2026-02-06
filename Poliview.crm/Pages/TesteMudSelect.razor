@@ -1,0 +1,65 @@
+@page "/testemudselect"
+@layout LayoutSemMenu
+
+<h3>Teste MudSelect</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AbrirDialog">
+    Abrir Dialog de Teste
+</MudButton>
+
+<MudDialog @bind-Visible="@_isDialogOpen" Options="_dialogOptions">
+    <DialogContent>
+        <MudForm>
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudSelect T="int" Label="Tipo Conta" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="tipoContaSelecionado">
+                        <MudSelectItem Value=0>POP/SMTP</MudSelectItem>
+                        <MudSelectItem Value=1>OFFICE365</MudSelectItem>
+                        <MudSelectItem Value=2>GMAIL</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudSelect T="Boolean" Label="Receber Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="receberEmail">
+                        <MudSelectItem Value="true">SIM</MudSelectItem>
+                        <MudSelectItem Value="false">NÃO</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudSelect T="int" Label="Ativo" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="ativo">
+                        <MudSelectItem Value=1>SIM</MudSelectItem>
+                        <MudSelectItem Value=0>NÃO</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+            </div>
+            
+            <div class="d-flex flex-grow-1 gap-1 mt-3">
+                <MudText>Tipo Conta: @tipoContaSelecionado</MudText>
+                <MudText>Receber Email: @receberEmail</MudText>
+                <MudText>Ativo: @ativo</MudText>
+            </div>
+        </MudForm>
+        
+        <div class="d-flex flex-grow-1 gap-2 mt-3">
+            <MudButton Variant="Variant.Filled" OnClick="FecharDialog" Color="Color.Secondary">Fechar</MudButton>
+        </div>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private bool _isDialogOpen = false;
+    private readonly DialogOptions _dialogOptions = new() { FullScreen = true };
+    
+    private int tipoContaSelecionado = 0;
+    private bool receberEmail = false;
+    private int ativo = 1;
+    
+    private void AbrirDialog()
+    {
+        _isDialogOpen = true;
+    }
+    
+    private void FecharDialog()
+    {
+        _isDialogOpen = false;
+    }
+}

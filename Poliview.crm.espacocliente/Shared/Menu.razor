@@ -1,0 +1,218 @@
+﻿<aside class="main-sidebar sidebar-dark-primary elevation-4">
+
+    <div class="col-12" style="text-align:center; background-color: #22566C;">
+        <img src="https://crmengefic.opendata.center/image/portal/logo.jpg" class="img-fluid" alt="200" height="60" />
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" style="background-color: #22566C;">
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="true" style="background-color: #22566C;">
+                <li class="nav-header">PRINCIPAL</li>
+
+                <li class="nav-item has-treeview menu-@(menuStateCadastros)" @onclick="ToggleMenuCadastros">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-copy"></i>
+                        <p>
+                            Cadastros
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="mensagem" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Mensagens</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="arquivodownload" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Arquivos Download</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="grupomidia" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Grupo Mídia</p>
+                            </a>
+                        </li>                        
+                    </ul>
+                </li>
+                <li class="nav-item has-treeview menu-@(menuStateNotificacoes)" @onclick="ToggleMenuNotificacoes">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-chart-pie"></i>
+                        <p>
+                            Notificações
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="boletovencido" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Boleto vencido</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="boletovencer" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Boleto a vencer</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="residuo" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Resíduo</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="quitacao" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Quitação</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="aniversario" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Aniversário</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="aniversariocontrato" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Aniversário Contrato</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item has-treeview menu-@(menuStateParametros)" @onclick="ToggleMenuParametros">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-copy"></i>
+                        <p>
+                            Parâmetros
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="parametroempreendimento" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Empreendimentos</p>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="parametrotipounidade" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Tipo Unidade</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item has-treeview menu-@(menuStateRelatorios)" @onclick="ToggleMenuRelatorios">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-copy"></i>
+                        <p>
+                            Relatórios
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="relatoriomensagem" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Ciência de mensagens</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="relatorioarquivo" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Ciência de Downloads</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="relatorionotificacao" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Ciência de Notificações</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+              
+                <li class="nav-item">
+                    <a href="logout" class="nav-link">
+                        <i class="nav-icon fas fa-file"></i>
+                        <p>Sair</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
+
+@code {
+    private bool collapseCadastros = false;
+    private bool collapseNotificacoes = false;
+    private bool collapseRelatorios = false;
+    private bool collapseParametros = false;
+
+    private string? menuStateCadastros => collapseCadastros ? "open" : "close";
+    private string? menuStateNotificacoes => collapseNotificacoes ? "open" : "close";
+    private string? menuStateRelatorios => collapseRelatorios ? "open" : "close";
+    private string? menuStateParametros => collapseParametros ? "open" : "close";
+
+    public void ToggleMenuCadastros()
+    {
+        collapseCadastros = !collapseCadastros;
+
+        if (collapseCadastros)
+        {
+            collapseNotificacoes = false;
+            collapseRelatorios = false;
+            collapseParametros = false;
+        }
+    }
+
+    public void ToggleMenuNotificacoes()
+    {
+        collapseNotificacoes = !collapseNotificacoes;
+
+        if (collapseNotificacoes)
+        {
+            collapseCadastros = false;
+            collapseRelatorios = false;
+            collapseParametros = false;
+        }
+    }
+
+    public void ToggleMenuRelatorios()
+    {
+        collapseRelatorios = !collapseRelatorios;
+
+        if (collapseRelatorios)
+        {
+            collapseNotificacoes = false;
+            collapseCadastros = false;
+            collapseParametros = false;
+        }
+    }
+
+    public void ToggleMenuParametros()
+    {
+        collapseParametros = !collapseParametros;
+
+        if (collapseParametros)
+        {
+            collapseNotificacoes = false;
+            collapseCadastros = false;
+            collapseRelatorios = false;
+        }
+    }
+}

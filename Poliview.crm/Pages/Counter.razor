@@ -1,0 +1,75 @@
+﻿@inject IJSRuntime JSRuntime
+
+@page "/counter"
+@using System.Diagnostics;
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+><p>
+    <button @onclick="ExecutarExe">Executar Executável</button>
+</p>
+
+<p>
+    <strong>Resultado:</strong><br />
+    @resultado
+</p>
+
+@code {
+    private int currentCount = 0;
+    private string resultado = "";
+
+    public async Task ExecutarExe2()
+    {
+        await JSRuntime.InvokeAsync<object>("executarExe", @"C:\Deploy\CRM\4.3.0\integracao\Poliview.crm.integracao.exe");
+    }
+
+    private async Task ExecutarExe()
+    {
+        // Caminho do executável
+        string caminhoExecutavel = @"C:\Deploy\CRM\4.3.0\integracao\Poliview.crm.integracao.exe";
+        // string caminhoExecutavel = @"C:\Deploy\CRM\4.3.0\integracao.console\Poliview.crm.integracao.console.exe";
+    
+
+    // Configurações do processo
+        ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = caminhoExecutavel,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+        // Inicia o processo
+        using (Process process = new Process { StartInfo = startInfo })
+        {
+            process.Start();
+
+            // Lê a saída padrão e a saída de erro
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+
+            process.WaitForExit();
+
+            // Define o resultado para ser exibido na página
+            resultado = output;
+
+            // Se houver erros, você pode tratá-los conforme necessário
+            if (!string.IsNullOrEmpty(error))
+            {
+                resultado += "\nErro: " + error;
+            }
+        }
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

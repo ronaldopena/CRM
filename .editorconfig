@@ -1,0 +1,37 @@
+root = true
+
+[*]
+indent_style = space
+end_of_line = crlf
+insert_final_newline = false
+trim_trailing_whitespace = true
+
+[*.cs]
+# Suprime warnings de nullable reference types menos críticos
+dotnet_diagnostic.CS8600.severity = suggestion
+dotnet_diagnostic.CS8601.severity = suggestion
+dotnet_diagnostic.CS8602.severity = suggestion
+dotnet_diagnostic.CS8604.severity = suggestion
+dotnet_diagnostic.CS8618.severity = suggestion
+dotnet_diagnostic.CS8629.severity = suggestion
+
+# Suprime warnings de variáveis não utilizadas em campos privados
+dotnet_diagnostic.CS0169.severity = suggestion
+dotnet_diagnostic.CS0414.severity = suggestion
+
+# Suprime warnings de async sem await
+dotnet_diagnostic.CS1998.severity = suggestion
+dotnet_diagnostic.CS4014.severity = suggestion
+
+# Suprime warnings de documentação
+dotnet_diagnostic.CS1591.severity = none
+
+# Suprime warnings de análise de código menos críticos
+dotnet_diagnostic.CA2200.severity = suggestion
+dotnet_diagnostic.CA2017.severity = suggestion
+
+[*.razor]
+# Para arquivos Razor
+dotnet_diagnostic.CS8618.severity = none
+dotnet_diagnostic.CS0169.severity = none
+dotnet_diagnostic.CS0414.severity = none

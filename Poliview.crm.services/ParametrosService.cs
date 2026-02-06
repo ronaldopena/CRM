@@ -1,0 +1,56 @@
+﻿using Dapper;
+using Poliview.crm.domain;
+using Microsoft.Data.SqlClient;
+
+namespace Poliview.crm.services
+{
+    public static class ParametrosService
+    { 
+        public static domain.Parametros consultar(string _connectionString)
+        {
+            using var connection = new SqlConnection(_connectionString);
+
+            var query = "select DS_EmailFrom as emailremetente, DS_EmailNome as nomeremetente, " +
+                        "DS_PathInstallSistemaSiecon as caminhoSiecon, " +
+                        "NR_VersaoSistema as versao, " +
+                        "DS_IpExterno as urlExterna, " +
+                        "CaminhoPdf as caminhoPdf, " +
+                        "urlExternaHTML, " +
+                        "CaminhoHTML as caminhoHTML, " +
+                        "coalesce(cssHTML,'') as cssHTML," +
+                        "avisoMostrar, " +
+                        "avisoHtml, " +
+                        "avisoArquivo, " +
+                        "senhaVencimentoDias, senhaComprimento, senhaMinimoMaiusculo, senhaMinimoMinusculo, senhaMinimoNumerico, senhaMinimoAlfanumerico, senhaTentativasLogin, senhaCoincidir, " +
+                        "emailDestinatarioSuporte, " +
+                        "coalesce(QTD_EmailsEnvioSMTP,0) as qtdeEmailsEnvio, " +
+                        "TipoAutenticacaoEmail as TipoAutenticacaoEmail, " +
+                        "HR_EmailIntervaloPop3/ 60 as intervaloRecebimentoEmailMinutos, " +
+                        "HR_EmailIntervalo / 60 as intervaloEnvioEmailMinutos, " +
+                        "tipoAcessoSiecon, usuarioApiSiecon, senhaApiSiecon, urlApiSiecon, tamanhoMaximoAnexos, emailErrosAdmin, " +
+                        "habilitarEspacoCliente, empreendimentoTesteEspacoCliente " +
+                        "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
+
+            // Console.WriteLine(query);
+            return connection.QueryFirst<domain.Parametros>(query);
+        }
+
+        public static ConfigEspacoCliente consultarEspacoCliente(string cpf, string _connectionString)
+        {
+            using var connection = new SqlConnection(_connectionString);
+
+            var query = $"exec dbo.CRM_ConsultarEspacoCliente @cpf='{cpf}'";
+            Console.WriteLine(query);
+            var result = connection.QueryFirst<ConfigEspacoCliente>(query);            
+            return result;
+        }
+
+        public static BotaoLogin botaoLogin(string _connectionString)
+        {
+            using var connection = new SqlConnection(_connectionString);        
+            var query = "select habilitabotaologin,urliconebotaologin,textoiconebotaologin,alturaiconebotaologin,larguraiconebotaologin,urlexternabotaologin " +
+                        "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
+            return connection.QueryFirst<BotaoLogin>(query);
+        }
+    }
+}

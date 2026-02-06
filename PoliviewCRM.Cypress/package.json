@@ -1,0 +1,27 @@
+{
+  "name": "poliview-crm-cypress",
+  "version": "1.0.0",
+  "description": "Testes E2E para API Poliview CRM",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test": "cypress run",
+    "cypress:install": "cypress install",
+    "limpar-cache": "npm cache clean --force"
+  },
+  "devDependencies": {
+    "cypress": "^12.17.4"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "keywords": [
+    "cypress",
+    "e2e",
+    "api",
+    "testing"
+  ],
+  "author": "Poliview",
+  "license": "ISC"
+} 

@@ -1,0 +1,111 @@
+{
+  "usuarioValido": {
+    "usuario": "usuario.teste@poliview.com.br",
+    "senha": "senha123",
+    "origem": 0,
+    "idempresa": 1
+  },
+  "usuarioAdmin": {
+    "usuario": "admin@poliview.com.br",
+    "senha": "admin123",
+    "origem": 0,
+    "idempresa": 1
+  },
+  "usuarioInexistente": {
+    "usuario": "usuario.inexistente@teste.com",
+    "senha": "senha123",
+    "origem": 0,
+    "idempresa": 1
+  },
+  "senhaIncorreta": {
+    "usuario": "usuario.teste@poliview.com.br",
+    "senha": "senhaIncorreta123",
+    "origem": 0,
+    "idempresa": 1
+  },
+  "usuariosBloqueados": [
+    {
+      "usuario": "usuario.bloqueado@teste.com",
+      "senha": "senha123",
+      "origem": 0,
+      "idempresa": 1
+    },
+    {
+      "usuario": "bloqueado@poliview.com.br",
+      "senha": "senha123",
+      "origem": 0,
+      "idempresa": 1
+    }
+  ],
+  "usuariosInativos": [
+    {
+      "usuario": "usuario.inativo@teste.com",
+      "senha": "senha123",
+      "origem": 0,
+      "idempresa": 1
+    },
+    {
+      "usuario": "inativo@poliview.com.br",
+      "senha": "senha123",
+      "origem": 0,
+      "idempresa": 1
+    }
+  ],
+  "tiposIdentificacao": [
+    {
+      "tipo": "Email",
+      "usuario": "teste@poliview.com.br",
+      "senha": "senha123"
+    },
+    {
+      "tipo": "CPF",
+      "usuario": "12345678901",
+      "senha": "senha123"
+    },
+    {
+      "tipo": "CNPJ",
+      "usuario": "12345678000195",
+      "senha": "senha123"
+    }
+  ],
+  "dadosInvalidos": {
+    "usuarioVazio": {
+      "usuario": "",
+      "senha": "senha123",
+      "origem": 0,
+      "idempresa": 1
+    },
+    "senhaVazia": {
+      "usuario": "usuario.teste@poliview.com.br",
+      "senha": "",
+      "origem": 0,
+      "idempresa": 1
+    },
+    "objetoVazio": {},
+    "valoresNulos": {
+      "usuario": null,
+      "senha": null,
+      "origem": 0,
+      "idempresa": 1
+    },
+    "tiposInvalidos": {
+      "usuario": "teste@poliview.com.br",
+      "senha": "senha123",
+      "origem": "invalida",
+      "idempresa": "invalida"
+    }
+  },
+  "origens": [
+    { "codigo": 0, "nome": "PORTAL" },
+    { "codigo": 1, "nome": "CRM" },
+    { "codigo": 2, "nome": "APP" },
+    { "codigo": 3, "nome": "MOBUSS" }
+  ],
+  "empresas": [1, 2, 3],
+  "configJWT": {
+    "subject": "baseWebApiSubject",
+    "issuer": "basewebApiIssuer",
+    "audience": "baseWebApiAudience",
+    "key": "**poliview.tecnologia.crm@2022**"
+  }
+} 

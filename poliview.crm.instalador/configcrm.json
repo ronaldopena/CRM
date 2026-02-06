@@ -1,0 +1,15 @@
+{
+	"Servidor": "G15\\SQLEXPRESS",
+	"Banco": "CRM_4_3_7",
+	"Usuario": "sa",
+	"Senha": "master",
+	"Porta": 1433,
+	"Aplicativo": "/421",
+	"Site": "Default Web Site",
+	"Mensagem": "OK",
+	"UsuarioAdm": "sa",
+	"SenhaAdm": "master",
+	"NomeInstancia": "4_3_7",
+	"TimeoutSql": "120",
+	"PortaApi": 8003
+}

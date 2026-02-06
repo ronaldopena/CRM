@@ -1,0 +1,95 @@
+﻿@page "/boletovencer"
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using Poliview.crm.http.services;
+@using Poliview.crm.infra
+@using Poliview.crm.services
+@inject ILocalStorage LocalStorage
+@inject NavigationManager nav
+@inject IConfiguration configuration
+@inject INotificacaoHttpService NotificacaoHttpService
+@inject SweetAlertService Swal
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-dark">Notificação de boleto a vencer</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Notificação de boleto a vencer</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-horizontal">
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="msg">Mensagem</label>
+                                <textarea class="form-control col-sm-11" rows="20" id="msg" placeholder="mensagem"
+                                    @bind="@mensagem"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-success" @onclick="salvar">Salvar</button>
+                        <button type="button" class="btn btn-secondary" @onclick="visualizar">Visualizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    private string? mensagem;
+    private string? nomeNotificacao = "BOLETO_VENCER";
+    private Notificacao? notificacao;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            this.notificacao = await NotificacaoHttpService.ListarAsync(this.nomeNotificacao);
+            notificacao.id = nomeNotificacao;
+            this.mensagem = notificacao.mensagem;
+        }
+        catch (Exception ex)
+        {
+            await Swal.FireAsync("erro", ex.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    protected async Task salvar()
+    {
+        try
+        {
+            notificacao.mensagem = this.mensagem;
+            notificacao.id = nomeNotificacao;
+            NotificacaoHttpService.SalvarAsync(this.notificacao);
+            await Swal.FireAsync("Ok", "Notificação salva com sucesso!", SweetAlertIcon.Success);
+        }
+        catch (Exception ex)
+        {
+            await Swal.FireAsync("erro", ex.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    protected async Task visualizar()
+    {
+        var settings = new SweetAlertOptions();
+        settings.Width = "1280px";
+        settings.HeightAuto = true;
+        settings.Backdrop = true;
+        settings.Html = this.mensagem;
+        await Swal.FireAsync(settings);
+    }
+
+}

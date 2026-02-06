@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Poliview.crm.integracao-c8ec098d-4393-4d1b-bcdf-76f919fe0ca1</UserSecretsId>
+    <LangVersion>preview</LangVersion>
+	<Version>4.3.6.69</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="FirebirdSql.Data.FirebirdClient" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="MimeKit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Poliview.crm.domain\Poliview.crm.domain.csproj" />
+    <ProjectReference Include="..\Poliview.crm.repositorios\Poliview.crm.repositorios.csproj" />
+    <ProjectReference Include="..\Poliview.crm.services\Poliview.crm.services.csproj" />
+  </ItemGroup>
+</Project>

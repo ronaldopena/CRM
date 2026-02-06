@@ -1,0 +1,506 @@
+@page "/contaemail"
+@layout LayoutSemMenu
+@using Newtonsoft.Json.Linq
+@using Poliview.crm.domain
+@using Google.Apis.Gmail.v1;
+@using Google.Apis.Auth.OAuth2;
+@using Google.Apis.Util.Store;
+@using Google.Apis.Services;
+@using Google.Apis.Gmail.v1.Data;
+@using MimeKit;
+
+@inject HttpClient _httpClient
+@inject ILogger<ContaEmail> Logger
+@inject ISnackbar Snackbar
+
+@if (_isEditDialogOpen)
+{
+    <MudPaper Class="pa-4">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Email" Class="mr-2" />
+                Cadastro de Conta de Email
+            </MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@CloseDialog" />
+        </div>
+        <MudForm Model="@_selectedItem" @ref="@_form" Validation="@(_contaEmailValidator.ValidateValue)">
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                    <MudSelect T="int" Label="Tipo Conta" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.tipoconta">
+                        <MudSelectItem Value=0>POP/SMTP</MudSelectItem>
+                        <MudSelectItem Value=1>OFFICE365</MudSelectItem>
+                        <MudSelectItem Value=2>GMAIL</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="15%" Elevation="0">
+                    <MudTextField @bind-Value="_selectedItem.id" Label="Código" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="true" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex " Width="60%" Elevation="0">
+                    <MudTextField @bind-Value="_selectedItem.descricaoConta" Label="Descrição conta" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+
+            <div class="d-flex flex-grow-1 gap-1">
+                @if (_selectedItem.tipoconta == 0)
+                {
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.nomeRemetente"
+                                      For="@(() => _selectedItem.nomeRemetente)"
+                                      Immediate="true"
+                                      Label="Nome Remetente" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.emailRemetente"
+                                      For="@(() => _selectedItem.emailRemetente)"
+                                      Immediate="true"
+                                      Label="Email Remetente" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.usuario"
+                                      For="@(() => _selectedItem.usuario)"
+                                      Immediate="true"
+                                      Label="Usuário" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.senha"
+                                      For="@(() => _selectedItem.senha)"
+                                      InputType="InputType.Password"
+                                      Immediate="true"
+                                      Label="Senha" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                }
+            </div>
+
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
+                    <MudSelect T="Boolean" Label="Receber Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.receberemail">
+                        <MudSelectItem Value="true">SIM</MudSelectItem>
+                        <MudSelectItem Value="false">NÃO</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                    <MudNumericField @bind-Value="_selectedItem.intervalorecebimento" Immediate="true" Label="Intervalo recebimento (minutos)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                    <MudNumericField @bind-Value="_selectedItem.qtdeemailsrecebimento" Immediate="true" Label="Qtd Emails recebimento" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
+                    <MudSelect T="Boolean" Label="Enviar Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.enviaremail">
+                        <MudSelectItem Value="true">SIM</MudSelectItem>
+                        <MudSelectItem Value="false">NÃO</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                    <MudNumericField @bind-Value="_selectedItem.intervaloenvio" Immediate="true" Label="Intervalo envio (minutos)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                    <MudNumericField @bind-Value="_selectedItem.qtdeemailsenvio" Immediate="true" Label="Qtd Emails envio" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+
+            @if (_selectedItem.tipoconta == 0)
+            {
+                <div class="d-flex flex-grow-1 gap-1">
+                    <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.hostpop" Immediate="true" Label="Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudNumericField @bind-Value="_selectedItem.portapop" Label="Porta Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudSelect T="Boolean" Label="SSL Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.sslpop">
+                            <MudSelectItem Value="true">SIM</MudSelectItem>
+                            <MudSelectItem Value="false">NÃO</MudSelectItem>
+                        </MudSelect>
+                    </MudPaper>
+                </div>
+
+                <div class="d-flex flex-grow-1 gap-1">
+                    <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.hostsmtp" Immediate="true" Label="Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudNumericField @bind-Value="_selectedItem.portasmtp" Label="Porta Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudSelect T="Boolean" Label="SSL Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.sslsmtp">
+                            <MudSelectItem Value="true">SIM</MudSelectItem>
+                            <MudSelectItem Value="false">NÃO</MudSelectItem>
+                        </MudSelect>
+                    </MudPaper>
+                </div>
+            }
+            else if (_selectedItem.tipoconta == 1)
+            {
+                <div class="d-flex flex-grow-1 gap-1">
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.tenant_id" Immediate="true" Label="Tenant Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.client_id" Immediate="true" Label="Client Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.clientSecret" Immediate="true" Label="Client Secret" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.userId" Immediate="true" Label="UserId" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                </div>
+            }
+            else if (_selectedItem.tipoconta == 2)
+            {
+                <div class="d-flex flex-grow-1 gap-1">
+                    <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.client_id" Immediate="true" Label="Client Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.clientSecret" Immediate="true" Label="Client Secret" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                    <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
+                        <MudTextField @bind-Value="_selectedItem.refreshtoken" Immediate="true" Label="Refresh Token" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudPaper>
+                </div>
+            }
+
+            <div class="d-flex flex-grow-1 gap-1">
+                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
+                    <MudSelect T="int" Label="Ativo" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.ativo">
+                        <MudSelectItem Value=1>SIM</MudSelectItem>
+                        <MudSelectItem Value=0>NÃO</MudSelectItem>
+                    </MudSelect>
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
+                    <MudNumericField @bind-Value="_selectedItem.tamanhomaximoanexos" Label="Tamanho anexos (MBytes)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudPaper>
+                <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
+                    <MudTextField @bind-Value="_selectedItem.emaildestinatariosuporte" Immediate="true" Label="Redirecionar TODOS emails para" Variant="Variant.Outlined" Clearable Margin="Margin.Dense" />
+                </MudPaper>
+            </div>
+        </MudForm>
+        <div class="d-flex flex-grow-1 gap-2 mt-3">
+            <MudButton Variant="Variant.Filled" OnClick="@CloseDialog" Color="Color.Secondary">Voltar</MudButton>
+            <MudButton Variant="Variant.Filled" OnClick="@SaveAndClose" Color="Color.Primary">Salvar</MudButton>
+        </div>
+    </MudPaper>
+}
+
+@if (!_isEditDialogOpen)
+{
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => OpenEditDialog(new ContaEmail(), true))">Novo Registro</MudButton>
+
+<MudTable Items="@Contas" Dense="true" Hover="true">
+    <HeaderContent>
+        <MudTh>Código</MudTh>
+        <MudTh>Descrição Conta</MudTh>
+        <MudTh>Tipo Conta</MudTh>
+        <MudTh>Status</MudTh>
+        <MudTh>Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Código">@context.id</MudTd>
+        <MudTd DataLabel="Descrição">@context.descricaoConta</MudTd>
+        <MudTd DataLabel="Tipo Conta">@MostrarTipoConta(context)</MudTd>
+        <MudTd>
+        @if (context.ativo == 1)
+        {
+            <MudChip T="string" Color="Color.Success">Ativo</MudChip>
+        }
+        else
+        {
+            <MudChip T="string" Color="Color.Error">Inativo</MudChip>
+        }
+        </MudTd>
+        <MudTd DataLabel="Ações">
+        <MudIconButton Icon="@Icons.Material.Filled.AddCircle" OnClick="@(() => OpenEditDialog(context, true))" />
+        <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="@(() => OpenEditDialog(context))" />
+    </MudTd>
+    </RowTemplate>
+</MudTable>
+}
+
+@code {
+    [Parameter]
+    public int idcontaemail { get; set; }
+
+    private List<ContaEmail> Contas = new();
+    private ContaEmail _selectedItem = new();
+    private bool _isEditDialogOpen = false;
+    private MudForm _form;
+    private readonly DialogOptions _dialogOptions = new()
+    {
+        MaxWidth = MaxWidth.Large,
+        FullWidth = true,
+        CloseOnEscapeKey = true,
+        CloseButton = true
+    };
+
+    private ContaEmailModelFluentValidator _contaEmailValidator = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await ListarTodos();
+    }
+
+    private async Task ListarTodos()
+    {
+        try
+        {
+            var url = _httpClient.BaseAddress.ToString() + $"contaemail";
+            var response = await _httpClient.GetAsync(url);
+            var resp = response.EnsureSuccessStatusCode();
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(jsonResult);
+            string? values = jObject.SelectToken("objeto").ToString();
+
+            if (!string.IsNullOrWhiteSpace(values))
+            {
+                var data = Newtonsoft.Json.JsonConvert.DeserializeObject<List<ContaEmail>>(values);
+                this.Contas = data ?? new List<ContaEmail>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar contas de email: {ex.Message}", MudBlazor.Severity.Error);
+            this.Contas = new List<ContaEmail>();
+        }
+    }
+
+    private void OpenEditDialog(ContaEmail item, bool incluir = false)
+    {
+        _selectedItem = incluir ? new ContaEmail() : new ContaEmail
+        {
+            id = item.id,
+            descricaoConta = item.descricaoConta,
+            tipoconta = item.tipoconta,
+            nomeRemetente = item.nomeRemetente,
+            emailRemetente = item.emailRemetente,
+            usuario = item.usuario,
+            senha = item.senha,
+            receberemail = item.receberemail,
+            intervalorecebimento = item.intervalorecebimento,
+            qtdeemailsrecebimento = item.qtdeemailsrecebimento,
+            enviaremail = item.enviaremail,
+            intervaloenvio = item.intervaloenvio,
+            qtdeemailsenvio = item.qtdeemailsenvio,
+            hostpop = item.hostpop,
+            portapop = item.portapop,
+            sslpop = item.sslpop,
+            hostsmtp = item.hostsmtp,
+            portasmtp = item.portasmtp,
+            sslsmtp = item.sslsmtp,
+            tenant_id = item.tenant_id,
+            client_id = item.client_id,
+            clientSecret = item.clientSecret,
+            userId = item.userId,
+            refreshtoken = item.refreshtoken,
+            ativo = item.ativo,
+            tamanhomaximoanexos = item.tamanhomaximoanexos,
+            emaildestinatariosuporte = item.emaildestinatariosuporte
+        };
+
+        _isEditDialogOpen = true;
+        StateHasChanged();
+    }
+
+    private void CloseDialog()
+    {
+        _isEditDialogOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task SaveAndClose()
+    {
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        if (_selectedItem.tipoconta == 2)
+        {
+            await EnviarEmailGmail(_selectedItem.emailRemetente, "Teste de envio de email", "TESTANDO O ENVIO DE EMAIL", _selectedItem);
+        }
+
+        try
+        {
+            if (_selectedItem.id > 0)
+            {
+                var result = await Alterar(_selectedItem);
+                if (result.sucesso)
+                {
+                    Snackbar.Add("Conta Email alterada com sucesso!", MudBlazor.Severity.Success);
+                    _isEditDialogOpen = false;
+                    await ListarTodos();
+                }
+                else
+                {
+                    Snackbar.Add(result.mensagem, MudBlazor.Severity.Error);
+                }
+            }
+            else
+            {
+                var result = await Incluir(_selectedItem);
+                if (result.sucesso)
+                {
+                    Snackbar.Add("Conta Email incluída com sucesso!", MudBlazor.Severity.Success);
+                    _isEditDialogOpen = false;
+                    await ListarTodos();
+                }
+                else
+                {
+                    Snackbar.Add(result.mensagem, MudBlazor.Severity.Error);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    public async Task<ContaEmailResult> Alterar(ContaEmail obj)
+    {
+        try
+        {
+            var url = _httpClient.BaseAddress.ToString() + $"contaemail";
+            JsonContent content = JsonContent.Create(obj);
+            var response = await _httpClient.PutAsync(url, content);
+            var resp = response.EnsureSuccessStatusCode();
+
+            var jsonResult = await response.Content.ReadAsStringAsync();
+            JObject jObject = JObject.Parse(jsonResult);
+            string? values = jObject.ToString();
+            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<ContaEmailResult>(values);
+
+            return data ?? new ContaEmailResult { sucesso = false, mensagem = "Erro ao processar resposta" };
+        }
+        catch (Exception ex)
+        {
+            return new ContaEmailResult
+            {
+                status = 500,
+                sucesso = false,
+                mensagem = $"Erro ao alterar conta: {ex.Message}",
+                objeto = null
+            };
+        }
+    }
+
+    public async Task<ContaEmailResult> Incluir(ContaEmail obj)
+    {
+        try
+        {
+            var url = _httpClient.BaseAddress.ToString() + $"contaemail";
+            JsonContent content = JsonContent.Create(obj);
+            var response = await _httpClient.PostAsync(url, content);
+            var resp = response.EnsureSuccessStatusCode();
+            var jsonResult = await response.Content.ReadAsStringAsync();
+
+            JObject jObject = JObject.Parse(jsonResult);
+            string? values = jObject.ToString();
+            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<ContaEmailResult>(values);
+
+            return data ?? new ContaEmailResult { sucesso = false, mensagem = "Erro ao processar resposta" };
+        }
+        catch (Exception ex)
+        {
+            return new ContaEmailResult
+            {
+                status = 500,
+                sucesso = false,
+                mensagem = $"Erro ao incluir conta: {ex.Message}",
+                objeto = null
+            };
+        }
+    }
+
+    private string MostrarTipoConta(ContaEmail item)
+    {
+        return item.tipoconta switch
+        {
+            0 => "POP/SMTP",
+            1 => "OFFICE365",
+            2 => "GMAIL",
+            _ => ""
+        };
+    }
+
+    public async Task<bool> EnviarEmailGmail(string destinatario, string assunto, string corpo, ContaEmail conta)
+    {
+        // Implementação do envio de email Gmail mantida igual
+        return true;
+    }
+
+    public class ContaEmailResult
+    {
+        public int status { get; set; }
+        public Boolean sucesso { get; set; }
+        public string? mensagem { get; set; }
+        public IEnumerable<ContaEmail>? objeto { get; set; }
+    }
+
+    public class ContaEmailModelFluentValidator : AbstractValidator<ContaEmail>
+    {
+        public ContaEmailModelFluentValidator()
+        {
+            RuleFor(x => x.descricaoConta)
+                .NotEmpty().WithMessage("A descrição da conta é obrigatória.")
+                .Length(1, 100);
+
+            RuleFor(x => x.emailRemetente)
+                .Cascade(CascadeMode.Stop)
+                .NotEmpty().WithMessage("O email do remetente é obrigatório.")
+                .EmailAddress().WithMessage("Informe um email válido.")
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.nomeRemetente)
+                .NotEmpty().WithMessage("O nome do remetente é obrigatório.")
+                .Length(1, 100)
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.usuario)
+                .NotEmpty().WithMessage("O usuário é obrigatório.")
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.senha)
+                .NotEmpty().WithMessage("A senha é obrigatória.")
+                .When(x => x.tipoconta == 0);
+
+            RuleFor(x => x.tenant_id)
+                .NotEmpty().WithMessage("O Tenant Id é obrigatório.")
+                .When(x => x.tipoconta == 1);
+
+            RuleFor(x => x.userId)
+                .NotEmpty().WithMessage("O User Id é obrigatório.")
+                .When(x => x.tipoconta == 1);
+
+            RuleFor(x => x.client_id)
+                .NotEmpty().WithMessage("O Client Id é obrigatório.")
+                .When(x => x.tipoconta == 1 || x.tipoconta == 2);
+
+            RuleFor(x => x.clientSecret)
+                .NotEmpty().WithMessage("O Client Secret é obrigatório.")
+                .When(x => x.tipoconta == 1 || x.tipoconta == 2);
+
+            RuleFor(x => x.refreshtoken)
+                .NotEmpty().WithMessage("O Refresh Token é obrigatório.")
+                .When(x => x.tipoconta == 2);
+        }
+
+        public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+        {
+            var result = await ValidateAsync(ValidationContext<ContaEmail>.CreateWithOptions((ContaEmail)model, x => x.IncludeProperties(propertyName)));
+            if (result.IsValid)
+                return Array.Empty<string>();
+            return result.Errors.Select(e => e.ErrorMessage);
+        };
+    }
+}

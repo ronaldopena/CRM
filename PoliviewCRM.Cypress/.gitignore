@@ -1,0 +1,31 @@
+# Dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Resultados dos testes
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+
+# Logs
+*.log
+
+# Arquivos temporários
+.tmp/
+.cache/
+
+# Configurações do IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Cypress
+cypress/results/
+mochawesome-report/ 

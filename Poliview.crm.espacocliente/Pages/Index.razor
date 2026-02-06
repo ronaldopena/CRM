@@ -1,0 +1,63 @@
+﻿@page "/"
+@using Poliview.crm.http.services
+@using Poliview.crm.infra
+@using Poliview.crm.services
+
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using CurrieTechnologies.Razor.SweetAlert2
+
+@inject ILocalStorage LocalStorage
+@inject IConfiguration configuration
+@inject NavigationManager nav
+@inject HttpClient http
+@inject SweetAlertService Swal
+@inject IToastService toastService
+@inject IUsuarioHttpService UsuarioHttpService
+@inject IAutenticacaoHttpService AutenticacaoHttpService
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">                
+            </div><!-- <h1 class="m-0 text-dark">Olá, @user.nome - @user.email - @user.cpfcnpj - @user.id</h1> -->
+            
+            <div class="col-sm-6">
+            <!-- 
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard v1</li>
+                </ol>
+             -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->        
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+    </div><!-- /.container-fluid -->
+</section>
+
+@code {
+    private bool loggedIn;
+    private string? token;
+    private UserJwt? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        token = await LocalStorage.GetStringAsync("token");
+        loggedIn = !string.IsNullOrEmpty(token);
+        if (!loggedIn)
+        {
+            nav.NavigateTo("login");
+        }
+        else
+        {
+            user = await UsuarioHttpService.Userjwttoken(token);                         
+        }
+
+		// await base.OnInitializedAsync();
+	}
+}
