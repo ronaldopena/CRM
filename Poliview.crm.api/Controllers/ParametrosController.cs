@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Cms;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Poliview.crm.models;
 using Poliview.crm.services;
 
 namespace Poliview.crm.api.Controllers
@@ -34,7 +35,7 @@ namespace Poliview.crm.api.Controllers
         {
             try
             {
-                return Ok(ParametrosService.consultarEspacoCliente(cpf,_connectionString));
+                return Ok(ParametrosService.consultarEspacoCliente(cpf, _connectionString));
             }
             catch (Exception ex)
             {
@@ -47,6 +48,27 @@ namespace Poliview.crm.api.Controllers
             try
             {
                 return Ok(ParametrosService.botaoLogin(_connectionString));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // [Authorize]
+        [HttpPut("integracao-sieconsp7")]
+        public IActionResult AtualizarIntegracaoSieconSP7([FromBody] ParametrosIntegracaoSieconSP7Requisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarIntegracaoSieconSP7(
+                    _connectionString,
+                    body.NM_ServidorInteg,
+                    body.NM_UsuarioInteg,
+                    body.DS_SenhaUserInteg,
+                    body.DS_PathDbInteg,
+                    body.DS_portaServidorInteg);
+                return Ok();
             }
             catch (Exception ex)
             {

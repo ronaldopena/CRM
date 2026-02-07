@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Poliview.crm.domain;
 using Microsoft.Data.SqlClient;
 
@@ -28,7 +28,8 @@ namespace Poliview.crm.services
                         "HR_EmailIntervaloPop3/ 60 as intervaloRecebimentoEmailMinutos, " +
                         "HR_EmailIntervalo / 60 as intervaloEnvioEmailMinutos, " +
                         "tipoAcessoSiecon, usuarioApiSiecon, senhaApiSiecon, urlApiSiecon, tamanhoMaximoAnexos, emailErrosAdmin, " +
-                        "habilitarEspacoCliente, empreendimentoTesteEspacoCliente " +
+                        "habilitarEspacoCliente, empreendimentoTesteEspacoCliente, " +
+                        "NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDBInteg as DS_PathDbInteg, DS_PortaServidorInteg as DS_portaServidorInteg " +
                         "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
 
             // Console.WriteLine(query);
@@ -51,6 +52,19 @@ namespace Poliview.crm.services
             var query = "select habilitabotaologin,urliconebotaologin,textoiconebotaologin,alturaiconebotaologin,larguraiconebotaologin,urlexternabotaologin " +
                         "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
             return connection.QueryFirst<BotaoLogin>(query);
+        }
+
+        public static int AtualizarIntegracaoSieconSP7(string _connectionString, string? NM_ServidorInteg, string? NM_UsuarioInteg, string? DS_SenhaUserInteg, string? DS_PathDbInteg, string? DS_portaServidorInteg)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                NM_ServidorInteg = @NM_ServidorInteg,
+                NM_UsuarioInteg = @NM_UsuarioInteg,
+                DS_SenhaUserInteg = @DS_SenhaUserInteg,
+                DS_PathDBInteg = @DS_PathDbInteg,
+                DS_PortaServidorInteg = @DS_portaServidorInteg
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDbInteg, DS_portaServidorInteg });
         }
     }
 }

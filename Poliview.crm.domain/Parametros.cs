@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,6 +40,16 @@ namespace Poliview.crm.domain
         public int empreendimentoTesteEspacoCliente { get; set; }
         public string nomeremetente { get; set; }
         public string emailremetente { get; set; }
+        /// <summary>Integração SieconSP7: Servidor</summary>
+        public string? NM_ServidorInteg { get; set; }
+        /// <summary>Integração SieconSP7: Usuário</summary>
+        public string? NM_UsuarioInteg { get; set; }
+        /// <summary>Integração SieconSP7: Senha</summary>
+        public string? DS_SenhaUserInteg { get; set; }
+        /// <summary>Integração SieconSP7: Caminho do servidor (path DB)</summary>
+        public string? DS_PathDbInteg { get; set; }
+        /// <summary>Integração SieconSP7: Porta do servidor</summary>
+        public string? DS_portaServidorInteg { get; set; }
     }
 
     public class ConfigEspacoCliente
