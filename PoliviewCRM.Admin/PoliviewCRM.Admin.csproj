@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Poliview.crm.domain\Poliview.crm.domain.csproj" />
     <ProjectReference Include="..\Poliview.crm.models\Poliview.crm.models.csproj" />
   </ItemGroup>
   <ItemGroup>

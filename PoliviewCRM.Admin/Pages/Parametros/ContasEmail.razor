@@ -1,9 +1,481 @@
 @page "/parametros/contas-email"
-<PageTitle>Contas de Email | Parâmetros | SIECON CRM</PageTitle>
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>Contas de E-mail | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Contas de Email</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+        <h2 class="mb-4 text-base font-semibold text-gray-800">Contas de E-mail</h2>
+
+        @if (_mostrarEdicao)
+        {
+            @* Tela de edição (incluir ou alterar) *@
+            <div class="space-y-4">
+                @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                {
+                    <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                }
+                @if (!string.IsNullOrEmpty(_mensagemErro))
+                {
+                    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                }
+                <div class="flex justify-between">
+                    <button type="button" @onclick="VoltarParaGrid"
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        ← Voltar
+                    </button>
+                </div>
+                @if (_editando is not null)
+                {
+                    <div class="max-w-4xl space-y-6">
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Identificação</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Descrição da conta</label>
+                                    <InputText @bind-Value="_editando.descricaoConta" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Ex.: Suporte" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Nome remetente</label>
+                                    <InputText @bind-Value="_editando.nomeRemetente" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mail remetente</label>
+                                    <InputText @bind-Value="_editando.emailRemetente" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" type="email" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tipo de conta</label>
+                                    <select @bind="_editando.tipoconta" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="0">Padrão (SMTP/POP)</option>
+                                        <option value="1">Office 365</option>
+                                        <option value="2">Gmail</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Ativo</label>
+                                    <select @bind="_editando.ativo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="1">Sim</option>
+                                        <option value="0">Não</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Acesso (POP/IMAP)</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Usuário</label>
+                                    <InputText @bind-Value="_editando.usuario" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Senha</label>
+                                    <InputText @bind-Value="_editando.senha" type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Host POP</label>
+                                    <InputText @bind-Value="_editando.hostpop" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Porta POP</label>
+                                    <InputNumber @bind-Value="_editando.portapop" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <InputCheckbox @bind-Value="_editando.sslpop" id="sslpop" class="h-4 w-4 rounded border-gray-300" />
+                                    <label for="sslpop" class="text-sm font-medium text-gray-700">SSL POP</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">SMTP</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Host SMTP</label>
+                                    <InputText @bind-Value="_editando.hostsmtp" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Porta SMTP</label>
+                                    <InputNumber @bind-Value="_editando.portasmtp" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <InputCheckbox @bind-Value="_editando.sslsmtp" id="sslsmtp" class="h-4 w-4 rounded border-gray-300" />
+                                    <label for="sslsmtp" class="text-sm font-medium text-gray-700">SSL SMTP</label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">OAuth (Office 365 / Gmail)</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tenant ID</label>
+                                    <InputText @bind-Value="_editando.tenant_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Client ID</label>
+                                    <InputText @bind-Value="_editando.client_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Client Secret</label>
+                                    <InputText @bind-Value="_editando.clientSecret" type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">User ID</label>
+                                    <InputText @bind-Value="_editando.userId" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Refresh Token</label>
+                                    <InputText @bind-Value="_editando.refresh_token" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Envio e recebimento</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="flex items-center gap-2">
+                                    <InputCheckbox @bind-Value="_editando.enviaremail" id="enviaremail" class="h-4 w-4 rounded border-gray-300" />
+                                    <label for="enviaremail" class="text-sm font-medium text-gray-700">Enviar e-mail</label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <InputCheckbox @bind-Value="_editando.receberemail" id="receberemail" class="h-4 w-4 rounded border-gray-300" />
+                                    <label for="receberemail" class="text-sm font-medium text-gray-700">Receber e-mail</label>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Intervalo recebimento (min)</label>
+                                    <InputNumber @bind-Value="_editando.intervalorecebimento" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Intervalo envio (min)</label>
+                                    <InputNumber @bind-Value="_editando.intervaloenvio" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Qtde e-mails recebimento</label>
+                                    <InputNumber @bind-Value="_editando.qtdeemailsrecebimento" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Qtde e-mails envio</label>
+                                    <InputNumber @bind-Value="_editando.qtdeemailsenvio" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tentativas de envio</label>
+                                    <InputNumber @bind-Value="_editando.qtdetentativasenvio" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Limites</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tamanho máx. anexos (MB)</label>
+                                    <InputNumber @bind-Value="_editando.tamanhomaximoanexos" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mail destinatários suporte</label>
+                                    <InputText @bind-Value="_editando.emaildestinatariosuporte" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mails por dia</label>
+                                    <InputNumber @bind-Value="_editando.EmailsPorDia" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mails mala direta por dia</label>
+                                    <InputNumber @bind-Value="_editando.EmailsMalaDiretaPorDia" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="flex gap-2">
+                            <button type="button" @onclick="Salvar" disabled="@_salvando"
+                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                                @(_salvando ? "Salvando..." : "Salvar")
+                            </button>
+                            <button type="button" @onclick="VoltarParaGrid"
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            @* Grid de listagem *@
+            @if (!string.IsNullOrEmpty(_mensagemSucesso))
+            {
+                <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+            }
+            @if (!string.IsNullOrEmpty(_mensagemErro))
+            {
+                <div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+            }
+            @if (_carregando)
+            {
+                <p class="text-sm text-gray-500">Carregando...</p>
+            }
+            else
+            {
+                <div class="mb-4 flex gap-2">
+                    <button type="button" @onclick="Incluir"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        Incluir
+                    </button>
+                </div>
+                @if (_lista is null || _lista.Count == 0)
+                {
+                    <p class="text-sm text-gray-500">Nenhuma conta de e-mail cadastrada.</p>
+                }
+                else
+                {
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Id</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Descrição</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Nome remetente</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">E-mail remetente</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Tipo</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Ativo</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach (var item in _lista!)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 text-gray-600">@item.id</td>
+                                        <td class="px-4 py-2">@item.descricaoConta</td>
+                                        <td class="px-4 py-2">@item.nomeRemetente</td>
+                                        <td class="px-4 py-2">@item.emailRemetente</td>
+                                        <td class="px-4 py-2">@NomeTipoConta(item.tipoconta)</td>
+                                        <td class="px-4 py-2">@(item.ativo == 1 ? "Sim" : "Não")</td>
+                                        <td class="px-4 py-2">
+                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-blue-600 hover:underline">Alterar</button>
+                                            <button type="button" @onclick="() => Excluir(item)" class="text-red-600 hover:underline">Excluir</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
     </div>
 </div>
+
+@code {
+    private List<ContaEmail>? _lista;
+    private bool _carregando;
+    private bool _mostrarEdicao;
+    private ContaEmail? _editando;
+    private bool _salvando;
+    private string? _mensagemErro;
+    private string? _mensagemSucesso;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarLista();
+    }
+
+    private async Task CarregarLista()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        try
+        {
+            var response = await Http.GetAsync("contaemail");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<ContaEmailResposta>();
+                _lista = data?.objeto?.ToList() ?? new List<ContaEmail>();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao carregar: {response.StatusCode}. {body}";
+                _lista = new List<ContaEmail>();
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+            _lista = new List<ContaEmail>();
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private static string NomeTipoConta(int tipo)
+    {
+        return tipo switch { 0 => "Padrão", 1 => "Office 365", 2 => "Gmail", _ => "-" };
+    }
+
+    private void Incluir()
+    {
+        _editando = new ContaEmail
+        {
+            tipoconta = 0,
+            sslpop = true,
+            portapop = 995,
+            sslsmtp = true,
+            portasmtp = 587,
+            enviaremail = true,
+            receberemail = true,
+            intervalorecebimento = 1,
+            intervaloenvio = 1,
+            qtdeemailsrecebimento = 20,
+            qtdeemailsenvio = 30,
+            qtdetentativasenvio = 3,
+            tamanhomaximoanexos = 10,
+            ativo = 1
+        };
+        _mostrarEdicao = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+    }
+
+    private void Alterar(ContaEmail item)
+    {
+        _editando = new ContaEmail
+        {
+            id = item.id,
+            tipoconta = item.tipoconta,
+            descricaoConta = item.descricaoConta ?? "",
+            nomeRemetente = item.nomeRemetente ?? "",
+            emailRemetente = item.emailRemetente ?? "",
+            usuario = item.usuario ?? "",
+            senha = item.senha ?? "",
+            hostpop = item.hostpop ?? "",
+            sslpop = item.sslpop,
+            portapop = item.portapop,
+            hostsmtp = item.hostsmtp ?? "",
+            sslsmtp = item.sslsmtp,
+            portasmtp = item.portasmtp,
+            tenant_id = item.tenant_id ?? "",
+            client_id = item.client_id ?? "",
+            clientSecret = item.clientSecret ?? "",
+            refresh_token = item.refresh_token,
+            userId = item.userId ?? "",
+            enviaremail = item.enviaremail,
+            receberemail = item.receberemail,
+            intervalorecebimento = item.intervalorecebimento,
+            intervaloenvio = item.intervaloenvio,
+            qtdeemailsrecebimento = item.qtdeemailsrecebimento,
+            qtdeemailsenvio = item.qtdeemailsenvio,
+            qtdetentativasenvio = item.qtdetentativasenvio,
+            tamanhomaximoanexos = item.tamanhomaximoanexos,
+            emaildestinatariosuporte = item.emaildestinatariosuporte ?? "",
+            ativo = item.ativo,
+            EmailsPorDia = item.EmailsPorDia,
+            EmailsMalaDiretaPorDia = item.EmailsMalaDiretaPorDia,
+            SocketOptions = item.SocketOptions
+        };
+        _mostrarEdicao = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+    }
+
+    private async Task VoltarParaGrid()
+    {
+        _mostrarEdicao = false;
+        _editando = null;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        await CarregarLista();
+    }
+
+    private async Task Salvar()
+    {
+        if (_editando is null) return;
+        _salvando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            HttpResponseMessage response;
+            if (_editando.id == 0)
+            {
+                response = await Http.PostAsJsonAsync("contaemail", _editando);
+            }
+            else
+            {
+                response = await Http.PutAsJsonAsync("contaemail", _editando);
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var ret = System.Text.Json.JsonSerializer.Deserialize<Retorno>(body);
+                if (ret?.sucesso == true)
+                {
+                    await VoltarParaGrid();
+                    _mensagemSucesso = "Registro salvo com sucesso.";
+                }
+                else
+                {
+                    _mensagemErro = ret?.mensagem ?? body;
+                }
+            }
+            else
+            {
+                _mensagemErro = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                    ? "Não autorizado. Faça login novamente."
+                    : (string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body);
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _salvando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Excluir(ContaEmail item)
+    {
+        var confirmar = await JS.InvokeAsync<bool>("confirm", $"Excluir a conta \"{item.descricaoConta}\"?");
+        if (!confirmar) return;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var response = await Http.DeleteAsync($"contaemail/{item.id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var ret = System.Text.Json.JsonSerializer.Deserialize<Retorno>(body);
+                if (ret?.sucesso == true)
+                {
+                    _mensagemSucesso = "Conta excluída com sucesso.";
+                    await CarregarLista();
+                }
+                else
+                {
+                    _mensagemErro = ret?.mensagem ?? body;
+                }
+            }
+            else
+            {
+                _mensagemErro = string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        StateHasChanged();
+    }
+}

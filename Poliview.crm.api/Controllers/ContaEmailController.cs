@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.AspNetCore.Mvc;
 using Poliview.crm.domain;
 using Poliview.crm.models;
@@ -65,7 +65,7 @@ namespace Poliview.crm.api.Controllers
             try
             {
                 Retorno retorno = await _service.Create(obj);
-                return Ok(retorno); 
+                return Ok(retorno);
             }
             catch (Exception ex)
             {
@@ -74,5 +74,18 @@ namespace Poliview.crm.api.Controllers
             }
         }
 
+        [HttpDelete("{idContaEmail}")]
+        public async Task<IActionResult> Delete(int idContaEmail)
+        {
+            try
+            {
+                Retorno retorno = await _service.Delete(idContaEmail);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
