@@ -1,9 +1,226 @@
 @page "/parametros/jornada"
+@inject HttpClient Http
+@using Poliview.crm.domain
+
 <PageTitle>Jornada | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Jornada</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+        <h2 class="mb-4 text-base font-semibold text-gray-800">Jornadas</h2>
+
+        @if (_carregando)
+        {
+            <p class="text-sm text-gray-500">Carregando...</p>
+        }
+        else if (!string.IsNullOrEmpty(_mensagemErro))
+        {
+            <div class="space-y-3">
+                <p class="text-sm font-medium text-red-600">@_mensagemErro</p>
+                @if (!string.IsNullOrEmpty(_detalheErroCarregamento))
+                {
+                    <details class="rounded-lg border border-gray-200 bg-gray-50">
+                        <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-gray-700">Detalhes técnicos do erro</summary>
+                        <pre class="overflow-x-auto whitespace-pre-wrap break-words px-3 py-2 text-xs text-gray-600">@_detalheErroCarregamento</pre>
+                    </details>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="max-w-2xl space-y-4">
+                @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                {
+                    <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                }
+                @if (!string.IsNullOrEmpty(_mensagemErroSalvar))
+                {
+                    <div class="space-y-2">
+                        <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErroSalvar</div>
+                        @if (!string.IsNullOrEmpty(_detalheErroSalvar))
+                        {
+                            <details class="rounded-lg border border-red-200 bg-red-50/50">
+                                <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-red-800">Detalhes técnicos</summary>
+                                <pre class="overflow-x-auto whitespace-pre-wrap break-words px-3 py-2 text-xs text-red-700">@_detalheErroSalvar</pre>
+                            </details>
+                        }
+                    </div>
+                }
+                <div class="grid gap-4 sm:grid-cols-1">
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">Jornada Padrão SLA</label>
+                        <select @bind="_idJornadaSLASelect" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                            <option value="">Selecione uma jornada</option>
+                            @foreach (Poliview.crm.domain.Jornada jornada in _jornadasSLA)
+                            {
+                                <option value="@jornada.ID_Jornada.ToString()">@jornada.NM_Jornada</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-sm font-medium text-gray-700">Jornada Padrão Recurso</label>
+                        <select @bind="_idJornadaRecursoSelect" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                            <option value="">Selecione uma jornada</option>
+                            @foreach (Poliview.crm.domain.Jornada jornada in _jornadasRecurso)
+                            {
+                                <option value="@jornada.ID_Jornada.ToString()">@jornada.NM_Jornada</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        <button type="button" @onclick="SalvarJornadas"
+                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            @(_salvando ? "Salvando..." : "Salvar")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@code {
+    private List<Poliview.crm.domain.Jornada> _jornadas = new();
+    private int? _idJornadaSLA;
+    private int? _idJornadaRecurso;
+
+    private string? _idJornadaSLASelect
+    {
+        get => _idJornadaSLA?.ToString() ?? "";
+        set => _idJornadaSLA = string.IsNullOrEmpty(value) ? null : int.TryParse(value, out var id) ? id : null;
+    }
+
+    private string? _idJornadaRecursoSelect
+    {
+        get => _idJornadaRecurso?.ToString() ?? "";
+        set => _idJornadaRecurso = string.IsNullOrEmpty(value) ? null : int.TryParse(value, out var id) ? id : null;
+    }
+    private bool _carregando;
+    private bool _salvando;
+    private string? _mensagemSucesso;
+    private string? _mensagemErro;
+    private string? _mensagemErroSalvar;
+    private string? _detalheErroCarregamento;
+    private string? _detalheErroSalvar;
+    private List<Poliview.crm.domain.Jornada> _jornadasSLA = new();
+    private List<Poliview.crm.domain.Jornada> _jornadasRecurso = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarDados();
+    }
+
+    private async Task CarregarDados()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        _detalheErroCarregamento = null;
+        try
+        {
+            // Carregar jornadas disponíveis
+            var responseJornadasSLA = await Http.GetAsync("parametros/jornadas-sla");
+            var responseJornadasRecurso = await Http.GetAsync("parametros/jornadas-recurso");
+
+            if (responseJornadasSLA.IsSuccessStatusCode && responseJornadasRecurso.IsSuccessStatusCode)
+            {
+                _jornadasSLA = await responseJornadasSLA.Content.ReadFromJsonAsync<List<Poliview.crm.domain.Jornada>>() ?? new();
+                _jornadasRecurso = await responseJornadasRecurso.Content.ReadFromJsonAsync<List<Poliview.crm.domain.Jornada>>() ?? new();
+            }
+            else
+            {
+                var bodyErrojornadasSLA = await responseJornadasSLA.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao carregar jornadas. Status: {(int)responseJornadasSLA.StatusCode} ({responseJornadasSLA.StatusCode})";
+                _detalheErroCarregamento = string.IsNullOrWhiteSpace(bodyErrojornadasSLA)
+                    ? $"HTTP {(int)responseJornadasSLA.StatusCode} - {responseJornadasSLA.ReasonPhrase}"
+                    : $"HTTP {(int)responseJornadasSLA.StatusCode}\nResposta: {bodyErrojornadasSLA}";
+                return;
+            }
+
+            // Carregar valores atuais dos parâmetros
+            var responseParametros = await Http.GetAsync("parametros");
+            if (responseParametros.IsSuccessStatusCode)
+            {
+                var parametros = await responseParametros.Content.ReadFromJsonAsync<Parametros>();
+                if (parametros != null)
+                {
+                    _idJornadaSLA = parametros.ID_JornadaSLA;
+                    _idJornadaRecurso = parametros.ID_JornadaRecurso;
+                }
+            }
+            else
+            {
+                var bodyErro = await responseParametros.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao carregar parâmetros. Status: {(int)responseParametros.StatusCode} ({responseParametros.StatusCode})";
+                _detalheErroCarregamento = string.IsNullOrWhiteSpace(bodyErro)
+                    ? $"HTTP {(int)responseParametros.StatusCode} - {responseParametros.ReasonPhrase}"
+                    : $"HTTP {(int)responseParametros.StatusCode}\nResposta: {bodyErro}";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _mensagemErro = "Não foi possível conectar à API.";
+            _detalheErroCarregamento = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}";
+        }
+        catch (TaskCanceledException ex)
+        {
+            _mensagemErro = "Requisição cancelada ou tempo esgotado.";
+            _detalheErroCarregamento = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = "Não foi possível carregar os dados.";
+            _detalheErroCarregamento = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}\nStack: {ex.StackTrace}";
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private async Task SalvarJornadas()
+    {
+        _salvando = true;
+        _mensagemSucesso = null;
+        _mensagemErroSalvar = null;
+        _detalheErroSalvar = null;
+        StateHasChanged();
+        try
+        {
+            var body = new ParametrosJornadaRequisicao
+            {
+                ID_JornadaSLA = _idJornadaSLA > 0 ? _idJornadaSLA : null,
+                ID_JornadaRecurso = _idJornadaRecurso > 0 ? _idJornadaRecurso : null
+            };
+            var response = await Http.PutAsJsonAsync("parametros/jornada", body);
+            if (response.IsSuccessStatusCode)
+            {
+                _mensagemSucesso = "Jornadas salvas com sucesso.";
+            }
+            else
+            {
+                var bodyErro = await response.Content.ReadAsStringAsync();
+                _mensagemErroSalvar = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                    ? "Não autorizado. Faça login novamente."
+                    : (string.IsNullOrWhiteSpace(bodyErro) ? $"Erro {response.StatusCode}" : bodyErro);
+                _detalheErroSalvar = $"HTTP {(int)response.StatusCode} ({response.StatusCode})\nResposta: {bodyErro}";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _mensagemErroSalvar = "Não foi possível conectar à API.";
+            _detalheErroSalvar = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}";
+        }
+        catch (Exception ex)
+        {
+            _mensagemErroSalvar = ex.Message;
+            _detalheErroSalvar = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}\nStack: {ex.StackTrace}";
+        }
+        finally
+        {
+            _salvando = false;
+            StateHasChanged();
+        }
+    }
+}

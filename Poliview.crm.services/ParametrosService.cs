@@ -5,7 +5,7 @@ using Microsoft.Data.SqlClient;
 namespace Poliview.crm.services
 {
     public static class ParametrosService
-    { 
+    {
         public static domain.Parametros consultar(string _connectionString)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -29,7 +29,8 @@ namespace Poliview.crm.services
                         "HR_EmailIntervalo / 60 as intervaloEnvioEmailMinutos, " +
                         "tipoAcessoSiecon, usuarioApiSiecon, senhaApiSiecon, urlApiSiecon, tamanhoMaximoAnexos, emailErrosAdmin, " +
                         "habilitarEspacoCliente, empreendimentoTesteEspacoCliente, " +
-                        "NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDBInteg as DS_PathDbInteg, DS_PortaServidorInteg as DS_portaServidorInteg " +
+                        "NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDBInteg as DS_PathDbInteg, DS_PortaServidorInteg as DS_portaServidorInteg, " +
+                        "ID_JornadaSLA, ID_JornadaRecurso " +
                         "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
 
             // Console.WriteLine(query);
@@ -42,13 +43,13 @@ namespace Poliview.crm.services
 
             var query = $"exec dbo.CRM_ConsultarEspacoCliente @cpf='{cpf}'";
             Console.WriteLine(query);
-            var result = connection.QueryFirst<ConfigEspacoCliente>(query);            
+            var result = connection.QueryFirst<ConfigEspacoCliente>(query);
             return result;
         }
 
         public static BotaoLogin botaoLogin(string _connectionString)
         {
-            using var connection = new SqlConnection(_connectionString);        
+            using var connection = new SqlConnection(_connectionString);
             var query = "select habilitabotaologin,urliconebotaologin,textoiconebotaologin,alturaiconebotaologin,larguraiconebotaologin,urlexternabotaologin " +
                         "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
             return connection.QueryFirst<BotaoLogin>(query);
@@ -65,6 +66,36 @@ namespace Poliview.crm.services
                 DS_PortaServidorInteg = @DS_portaServidorInteg
                 WHERE cd_bancodados = 1 AND cd_mandante = 1";
             return connection.Execute(query, new { NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDbInteg, DS_portaServidorInteg });
+        }
+
+        public static List<Jornada> ListarJornadasAtivasSLA(string _connectionString)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = "SELECT ID_Jornada, NM_Jornada, IN_Tipo, IN_Status, DT_Controle " +
+                       "FROM CAD_JORNADA " +
+                       "WHERE IN_STATUS = 'A' AND IN_Tipo = 'S' " +
+                       "ORDER BY NM_Jornada";
+            return connection.Query<Jornada>(query).ToList();
+        }
+
+        public static List<Jornada> ListarJornadasAtivasRecurso(string _connectionString)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = "SELECT ID_Jornada, NM_Jornada, IN_Tipo, IN_Status, DT_Controle " +
+                       "FROM CAD_JORNADA " +
+                       "WHERE IN_STATUS = 'A' AND IN_Tipo = 'R' " +
+                       "ORDER BY NM_Jornada";
+            return connection.Query<Jornada>(query).ToList();
+        }
+
+        public static int AtualizarJornadas(string _connectionString, int? ID_JornadaSLA, int? ID_JornadaRecurso)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                ID_JornadaSLA = @ID_JornadaSLA,
+                ID_JornadaRecurso = @ID_JornadaRecurso
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { ID_JornadaSLA, ID_JornadaRecurso });
         }
     }
 }

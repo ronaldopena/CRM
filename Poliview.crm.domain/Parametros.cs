@@ -50,6 +50,10 @@ namespace Poliview.crm.domain
         public string? DS_PathDbInteg { get; set; }
         /// <summary>Integração SieconSP7: Porta do servidor</summary>
         public string? DS_portaServidorInteg { get; set; }
+        /// <summary>Jornada padrão SLA</summary>
+        public int? ID_JornadaSLA { get; set; }
+        /// <summary>Jornada padrão Recurso</summary>
+        public int? ID_JornadaRecurso { get; set; }
     }
 
     public class ConfigEspacoCliente

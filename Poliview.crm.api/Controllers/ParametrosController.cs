@@ -75,5 +75,51 @@ namespace Poliview.crm.api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("jornadas-sla")]
+        public IActionResult ListarJornadasSLA()
+        {
+            try
+            {
+                var jornadas = ParametrosService.ListarJornadasAtivasSLA(_connectionString);
+                return Ok(jornadas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("jornadas-recurso")]
+        public IActionResult ListarJornadasRecurso()
+        {
+            try
+            {
+                var jornadas = ParametrosService.ListarJornadasAtivasRecurso(_connectionString);
+                return Ok(jornadas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // [Authorize]
+        [HttpPut("jornada")]
+        public IActionResult AtualizarJornadas([FromBody] ParametrosJornadaRequisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarJornadas(
+                    _connectionString,
+                    body.ID_JornadaSLA,
+                    body.ID_JornadaRecurso);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
