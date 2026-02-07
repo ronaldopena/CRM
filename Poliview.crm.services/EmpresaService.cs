@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.Extensions.Configuration;
 using Poliview.crm.domain;
 using Microsoft.Data.SqlClient;
@@ -10,6 +10,9 @@ namespace Poliview.crm.services
     {
         public ListarEmpresasResposta Listar();
         public ListarEmpresaResposta ListarPorDominio(string dominio);
+        public Task<Retorno> Create(Empresa obj);
+        public Task<Retorno> Update(Empresa obj);
+        public Task<Retorno> Delete(int id);
     }
 
     public class EmpresaService : IEmpresaService
@@ -80,7 +83,125 @@ namespace Poliview.crm.services
             }
 
             return retorno;
+        }
 
+        public async Task<Retorno> Create(Empresa obj)
+        {
+            var ret = new Retorno();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = @"INSERT INTO [dbo].[CAD_EMPRESA]
+                           ([nomeEmpresa]
+                           ,[dominioempresa]
+                           ,[idcontaemail]
+                           ,[ativo]
+                           ,[principal]
+                           ,[principaldark]
+                           ,[principallight]
+                           ,[fundo]
+                           ,[texto]
+                           ,[urllogo]
+                           ,[urlimgprincipal])
+                     VALUES
+                           (@nomeEmpresa
+                           ,@dominioempresa
+                           ,@idcontaemail
+                           ,@ativo
+                           ,@principal
+                           ,@principaldark
+                           ,@principallight
+                           ,@fundo
+                           ,@texto
+                           ,@urllogo
+                           ,@urlimgprincipal)";
+                await connection.ExecuteAsync(query, new
+                {
+                    nomeEmpresa = obj.nomeempresa,
+                    dominioempresa = obj.dominioempresa,
+                    idcontaemail = obj.idcontaemail,
+                    ativo = obj.ativo,
+                    principal = obj.principal ?? "",
+                    principaldark = obj.principaldark ?? "",
+                    principallight = obj.principallight ?? "",
+                    fundo = obj.fundo ?? "",
+                    texto = obj.texto ?? "",
+                    urllogo = obj.urllogo ?? "",
+                    urlimgprincipal = obj.urlimgprincipal ?? ""
+                });
+                ret.sucesso = true;
+                ret.mensagem = "ok";
+            }
+            catch (Exception ex)
+            {
+                ret.sucesso = false;
+                ret.mensagem = ex.Message;
+            }
+            return ret;
+        }
+
+        public async Task<Retorno> Update(Empresa obj)
+        {
+            var ret = new Retorno();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = @"UPDATE [dbo].[CAD_EMPRESA]
+                           SET [nomeEmpresa] = @nomeEmpresa
+                              ,[dominioempresa] = @dominioempresa
+                              ,[idcontaemail] = @idcontaemail
+                              ,[ativo] = @ativo
+                              ,[principal] = @principal
+                              ,[principaldark] = @principaldark
+                              ,[principallight] = @principallight
+                              ,[fundo] = @fundo
+                              ,[texto] = @texto
+                              ,[urllogo] = @urllogo
+                              ,[urlimgprincipal] = @urlimgprincipal
+                         WHERE id = @id";
+                await connection.ExecuteAsync(query, new
+                {
+                    id = obj.id,
+                    nomeEmpresa = obj.nomeempresa,
+                    dominioempresa = obj.dominioempresa,
+                    idcontaemail = obj.idcontaemail,
+                    ativo = obj.ativo,
+                    principal = obj.principal ?? "",
+                    principaldark = obj.principaldark ?? "",
+                    principallight = obj.principallight ?? "",
+                    fundo = obj.fundo ?? "",
+                    texto = obj.texto ?? "",
+                    urllogo = obj.urllogo ?? "",
+                    urlimgprincipal = obj.urlimgprincipal ?? ""
+                });
+                ret.sucesso = true;
+                ret.mensagem = "ok";
+            }
+            catch (Exception ex)
+            {
+                ret.sucesso = false;
+                ret.mensagem = ex.Message;
+            }
+            return ret;
+        }
+
+        public async Task<Retorno> Delete(int id)
+        {
+            var ret = new Retorno();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = "DELETE FROM [dbo].[CAD_EMPRESA] WHERE id = @id";
+                await connection.ExecuteAsync(query, new { id });
+                ret.sucesso = true;
+                ret.mensagem = "ok";
+            }
+            catch (Exception ex)
+            {
+                ret.sucesso = false;
+                ret.mensagem = ex.Message;
+            }
+            return ret;
         }
     }
 }

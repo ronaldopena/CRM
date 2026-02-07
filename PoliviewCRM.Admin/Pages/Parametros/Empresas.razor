@@ -1,9 +1,406 @@
 @page "/parametros/empresas"
+@inject HttpClient Http
+@inject IJSRuntime JS
+@using Poliview.crm.domain
+
 <PageTitle>Empresas | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
         <h2 class="mb-4 text-base font-semibold text-gray-800">Empresas</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+
+        @if (_mostrarEdicao)
+        {
+            @* Tela de edição (incluir ou alterar) *@
+            <div class="space-y-4">
+                @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                {
+                    <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                }
+                @if (!string.IsNullOrEmpty(_mensagemErro))
+                {
+                    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                }
+                <div class="flex justify-between">
+                    <button type="button" @onclick="VoltarParaGrid"
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        ← Voltar
+                    </button>
+                </div>
+                @if (_editando is not null)
+                {
+                    <div class="max-w-4xl space-y-6">
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Dados Básicos</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Nome da Empresa</label>
+                                    <InputText @bind-Value="_editando.nomeempresa" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Domínio</label>
+                                    <InputText @bind-Value="_editando.dominioempresa" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Ex.: http://localhost/" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Conta de E-mail</label>
+                                    <select @bind="_idContaEmailSelect" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="">Selecione uma conta</option>
+                                        @foreach (Poliview.crm.domain.ContaEmail conta in _contasEmail)
+                                        {
+                                            <option value="@conta.id.ToString()">@conta.descricaoConta</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Ativo</label>
+                                    <select @bind="_editando.ativo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="1">Sim</option>
+                                        <option value="0">Não</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Cores</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Principal</label>
+                                    <div class="flex gap-2">
+                                        <input type="color" @bind="_editando.principal" class="h-10 w-20 rounded-lg border border-gray-300" />
+                                        <InputText @bind-Value="_editando.principal" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Principal Dark</label>
+                                    <div class="flex gap-2">
+                                        <input type="color" @bind="_editando.principaldark" class="h-10 w-20 rounded-lg border border-gray-300" />
+                                        <InputText @bind-Value="_editando.principaldark" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Principal Light</label>
+                                    <div class="flex gap-2">
+                                        <input type="color" @bind="_editando.principallight" class="h-10 w-20 rounded-lg border border-gray-300" />
+                                        <InputText @bind-Value="_editando.principallight" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Fundo</label>
+                                    <div class="flex gap-2">
+                                        <input type="color" @bind="_editando.fundo" class="h-10 w-20 rounded-lg border border-gray-300" />
+                                        <InputText @bind-Value="_editando.fundo" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Texto</label>
+                                    <div class="flex gap-2">
+                                        <input type="color" @bind="_editando.texto" class="h-10 w-20 rounded-lg border border-gray-300" />
+                                        <InputText @bind-Value="_editando.texto" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">URLs</h3>
+                            <div class="grid gap-4 sm:grid-cols-1">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">URL Logo</label>
+                                    <InputText @bind-Value="_editando.urllogo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">URL Imagem Principal</label>
+                                    <InputText @bind-Value="_editando.urlimgprincipal" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="flex gap-2">
+                            <button type="button" @onclick="Salvar" disabled="@_salvando"
+                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                                @(_salvando ? "Salvando..." : "Salvar")
+                            </button>
+                            <button type="button" @onclick="VoltarParaGrid"
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            @* Grid de listagem *@
+            @if (!string.IsNullOrEmpty(_mensagemSucesso))
+            {
+                <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+            }
+            @if (!string.IsNullOrEmpty(_mensagemErro))
+            {
+                <div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+            }
+            @if (_carregando)
+            {
+                <p class="text-sm text-gray-500">Carregando...</p>
+            }
+            else
+            {
+                <div class="mb-4 flex gap-2">
+                    <button type="button" @onclick="Incluir"
+                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        Incluir
+                    </button>
+                </div>
+                @if (_lista is null || _lista.Count == 0)
+                {
+                    <p class="text-sm text-gray-500">Nenhuma empresa cadastrada.</p>
+                }
+                else
+                {
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Id</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Nome</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Domínio</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Conta E-mail</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Ativo</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach (var item in _lista!)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2 text-gray-600">@item.id</td>
+                                        <td class="px-4 py-2">@item.nomeempresa</td>
+                                        <td class="px-4 py-2">@item.dominioempresa</td>
+                                        <td class="px-4 py-2">@ObterNomeContaEmail(item.idcontaemail)</td>
+                                        <td class="px-4 py-2">@(item.ativo == 1 ? "Sim" : "Não")</td>
+                                        <td class="px-4 py-2">
+                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-blue-600 hover:underline">Alterar</button>
+                                            <button type="button" @onclick="() => Excluir(item)" class="text-red-600 hover:underline">Excluir</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
     </div>
 </div>
+
+@code {
+    private List<Poliview.crm.domain.Empresa>? _lista;
+    private List<Poliview.crm.domain.ContaEmail> _contasEmail = new();
+    private bool _carregando;
+    private bool _mostrarEdicao;
+    private Poliview.crm.domain.Empresa? _editando;
+    private bool _salvando;
+    private string? _mensagemErro;
+    private string? _mensagemSucesso;
+
+    private string? _idContaEmailSelect
+    {
+        get => _editando?.idcontaemail > 0 ? _editando.idcontaemail.ToString() : "";
+        set => _editando.idcontaemail = string.IsNullOrEmpty(value) ? 0 : int.TryParse(value, out var id) ? id : 0;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarLista();
+        await CarregarContasEmail();
+    }
+
+    private async Task CarregarLista()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        try
+        {
+            var response = await Http.GetAsync("empresa");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<ListarEmpresasResposta>();
+                _lista = data?.objeto?.ToList() ?? new List<Poliview.crm.domain.Empresa>();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao carregar: {response.StatusCode}. {body}";
+                _lista = new List<Poliview.crm.domain.Empresa>();
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+            _lista = new List<Poliview.crm.domain.Empresa>();
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private async Task CarregarContasEmail()
+    {
+        try
+        {
+            var response = await Http.GetAsync("contaemail");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<ContaEmailResposta>();
+                _contasEmail = data?.objeto?.ToList() ?? new List<Poliview.crm.domain.ContaEmail>();
+            }
+        }
+        catch
+        {
+            _contasEmail = new List<Poliview.crm.domain.ContaEmail>();
+        }
+    }
+
+    private string ObterNomeContaEmail(int idContaEmail)
+    {
+        var conta = _contasEmail.FirstOrDefault(c => c.id == idContaEmail);
+        return conta?.descricaoConta ?? "-";
+    }
+
+    private void Incluir()
+    {
+        _editando = new Poliview.crm.domain.Empresa
+        {
+            ativo = 1,
+            principal = "#3C8DBC",
+            principaldark = "#000000",
+            principallight = "#E8EEF1",
+            fundo = "#E5E5E5",
+            texto = "#A4EAFC"
+        };
+        _mostrarEdicao = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+    }
+
+    private void Alterar(Poliview.crm.domain.Empresa item)
+    {
+        _editando = new Poliview.crm.domain.Empresa
+        {
+            id = item.id,
+            nomeempresa = item.nomeempresa ?? "",
+            dominioempresa = item.dominioempresa ?? "",
+            idcontaemail = item.idcontaemail,
+            ativo = item.ativo,
+            principal = item.principal ?? "",
+            principaldark = item.principaldark ?? "",
+            principallight = item.principallight ?? "",
+            fundo = item.fundo ?? "",
+            texto = item.texto ?? "",
+            urllogo = item.urllogo ?? "",
+            urlimgprincipal = item.urlimgprincipal ?? ""
+        };
+        _mostrarEdicao = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+    }
+
+    private async Task VoltarParaGrid()
+    {
+        _mostrarEdicao = false;
+        _editando = null;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        await CarregarLista();
+    }
+
+    private async Task Salvar()
+    {
+        if (_editando is null) return;
+        _salvando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            HttpResponseMessage response;
+            if (_editando.id == 0)
+            {
+                response = await Http.PostAsJsonAsync("empresa", _editando);
+            }
+            else
+            {
+                response = await Http.PutAsJsonAsync("empresa", _editando);
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var ret = System.Text.Json.JsonSerializer.Deserialize<Retorno>(body);
+                if (ret?.sucesso == true)
+                {
+                    await VoltarParaGrid();
+                    _mensagemSucesso = "Registro salvo com sucesso.";
+                }
+                else
+                {
+                    _mensagemErro = ret?.mensagem ?? body;
+                }
+            }
+            else
+            {
+                _mensagemErro = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                    ? "Não autorizado. Faça login novamente."
+                    : (string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body);
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _salvando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Excluir(Poliview.crm.domain.Empresa item)
+    {
+        var confirmar = await JS.InvokeAsync<bool>("confirm", $"Excluir a empresa \"{item.nomeempresa}\"?");
+        if (!confirmar) return;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var response = await Http.DeleteAsync($"empresa/{item.id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var ret = System.Text.Json.JsonSerializer.Deserialize<Retorno>(body);
+                if (ret?.sucesso == true)
+                {
+                    _mensagemSucesso = "Empresa excluída com sucesso.";
+                    await CarregarLista();
+                }
+                else
+                {
+                    _mensagemErro = ret?.mensagem ?? body;
+                }
+            }
+            else
+            {
+                _mensagemErro = string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        StateHasChanged();
+    }
+}

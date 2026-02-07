@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Poliview.crm.domain;
+using Poliview.crm.models;
 using Poliview.crm.services;
 
 namespace Poliview.crm.api.Controllers
@@ -42,5 +44,46 @@ namespace Poliview.crm.api.Controllers
             }
         }
 
+        [HttpPost("")]
+        public async Task<IActionResult> Create([FromBody] Empresa obj)
+        {
+            try
+            {
+                Retorno retorno = await _service.Create(obj);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("")]
+        public async Task<IActionResult> Update([FromBody] Empresa obj)
+        {
+            try
+            {
+                Retorno retorno = await _service.Update(obj);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                Retorno retorno = await _service.Delete(id);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
