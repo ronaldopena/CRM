@@ -1,0 +1,79 @@
+@page "/parametros"
+@page "/parametros/{NomeAba}"
+@inject NavigationManager NavigationManager
+
+<PageTitle>@(TituloAtual ?? "Parâmetros do Sistema") | SIECON CRM</PageTitle>
+
+<div class="mx-auto max-w-7xl p-4 md:p-6">
+    <!-- Cabeçalho -->
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
+
+    <!-- Conteúdo da seção (sem abas) -->
+    <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
+        @if (TituloAtual is not null)
+        {
+            <h2 class="mb-4 text-base font-semibold text-gray-800">@TituloAtual</h2>
+            <p class="text-sm text-gray-500">Conteúdo da seção será exibido aqui.</p>
+        }
+        else
+        {
+            <p class="text-sm text-gray-500">Selecione um parâmetro no menu lateral.</p>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? NomeAba { get; set; }
+
+    private string? TituloAtual { get; set; }
+
+    private static readonly Dictionary<string, string> SlugParaTitulo = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "integracao-sieconsp7", "Integração SIECONSP7" },
+        { "contas-email", "Contas de Email" },
+        { "empresas", "Empresas" },
+        { "jornada", "Jornada" },
+        { "sla", "SLA" },
+        { "avisos-email", "Avisos por Email" },
+        { "prospect", "Prospect" },
+        { "identidade-visual", "Identidade Visual" },
+        { "caminhos", "Caminhos" },
+        { "paginas-sistema", "Páginas Sistema" },
+        { "status-operacoes", "Status de Operações" },
+        { "ordem-servico", "Ordem de Serviço" },
+        { "chamados", "Chamados" },
+        { "rastreamento-email", "Rastreamento Email" },
+        { "link-boleto", "Link Boleto" },
+        { "portal-cliente", "Portal Cliente" },
+        { "monitoramento-servicos", "Monitoramento de Serviços" },
+        { "aviso-portal-cliente", "Aviso Portal Cliente" },
+        { "politica-senhas", "Política de Senhas" },
+        { "integracao-mobuss", "Integração Mobuss" },
+        { "espaco-cliente", "Espaço Cliente" }
+    };
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrEmpty(NomeAba))
+        {
+            TituloAtual = null;
+            return;
+        }
+        TituloAtual = SlugParaTitulo.TryGetValue(NomeAba, out var titulo) ? titulo : null;
+        if (TituloAtual is null)
+        {
+            NavigationManager.NavigateTo("/parametros/integracao-sieconsp7", replace: true);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (string.IsNullOrEmpty(NomeAba))
+        {
+            NavigationManager.NavigateTo("/parametros/integracao-sieconsp7", replace: true);
+        }
+    }
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIECON CRM</title>
+    <base href="/" />
+    <link rel="stylesheet" href="css/app.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { outfit: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#ecf3ff', 500: '#465fff', 600: '#3641f5' },
+                        success: { 50: '#ecfdf3', 500: '#12b76a', 600: '#039855' },
+                        error: { 50: '#fef3f2', 500: '#f04438', 600: '#d92d20' },
+                        warning: { 50: '#fffaeb', 500: '#f79009', 600: '#dc6803' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- If you add any scoped CSS files, uncomment the following to load them
+    <link href="PoliviewCRM.admin.styles.css" rel="stylesheet" /> -->
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+
+</html>

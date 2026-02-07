@@ -1,0 +1,135 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager NavigationManager
+
+<div class="flex h-screen overflow-hidden font-outfit bg-gray-50">
+    <aside class="@(SidebarOpen ? "translate-x-0 lg:w-[90px]" : "-translate-x-full") sidebar fixed left-0 top-0 z-[9999] flex h-screen w-[290px] flex-col overflow-y-auto border-r border-gray-200 bg-white px-5 transition-transform duration-300 lg:static lg:translate-x-0">
+        <div class="@(SidebarOpen ? "justify-center" : "justify-between") flex items-center gap-2 border-b border-gray-100 pb-7 pt-8">
+            <div class="flex items-center gap-2">
+                <span class="@(SidebarOpen ? "lg:hidden" : "") logo text-xl font-semibold text-gray-800">SIECON CRM</span>
+            </div>
+        </div>
+        <nav class="flex flex-col overflow-y-auto py-4">
+            <div class="mb-6">
+                <h3 class="mb-4 text-xs font-medium uppercase leading-5 text-gray-400">Menu</h3>
+                <ul class="flex flex-col gap-1">
+                    <li>
+                        <div class="relative">
+                            <button type="button" @onclick="ToggleParametros" class="menu-link flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium @(ParametrosExpandido ? "menu-link active" : "")">
+                                <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24" fill="none">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 15.5C13.6569 15.5 15 14.1569 15 12.5C15 10.8431 13.6569 9.5 12 9.5C10.3431 9.5 9 10.8431 9 12.5C9 14.1569 10.3431 15.5 12 15.5ZM12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM3.5 12C3.5 7.30558 7.30558 3.5 12 3.5C16.6944 3.5 20.5 7.30558 20.5 12C20.5 16.6944 16.6944 20.5 12 20.5C7.30558 20.5 3.5 16.6944 3.5 12Z" fill="currentColor"/>
+                                </svg>
+                                <span class="@(SidebarOpen ? "lg:hidden" : "")">Parâmetros</span>
+                                <svg class="@(SidebarOpen ? "lg:hidden" : "") ml-auto h-5 w-5 transition-transform @(ParametrosExpandido ? "rotate-180" : "")" viewBox="0 0 20 20" fill="none">
+                                    <path d="M4.79175 7.39584L10.0001 12.6042L15.2084 7.39585" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            @if (ParametrosExpandido)
+                            {
+                                <ul class="mt-1 flex flex-col gap-0.5 pl-9">
+                                    @foreach (var item in SubmenusParametros)
+                                    {
+                                        <li>
+                                            <NavLink href="@($"/parametros/{item.Slug}")" class="menu-dropdown-item flex rounded-lg px-3 py-2 text-sm font-medium" Match="NavLinkMatch.All">
+                                                @item.Titulo
+                                            </NavLink>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="relative flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        <header class="sticky top-0 z-[99999] flex w-full border-b border-gray-200 bg-white">
+            <div class="flex w-full grow flex-col items-center justify-between px-3 py-3 lg:flex-row lg:px-6 lg:py-4">
+                <div class="flex w-full items-center justify-between gap-2 lg:justify-normal">
+                    <button type="button" @onclick="ToggleSidebar" class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 lg:h-11 lg:w-11">
+                        <svg class="h-5 w-5 fill-current" viewBox="0 0 16 12" fill="none">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M0.583252 1C0.583252 0.585788 0.919038 0.25 1.33325 0.25H14.6666C15.0808 0.25 15.4166 0.585786 15.4166 1C15.4166 1.41421 15.0808 1.75 14.6666 1.75L1.33325 1.75C0.919038 1.75 0.583252 1.41422 0.583252 1ZM0.583252 11C0.583252 10.5858 0.919038 10.25 1.33325 10.25L14.6666 10.25C15.0808 10.25 15.4166 10.5858 15.4166 11C15.4166 11.4142 15.0808 11.75 14.6666 11.75H1.33325C0.919038 11.75 0.583252 11.4142 0.583252 11ZM1.33325 5.25C0.919038 5.25 0.583252 5.58579 0.583252 6C0.583252 6.41421 0.919038 6.75 1.33325 6.75L7.99992 6.75C8.41413 6.75 8.74992 6.41421 8.74992 6C8.74992 5.58579 8.41413 5.25 7.99992 5.25L1.33325 5.25Z" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="hidden lg:block flex-1 max-w-md">
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z" fill="currentColor"/></svg>
+                            </span>
+                            <input type="text" placeholder="Pesquisar..." class="h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-4 text-sm text-gray-800 placeholder-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/10"/>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700">Usuário</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            @Body
+        </main>
+    </div>
+</div>
+
+@code {
+    private bool SidebarOpen { get; set; } = true;
+    private bool ParametrosExpandido { get; set; }
+
+    private static readonly List<(string Titulo, string Slug)> SubmenusParametros = new()
+    {
+        ("Integração SIECONSP7", "integracao-sieconsp7"),
+        ("Contas de Email", "contas-email"),
+        ("Empresas", "empresas"),
+        ("Jornada", "jornada"),
+        ("SLA", "sla"),
+        ("Avisos por Email", "avisos-email"),
+        ("Prospect", "prospect"),
+        ("Identidade Visual", "identidade-visual"),
+        ("Caminhos", "caminhos"),
+        ("Páginas Sistema", "paginas-sistema"),
+        ("Status de Operações", "status-operacoes"),
+        ("Ordem de Serviço", "ordem-servico"),
+        ("Chamados", "chamados"),
+        ("Rastreamento Email", "rastreamento-email"),
+        ("Link Boleto", "link-boleto"),
+        ("Portal Cliente", "portal-cliente"),
+        ("Monitoramento de Serviços", "monitoramento-servicos"),
+        ("Aviso Portal Cliente", "aviso-portal-cliente"),
+        ("Política de Senhas", "politica-senhas"),
+        ("Integração Mobuss", "integracao-mobuss"),
+        ("Espaço Cliente", "espaco-cliente")
+    };
+
+    protected override void OnInitialized()
+    {
+        AtualizarEstadoParametros();
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        AtualizarEstadoParametros();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void AtualizarEstadoParametros()
+    {
+        var path = new Uri(NavigationManager.Uri).AbsolutePath;
+        ParametrosExpandido = path.StartsWith("/parametros", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public void Dispose() => NavigationManager.LocationChanged -= OnLocationChanged;
+
+    private void ToggleSidebar()
+    {
+        SidebarOpen = !SidebarOpen;
+    }
+
+    private void ToggleParametros()
+    {
+        ParametrosExpandido = !ParametrosExpandido;
+    }
+}
