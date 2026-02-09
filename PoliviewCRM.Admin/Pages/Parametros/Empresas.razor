@@ -121,7 +121,7 @@
 
                         <div class="flex gap-2">
                             <button type="button" @onclick="Salvar" disabled="@_salvando"
-                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                                class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50">
                                 @(_salvando ? "Salvando..." : "Salvar")
                             </button>
                             <button type="button" @onclick="VoltarParaGrid"
@@ -152,7 +152,7 @@
             {
                 <div class="mb-4 flex gap-2">
                     <button type="button" @onclick="Incluir"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
                         Incluir
                     </button>
                 </div>
@@ -184,7 +184,7 @@
                                         <td class="px-4 py-2">@ObterNomeContaEmail(item.idcontaemail)</td>
                                         <td class="px-4 py-2">@(item.ativo == 1 ? "Sim" : "Não")</td>
                                         <td class="px-4 py-2">
-                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-blue-600 hover:underline">Alterar</button>
+                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-primary-600 hover:underline">Alterar</button>
                                             <button type="button" @onclick="() => Excluir(item)" class="text-red-600 hover:underline">Excluir</button>
                                         </td>
                                     </tr>

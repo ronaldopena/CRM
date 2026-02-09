@@ -6,7 +6,14 @@
     <aside class="@(SidebarOpen ? "translate-x-0 lg:w-[90px]" : "-translate-x-full") sidebar fixed left-0 top-0 z-[9999] flex h-screen w-[290px] flex-col overflow-y-auto border-r border-gray-200 bg-white px-5 transition-transform duration-300 lg:static lg:translate-x-0">
         <div class="@(SidebarOpen ? "justify-center" : "justify-between") flex items-center gap-2 border-b border-gray-100 pb-7 pt-8">
             <div class="flex items-center gap-2">
-                <span class="@(SidebarOpen ? "lg:hidden" : "") logo text-xl font-semibold text-gray-800">SIECON CRM</span>
+                @if (SidebarOpen)
+                {
+                    <img src="/images/logo.png" alt="SIECON" class="h-auto max-w-full" style="max-height: 50px;" />
+                }
+                else
+                {
+                    <img src="/images/logo.png" alt="SIECON" class="h-auto max-w-full" style="max-height: 50px;" />
+                }
             </div>
         </div>
         <nav class="flex flex-col overflow-y-auto py-4">

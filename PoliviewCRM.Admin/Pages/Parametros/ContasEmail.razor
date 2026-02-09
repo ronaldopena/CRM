@@ -256,7 +256,7 @@
                                     <div>
                                         <button type="button" @onclick="TestarEnvioEmail" 
                                                 disabled="@_testandoEnvio"
-                                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                                class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed">
                                             @(_testandoEnvio ? "Enviando..." : "Enviar E-mail de Teste")
                                         </button>
                                     </div>
@@ -291,7 +291,7 @@
 
                         <div class="mt-6 flex gap-2">
                             <button type="button" @onclick="Salvar" disabled="@_salvando"
-                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                                class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50">
                                 @(_salvando ? "Salvando..." : "Salvar")
                             </button>
                             <button type="button" @onclick="VoltarParaGrid"
@@ -322,7 +322,7 @@
             {
                 <div class="mb-4 flex gap-2">
                     <button type="button" @onclick="Incluir"
-                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                        class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
                         Incluir
                     </button>
                 </div>
@@ -356,7 +356,7 @@
                                         <td class="px-4 py-2">@NomeTipoConta(item.tipoconta)</td>
                                         <td class="px-4 py-2">@(item.ativo == 1 ? "Sim" : "Não")</td>
                                         <td class="px-4 py-2">
-                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-blue-600 hover:underline">Alterar</button>
+                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-primary-600 hover:underline">Alterar</button>
                                             <button type="button" @onclick="() => Excluir(item)" class="text-red-600 hover:underline">Excluir</button>
                                         </td>
                                     </tr>
@@ -623,7 +623,7 @@
     private string GetTabClass(int index)
     {
         return _activeTabIndex == index 
-            ? "border-blue-500 text-blue-600" 
+            ? "border-primary-500 text-primary-600" 
             : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700";
     }
 
