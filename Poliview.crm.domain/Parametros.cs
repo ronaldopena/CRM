@@ -54,6 +54,18 @@ namespace Poliview.crm.domain
         public int? ID_JornadaSLA { get; set; }
         /// <summary>Jornada padrão Recurso</summary>
         public int? ID_JornadaRecurso { get; set; }
+        /// <summary>SLA: Percentual crítico</summary>
+        public int? NR_SLACritico { get; set; }
+        /// <summary>SLA: Percentual de alerta</summary>
+        public int? NR_SLAAlerta { get; set; }
+        /// <summary>SLA: Considerar horas úteis (Jornada) no cálculo</summary>
+        public bool horasUteisCalcSLA { get; set; }
+        /// <summary>Tempo lembrar de responder pesquisa satisfação (dias)</summary>
+        public int? DiasLembrarPesquisaSatisfacao { get; set; }
+        /// <summary>Quantidade de avisos para lembrar pesquisa satisfação</summary>
+        public int? qtdeAvisosLembrarPesquisa { get; set; }
+        /// <summary>Código documento (email) para aviso de chamado concluído</summary>
+        public int? documentoChamadoConcluido { get; set; }
     }
 
     public class ConfigEspacoCliente

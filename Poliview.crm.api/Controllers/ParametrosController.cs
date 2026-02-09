@@ -104,7 +104,7 @@ namespace Poliview.crm.api.Controllers
             }
         }
 
-        // [Authorize]
+        //         [Authorize]
         [HttpPut("jornada")]
         public IActionResult AtualizarJornadas([FromBody] ParametrosJornadaRequisicao body)
         {
@@ -114,6 +114,46 @@ namespace Poliview.crm.api.Controllers
                     _connectionString,
                     body.ID_JornadaSLA,
                     body.ID_JornadaRecurso);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //         [Authorize]
+        [HttpPut("sla")]
+        public IActionResult AtualizarSLA([FromBody] ParametrosSLARequisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarSLA(
+                    _connectionString,
+                    body.NR_SLACritico,
+                    body.NR_SLAAlerta,
+                    body.horasUteisCalcSLA);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // [Authorize]
+        [HttpPut("avisos-email")]
+        public IActionResult AtualizarAvisosEmail([FromBody] ParametrosAvisosEmailRequisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarAvisosEmail(
+                    _connectionString,
+                    body.TamanhoMaximoAnexos,
+                    body.emailErrosAdmin,
+                    body.DiasLembrarPesquisaSatisfacao,
+                    body.qtdeAvisosLembrarPesquisa,
+                    body.documentoChamadoConcluido);
                 return Ok();
             }
             catch (Exception ex)

@@ -1,9 +1,310 @@
 @page "/parametros/avisos-email"
+@inject HttpClient Http
+@using PoliviewCRM.Admin.Services
+
 <PageTitle>Avisos por Email | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
         <h2 class="mb-4 text-base font-semibold text-gray-800">Avisos por Email</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+
+        @* Navegação de abas *@
+        <div class="mb-6 border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button type="button" 
+                    @onclick="() => OnAbaChanged(0)"
+                    class="@(AbaAtiva == 0 ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700") whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                    Configurações de notificações
+                </button>
+                <button type="button" 
+                    @onclick="() => OnAbaChanged(1)"
+                    class="@(AbaAtiva == 1 ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700") whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                    Estágio de Operações
+                </button>
+                <button type="button" 
+                    @onclick="() => OnAbaChanged(2)"
+                    class="@(AbaAtiva == 2 ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700") whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                    Monitoramento SLA
+                </button>
+                <button type="button" 
+                    @onclick="() => OnAbaChanged(3)"
+                    class="@(AbaAtiva == 3 ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700") whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                    Configurar campo assunto de email
+                </button>
+            </nav>
+        </div>
+
+        @* Conteúdo das abas *@
+        <div class="mt-4">
+            @if (AbaAtiva == 0)
+            {
+                @* Aba 1: Configurações de notificações *@
+                @if (_carregando)
+                {
+                    <p class="text-sm text-gray-500">Carregando...</p>
+                }
+                else
+                {
+                    @if (!string.IsNullOrEmpty(_mensagemErro) && _configuracoes is null)
+                    {
+                        <div class="space-y-3 mb-4">
+                            <p class="text-sm font-medium text-red-600">@_mensagemErro</p>
+                            @if (!string.IsNullOrEmpty(_detalheErroCarregamento))
+                            {
+                                <details class="rounded-lg border border-gray-200 bg-gray-50">
+                                    <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-gray-700">Detalhes técnicos do erro</summary>
+                                    <pre class="overflow-x-auto whitespace-pre-wrap break-words px-3 py-2 text-xs text-gray-600">@_detalheErroCarregamento</pre>
+                                </details>
+                            }
+                        </div>
+                    }
+                    @if (_configuracoes is not null)
+                    {
+                    <div class="max-w-2xl space-y-4">
+                        @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                        {
+                            <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                        }
+                        @if (!string.IsNullOrEmpty(_mensagemErro))
+                        {
+                            <div class="space-y-2">
+                                <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                                @if (!string.IsNullOrEmpty(_detalheErroSalvar))
+                                {
+                                    <details class="rounded-lg border border-red-200 bg-red-50/50">
+                                        <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-red-800">Detalhes técnicos</summary>
+                                        <pre class="overflow-x-auto whitespace-pre-wrap break-words px-3 py-2 text-xs text-red-700">@_detalheErroSalvar</pre>
+                                    </details>
+                                }
+                            </div>
+                        }
+                        <div class="space-y-6">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">Tamanho Máximo dos Anexos em MBytes</label>
+                                <div class="flex items-center gap-2">
+                                    <InputNumber @bind-Value="_configuracoes.TamanhoMaximoAnexos" 
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                        min="0" />
+                                    <span class="text-sm text-gray-500">Mbytes</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">Email para receber erros do sistema (administrador)</label>
+                                <InputText @bind-Value="_configuracoes.emailErrosAdmin" 
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                    placeholder="email1@exemplo.com;email2@exemplo.com" />
+                                <p class="mt-1 text-xs text-gray-500">Separe múltiplos emails com ponto e vírgula (;)</p>
+                            </div>
+
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tempo lembrar de responder pesquisa satisfação</label>
+                                    <div class="flex items-center gap-2">
+                                        <InputNumber @bind-Value="_configuracoes.DiasLembrarPesquisaSatisfacao" 
+                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                            min="0" />
+                                        <span class="text-sm text-gray-500">dias</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Quantidade de avisos</label>
+                                    <div class="flex items-center gap-2">
+                                        <InputNumber @bind-Value="_configuracoes.qtdeAvisosLembrarPesquisa" 
+                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                            min="0" />
+                                        <span class="text-sm text-gray-500">avisos</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-gray-700">Código documento (email) para aviso de chamado concluído</label>
+                                <InputNumber @bind-Value="_configuracoes.documentoChamadoConcluido" 
+                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                    min="0" />
+                            </div>
+
+                            <div>
+                                <button type="button" @onclick="SalvarConfiguracoes"
+                                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    @(_salvando ? "Salvando..." : "Salvar")
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                }
+            }
+            else if (AbaAtiva == 1)
+            {
+                @* Aba 2: Estágio de Operações *@
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-700">Estágio de Operações</h3>
+                    <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+                </div>
+            }
+            else if (AbaAtiva == 2)
+            {
+                @* Aba 3: Monitoramento SLA *@
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-700">Monitoramento SLA</h3>
+                    <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+                </div>
+            }
+            else if (AbaAtiva == 3)
+            {
+                @* Aba 4: Configurar campo assunto de email *@
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-gray-700">Configurar campo assunto de email</h3>
+                    <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+@code {
+    private int AbaAtiva = 0;
+    private AvisosEmailViewModel? _configuracoes;
+    private bool _carregando;
+    private bool _salvando;
+    private string? _mensagemSucesso;
+    private string? _mensagemErro;
+    private string? _detalheErroCarregamento;
+    private string? _detalheErroSalvar;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AbaAtiva == 0)
+        {
+            await CarregarConfiguracoes();
+        }
+    }
+
+    private async Task CarregarConfiguracoes()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        _detalheErroCarregamento = null;
+        StateHasChanged();
+        try
+        {
+            var response = await Http.GetAsync("parametros");
+            if (response.IsSuccessStatusCode)
+            {
+                var parametros = await response.Content.ReadFromJsonAsync<Parametros>();
+                if (parametros != null)
+                {
+                    _configuracoes = new AvisosEmailViewModel
+                    {
+                        TamanhoMaximoAnexos = parametros.tamanhoMaximoAnexos,
+                        emailErrosAdmin = parametros.emailErrosAdmin,
+                        DiasLembrarPesquisaSatisfacao = parametros.DiasLembrarPesquisaSatisfacao,
+                        qtdeAvisosLembrarPesquisa = parametros.qtdeAvisosLembrarPesquisa,
+                        documentoChamadoConcluido = parametros.documentoChamadoConcluido
+                    };
+                }
+                else
+                {
+                    _configuracoes = new AvisosEmailViewModel();
+                    _mensagemErro = "Nenhum dado retornado da API.";
+                }
+            }
+            else
+            {
+                var bodyErro = await response.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao carregar parâmetros. Status: {(int)response.StatusCode} ({response.StatusCode})";
+                _detalheErroCarregamento = string.IsNullOrWhiteSpace(bodyErro)
+                    ? $"HTTP {(int)response.StatusCode} - {response.ReasonPhrase}"
+                    : $"HTTP {(int)response.StatusCode}\nResposta: {bodyErro}";
+                _configuracoes = new AvisosEmailViewModel();
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _mensagemErro = "Não foi possível conectar à API.";
+            _detalheErroCarregamento = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}";
+            _configuracoes = new AvisosEmailViewModel();
+        }
+        catch (TaskCanceledException ex)
+        {
+            _mensagemErro = "Requisição cancelada ou tempo esgotado.";
+            _detalheErroCarregamento = ex.Message;
+            _configuracoes = new AvisosEmailViewModel();
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = "Não foi possível carregar os parâmetros.";
+            _detalheErroCarregamento = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}\nStack: {ex.StackTrace}";
+            _configuracoes = new AvisosEmailViewModel();
+        }
+        finally
+        {
+            _carregando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SalvarConfiguracoes()
+    {
+        if (_configuracoes is null) return;
+        _salvando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        _detalheErroSalvar = null;
+        StateHasChanged();
+        try
+        {
+            var body = new ParametrosAvisosEmailRequisicao
+            {
+                TamanhoMaximoAnexos = _configuracoes.TamanhoMaximoAnexos,
+                emailErrosAdmin = _configuracoes.emailErrosAdmin,
+                DiasLembrarPesquisaSatisfacao = _configuracoes.DiasLembrarPesquisaSatisfacao,
+                qtdeAvisosLembrarPesquisa = _configuracoes.qtdeAvisosLembrarPesquisa,
+                documentoChamadoConcluido = _configuracoes.documentoChamadoConcluido
+            };
+            var response = await Http.PutAsJsonAsync("parametros/avisos-email", body);
+            if (response.IsSuccessStatusCode)
+            {
+                _mensagemSucesso = "Configurações salvas com sucesso.";
+            }
+            else
+            {
+                var bodyErro = await response.Content.ReadAsStringAsync();
+                _mensagemErro = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                    ? "Não autorizado. Faça login novamente."
+                    : (string.IsNullOrWhiteSpace(bodyErro) ? $"Erro {response.StatusCode}" : bodyErro);
+                _detalheErroSalvar = $"HTTP {(int)response.StatusCode} ({response.StatusCode})\nResposta: {bodyErro}";
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            _mensagemErro = "Não foi possível conectar à API.";
+            _detalheErroSalvar = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}";
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+            _detalheErroSalvar = $"{ex.GetType().Name}: {ex.Message}\nInner: {ex.InnerException?.Message}\nStack: {ex.StackTrace}";
+        }
+        finally
+        {
+            _salvando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnAbaChanged(int novaAba)
+    {
+        AbaAtiva = novaAba;
+        if (novaAba == 0 && _configuracoes is null)
+        {
+            await CarregarConfiguracoes();
+        }
+        StateHasChanged();
+    }
+}

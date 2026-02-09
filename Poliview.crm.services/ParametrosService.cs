@@ -27,10 +27,12 @@ namespace Poliview.crm.services
                         "TipoAutenticacaoEmail as TipoAutenticacaoEmail, " +
                         "HR_EmailIntervaloPop3/ 60 as intervaloRecebimentoEmailMinutos, " +
                         "HR_EmailIntervalo / 60 as intervaloEnvioEmailMinutos, " +
-                        "tipoAcessoSiecon, usuarioApiSiecon, senhaApiSiecon, urlApiSiecon, tamanhoMaximoAnexos, emailErrosAdmin, " +
+                        "tipoAcessoSiecon, usuarioApiSiecon, senhaApiSiecon, urlApiSiecon, TamanhoMaximoAnexos as tamanhoMaximoAnexos, emailErrosAdmin, " +
                         "habilitarEspacoCliente, empreendimentoTesteEspacoCliente, " +
                         "NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDBInteg as DS_PathDbInteg, DS_PortaServidorInteg as DS_portaServidorInteg, " +
-                        "ID_JornadaSLA, ID_JornadaRecurso " +
+                        "ID_JornadaSLA, ID_JornadaRecurso, " +
+                        "NR_SLACritico, NR_SLAAlerta, cast(coalesce(horasUteisCalcSLA, 0) as bit) as horasUteisCalcSLA, " +
+                        "DiasLembrarPesquisaSatisfacao, qtdeAvisosLembrarPesquisa, documentoChamadoConcluido " +
                         "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
 
             // Console.WriteLine(query);
@@ -96,6 +98,40 @@ namespace Poliview.crm.services
                 ID_JornadaRecurso = @ID_JornadaRecurso
                 WHERE cd_bancodados = 1 AND cd_mandante = 1";
             return connection.Execute(query, new { ID_JornadaSLA, ID_JornadaRecurso });
+        }
+
+        public static int AtualizarSLA(string _connectionString, int? NR_SLACritico, int? NR_SLAAlerta, bool horasUteisCalcSLA)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                NR_SLACritico = @NR_SLACritico,
+                NR_SLAAlerta = @NR_SLAAlerta,
+                horasUteisCalcSLA = @horasUteisCalcSLA
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { 
+                NR_SLACritico, 
+                NR_SLAAlerta, 
+                horasUteisCalcSLA = horasUteisCalcSLA ? 1 : 0 
+            });
+        }
+
+        public static int AtualizarAvisosEmail(string _connectionString, int? TamanhoMaximoAnexos, string? emailErrosAdmin, int? DiasLembrarPesquisaSatisfacao, int? qtdeAvisosLembrarPesquisa, int? documentoChamadoConcluido)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                TamanhoMaximoAnexos = @TamanhoMaximoAnexos,
+                emailErrosAdmin = @emailErrosAdmin,
+                DiasLembrarPesquisaSatisfacao = @DiasLembrarPesquisaSatisfacao,
+                qtdeAvisosLembrarPesquisa = @qtdeAvisosLembrarPesquisa,
+                documentoChamadoConcluido = @documentoChamadoConcluido
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { 
+                TamanhoMaximoAnexos, 
+                emailErrosAdmin, 
+                DiasLembrarPesquisaSatisfacao, 
+                qtdeAvisosLembrarPesquisa, 
+                documentoChamadoConcluido 
+            });
         }
     }
 }
