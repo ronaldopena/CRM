@@ -6,10 +6,22 @@
 
 <div class="mx-auto max-w-7xl p-4 md:p-6">
     <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
-        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+        <div class="flex items-center justify-between">
+            <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema -> Contas de E-mail</h1>
+            @if (_mostrarEdicao)
+            {
+                <button type="button" @onclick="VoltarParaGrid"
+                    class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    ← Voltar
+                </button>
+            }
+        </div>
     </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Contas de E-mail</h2>
+        @if (!_mostrarEdicao)
+        {
+            <h2 class="mb-4 text-base font-semibold text-gray-800">Contas de E-mail</h2>
+        }
 
         @if (_mostrarEdicao)
         {
@@ -23,12 +35,6 @@
                 {
                     <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
                 }
-                <div class="flex justify-between">
-                    <button type="button" @onclick="VoltarParaGrid"
-                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                        ← Voltar
-                    </button>
-                </div>
                 @if (_editando is not null)
                 {
                     @* Navegação de abas *@
