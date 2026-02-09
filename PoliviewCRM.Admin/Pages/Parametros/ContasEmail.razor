@@ -31,9 +31,28 @@
                 </div>
                 @if (_editando is not null)
                 {
+                    @* Navegação de abas *@
+                    <div class="mb-6 border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                            <button type="button" 
+                                @onclick="() => MudarAba(0)"
+                                class="@(GetTabClass(0)) whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                                Configuração
+                            </button>
+                            <button type="button" 
+                                @onclick="() => MudarAba(1)"
+                                class="@(GetTabClass(1)) whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                                Testar envio/recebimento de e-mail
+                            </button>
+                        </nav>
+                    </div>
+
                     <div class="max-w-4xl space-y-6">
-                        <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Identificação</h3>
+                        @if (_activeTabIndex == 0)
+                        {
+                            @* Aba Configuração *@
+                            <section class="rounded-lg border border-gray-200 p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Identificação</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="sm:col-span-2">
                                     <label class="mb-1 block text-sm font-medium text-gray-700">Descrição da conta</label>
@@ -49,7 +68,9 @@
                                 </div>
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-gray-700">Tipo de conta</label>
-                                    <select @bind="_editando.tipoconta" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                    <select value="@_editando.tipoconta" 
+                                            @onchange="@((ChangeEventArgs e) => OnTipoContaChanged(e))"
+                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
                                         <option value="0">Padrão (SMTP/POP)</option>
                                         <option value="1">Office 365</option>
                                         <option value="2">Gmail</option>
@@ -65,8 +86,11 @@
                             </div>
                         </section>
 
-                        <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Acesso (POP/IMAP)</h3>
+                        @* Card Acesso POP/IMAP - Mostrar apenas quando tipoconta == 0 *@
+                        @if (_editando.tipoconta == 0)
+                        {
+                            <section class="rounded-lg border border-gray-200 p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Acesso (POP/IMAP e SMTP)</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-gray-700">Usuário</label>
@@ -89,10 +113,11 @@
                                     <label for="sslpop" class="text-sm font-medium text-gray-700">SSL POP</label>
                                 </div>
                             </div>
-                        </section>
+                            </section>
 
-                        <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">SMTP</h3>
+                            @* Card SMTP - Mostrar apenas quando tipoconta == 0 *@
+                            <section class="rounded-lg border border-gray-200 p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700">SMTP</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-gray-700">Host SMTP</label>
@@ -107,10 +132,14 @@
                                     <label for="sslsmtp" class="text-sm font-medium text-gray-700">SSL SMTP</label>
                                 </div>
                             </div>
-                        </section>
+                            </section>
+                        }
 
-                        <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">OAuth (Office 365 / Gmail)</h3>
+                        @* Card OAuth - Mostrar apenas quando tipoconta == 1 ou 2 *@
+                        @if (_editando.tipoconta == 1 || _editando.tipoconta == 2)
+                        {
+                            <section class="rounded-lg border border-gray-200 p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700">OAuth (@(_editando.tipoconta == 1 ? "Office 365" : "Gmail"))</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
                                     <label class="mb-1 block text-sm font-medium text-gray-700">Tenant ID</label>
@@ -133,10 +162,11 @@
                                     <InputText @bind-Value="_editando.refresh_token" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
                                 </div>
                             </div>
-                        </section>
+                            </section>
+                        }
 
                         <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Envio e recebimento</h3>
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Envio e Recebimento</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="flex items-center gap-2">
                                     <InputCheckbox @bind-Value="_editando.enviaremail" id="enviaremail" class="h-4 w-4 rounded border-gray-300" />
@@ -190,8 +220,70 @@
                                 </div>
                             </div>
                         </section>
+                        }
+                        @* Fim da aba Configuração *@
+                        else if (_activeTabIndex == 1)
+                        {
+                            @* Aba Testar envio/recebimento *@
+                            <section class="rounded-lg border border-gray-200 p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Testar Envio de E-mail</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">E-mail destinatário</label>
+                                        <InputText @bind-Value="_testeEmailDestinatario" 
+                                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                                   placeholder="email@exemplo.com" />
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Assunto</label>
+                                        <InputText @bind-Value="_testeEmailAssunto" 
+                                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                                   placeholder="Teste de envio" />
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Corpo do e-mail</label>
+                                        <textarea @bind="_testeEmailCorpo" 
+                                                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                                  rows="5"
+                                                  placeholder="Digite o corpo do e-mail de teste..."></textarea>
+                                    </div>
+                                    <div>
+                                        <button type="button" @onclick="TestarEnvioEmail" 
+                                                disabled="@_testandoEnvio"
+                                                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            @(_testandoEnvio ? "Enviando..." : "Enviar E-mail de Teste")
+                                        </button>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(_mensagemTesteEnvio))
+                                    {
+                                        <div class="@(_testeEnvioSucesso ? "text-green-600" : "text-red-600") text-sm">
+                                            @_mensagemTesteEnvio
+                                        </div>
+                                    }
+                                </div>
+                            </section>
 
-                        <div class="flex gap-2">
+                            <section class="rounded-lg border border-gray-200 p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Testar Recebimento de E-mail</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <button type="button" @onclick="TestarRecebimentoEmail" 
+                                                disabled="@_testandoRecebimento"
+                                                class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            @(_testandoRecebimento ? "Testando..." : "Testar Recebimento")
+                                        </button>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(_mensagemTesteRecebimento))
+                                    {
+                                        <div class="@(_testeRecebimentoSucesso ? "text-green-600" : "text-red-600") text-sm">
+                                            @_mensagemTesteRecebimento
+                                        </div>
+                                    }
+                                </div>
+                            </section>
+                        }
+
+                        <div class="mt-6 flex gap-2">
                             <button type="button" @onclick="Salvar" disabled="@_salvando"
                                 class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
                                 @(_salvando ? "Salvando..." : "Salvar")
@@ -280,6 +372,20 @@
     private bool _salvando;
     private string? _mensagemErro;
     private string? _mensagemSucesso;
+    
+    // Variáveis para controle de abas
+    private int _activeTabIndex = 0;
+    
+    // Variáveis para teste de envio/recebimento
+    private string _testeEmailDestinatario = string.Empty;
+    private string _testeEmailAssunto = string.Empty;
+    private string _testeEmailCorpo = string.Empty;
+    private bool _testandoEnvio = false;
+    private bool _testandoRecebimento = false;
+    private string _mensagemTesteEnvio = string.Empty;
+    private string _mensagemTesteRecebimento = string.Empty;
+    private bool _testeEnvioSucesso = false;
+    private bool _testeRecebimentoSucesso = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -343,6 +449,7 @@
         _mostrarEdicao = true;
         _mensagemErro = null;
         _mensagemSucesso = null;
+        ResetarAbas();
     }
 
     private void Alterar(ContaEmail item)
@@ -384,6 +491,19 @@
         _mostrarEdicao = true;
         _mensagemErro = null;
         _mensagemSucesso = null;
+        ResetarAbas();
+    }
+
+    private void ResetarAbas()
+    {
+        _activeTabIndex = 0;
+        _testeEmailDestinatario = string.Empty;
+        _testeEmailAssunto = "Teste de envio de e-mail";
+        _testeEmailCorpo = "Este é um e-mail de teste enviado pelo sistema SIECON CRM.";
+        _mensagemTesteEnvio = string.Empty;
+        _mensagemTesteRecebimento = string.Empty;
+        _testeEnvioSucesso = false;
+        _testeRecebimentoSucesso = false;
     }
 
     private async Task VoltarParaGrid()
@@ -477,5 +597,97 @@
             _mensagemErro = ex.Message;
         }
         StateHasChanged();
+    }
+
+    private void OnTipoContaChanged(ChangeEventArgs e)
+    {
+        if (_editando != null && e.Value != null && int.TryParse(e.Value.ToString(), out int novoValor))
+        {
+            _editando.tipoconta = novoValor;
+            StateHasChanged();
+        }
+    }
+
+    private void MudarAba(int index)
+    {
+        _activeTabIndex = index;
+        StateHasChanged();
+    }
+
+    private string GetTabClass(int index)
+    {
+        return _activeTabIndex == index 
+            ? "border-blue-500 text-blue-600" 
+            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700";
+    }
+
+    private async Task TestarEnvioEmail()
+    {
+        if (string.IsNullOrWhiteSpace(_testeEmailDestinatario))
+        {
+            _mensagemTesteEnvio = "Informe o e-mail destinatário";
+            _testeEnvioSucesso = false;
+            StateHasChanged();
+            return;
+        }
+
+        _testandoEnvio = true;
+        _mensagemTesteEnvio = string.Empty;
+        _testeEnvioSucesso = false;
+        StateHasChanged();
+
+        try
+        {
+            // Simula o envio de email - aqui você pode implementar a lógica real
+            await Task.Delay(1500);
+            
+            _mensagemTesteEnvio = "E-mail de teste enviado com sucesso! (Funcionalidade simulada)";
+            _testeEnvioSucesso = true;
+        }
+        catch (Exception ex)
+        {
+            _mensagemTesteEnvio = $"Erro ao testar envio: {ex.Message}";
+            _testeEnvioSucesso = false;
+        }
+        finally
+        {
+            _testandoEnvio = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TestarRecebimentoEmail()
+    {
+        _testandoRecebimento = true;
+        _mensagemTesteRecebimento = string.Empty;
+        _testeRecebimentoSucesso = false;
+        StateHasChanged();
+
+        try
+        {
+            // Simula o teste de recebimento - aqui você pode implementar a lógica real
+            await Task.Delay(1500);
+
+            if (_editando?.receberemail == false)
+            {
+                _mensagemTesteRecebimento = "Recebimento de e-mail está desabilitado para esta conta.";
+                _testeRecebimentoSucesso = false;
+            }
+            else
+            {
+                _mensagemTesteRecebimento = "Teste de recebimento executado com sucesso! (Funcionalidade simulada)";
+                _testeRecebimentoSucesso = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemTesteRecebimento = $"Erro ao testar recebimento: {ex.Message}";
+            _testeRecebimentoSucesso = false;
+        }
+        finally
+        {
+            _testandoRecebimento = false;
+            StateHasChanged();
+        }
     }
 }

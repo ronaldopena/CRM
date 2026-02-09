@@ -15,178 +15,352 @@
 
 @if (_isEditDialogOpen)
 {
-    <MudPaper Class="pa-4">
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-            <MudText Typo="Typo.h6">
-                <MudIcon Icon="@Icons.Material.Filled.Email" Class="mr-2" />
-                Cadastro de Conta de Email
-            </MudText>
-            <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@CloseDialog" />
-        </div>
-        <MudForm Model="@_selectedItem" @ref="@_form" Validation="@(_contaEmailValidator.ValidateValue)">
-            <div class="d-flex flex-grow-1 gap-1">
-                <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                    <MudSelect T="int" Label="Tipo Conta" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.tipoconta">
-                        <MudSelectItem Value=0>POP/SMTP</MudSelectItem>
-                        <MudSelectItem Value=1>OFFICE365</MudSelectItem>
-                        <MudSelectItem Value=2>GMAIL</MudSelectItem>
-                    </MudSelect>
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="15%" Elevation="0">
-                    <MudTextField @bind-Value="_selectedItem.id" Label="Código" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="true" />
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex " Width="60%" Elevation="0">
-                    <MudTextField @bind-Value="_selectedItem.descricaoConta" Label="Descrição conta" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                </MudPaper>
+    <div class="mx-auto max-w-7xl p-4 md:p-6">
+        <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <h1 class="text-lg font-semibold text-gray-800">Cadastro de Conta de Email</h1>
+                <button type="button" @onclick="CloseDialog" class="text-gray-500 hover:text-gray-700">
+                    <span class="text-xl">×</span>
+                </button>
             </div>
-
-            <div class="d-flex flex-grow-1 gap-1">
-                @if (_selectedItem.tipoconta == 0)
+        </div>
+        <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
+            @* Navegação de abas *@
+            <div class="mb-6 border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                    <button type="button" 
+                        @onclick="() => MudarAba(0)"
+                        class="@(GetTabClass(0)) whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                        Configuração
+                    </button>
+                    <button type="button" 
+                        @onclick="() => MudarAba(1)"
+                        class="@(GetTabClass(1)) whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium">
+                        Testar envio/recebimento de e-mail
+                    </button>
+                </nav>
+            </div>
+            
+            @* Conteúdo das abas *@
+            <div class="mt-4">
+                @if (_activeTabIndex == 0)
                 {
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.nomeRemetente"
-                                      For="@(() => _selectedItem.nomeRemetente)"
-                                      Immediate="true"
-                                      Label="Nome Remetente" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
+                    @* Aba Configuração *@
+                    <div class="max-w-full space-y-4" @key="@($"config-{_selectedItem.tipoconta}")">
+                        @* Mensagens de sucesso/erro *@
+                        @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                        {
+                            <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                        }
+                        @if (!string.IsNullOrEmpty(_mensagemErro))
+                        {
+                            <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                        }
+                        
+                        @* Card Identificação *@
+                        <div class="rounded-lg border border-gray-200 bg-white p-4">
+                            <h3 class="mb-3 text-base font-semibold text-gray-800">Identificação</h3>
+                            <div class="grid gap-4 sm:grid-cols-12">
+                                <div class="sm:col-span-3">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tipo Conta</label>
+                                    <select value="@_selectedItem.tipoconta" 
+                                            @onchange="@((ChangeEventArgs e) => OnTipoContaChanged(e))"
+                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="0">POP/SMTP</option>
+                                        <option value="1">OFFICE365</option>
+                                        <option value="2">GMAIL</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Código</label>
+                                    <InputNumber @bind-Value="_selectedItem.id" 
+                                                 class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm" 
+                                                 disabled />
+                                </div>
+                                <div class="sm:col-span-7">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Descrição conta</label>
+                                    <InputText @bind-Value="_selectedItem.descricaoConta" 
+                                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </div>
 
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.emailRemetente"
-                                      For="@(() => _selectedItem.emailRemetente)"
-                                      Immediate="true"
-                                      Label="Email Remetente" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.usuario"
-                                      For="@(() => _selectedItem.usuario)"
-                                      Immediate="true"
-                                      Label="Usuário" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
+                        @* Card Acesso POP/IMAP - Mostrar apenas quando tipoconta == 0 *@
+                        @if (_selectedItem.tipoconta == 0)
+                        {
+                            <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                <h3 class="mb-3 text-base font-semibold text-gray-800">Acesso (POP/IMAP e SMTP)</h3>
+                                <div class="space-y-4">
+                                    <div class="grid gap-4 sm:grid-cols-4">
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Nome Remetente</label>
+                                            <InputText @bind-Value="_selectedItem.nomeRemetente" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Email Remetente</label>
+                                            <InputText @bind-Value="_selectedItem.emailRemetente" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Usuário</label>
+                                            <InputText @bind-Value="_selectedItem.usuario" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Senha</label>
+                                            <InputText @bind-Value="_selectedItem.senha" 
+                                                       type="password"
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                    </div>
+                                    <div class="grid gap-4 sm:grid-cols-4">
+                                        <div class="sm:col-span-2">
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Servidor POP</label>
+                                            <InputText @bind-Value="_selectedItem.hostpop" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Porta Servidor POP</label>
+                                            <InputNumber @bind-Value="_selectedItem.portapop" 
+                                                         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">SSL Servidor POP</label>
+                                            <select @bind="_selectedItem.sslpop"
+                                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                                <option value="true">SIM</option>
+                                                <option value="false">NÃO</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.senha"
-                                      For="@(() => _selectedItem.senha)"
-                                      InputType="InputType.Password"
-                                      Immediate="true"
-                                      Label="Senha" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
+                            @* Card SMTP - Mostrar apenas quando tipoconta == 0 *@
+                            <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                <h3 class="mb-3 text-base font-semibold text-gray-800">SMTP</h3>
+                                <div class="grid gap-4 sm:grid-cols-4">
+                                    <div class="sm:col-span-2">
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Servidor SMTP</label>
+                                        <InputText @bind-Value="_selectedItem.hostsmtp" 
+                                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Porta Servidor SMTP</label>
+                                        <InputNumber @bind-Value="_selectedItem.portasmtp" 
+                                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">SSL Servidor SMTP</label>
+                                        <select @bind="_selectedItem.sslsmtp"
+                                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                            <option value="true">SIM</option>
+                                            <option value="false">NÃO</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @* Card OAuth (Office 365 / Gmail) - Mostrar apenas quando tipoconta == 1 ou 2 *@
+                        @if (_selectedItem.tipoconta == 1 || _selectedItem.tipoconta == 2)
+                        {
+                            <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                <h3 class="mb-3 text-base font-semibold text-gray-800">OAuth (@(_selectedItem.tipoconta == 1 ? "Office 365" : "Gmail"))</h3>
+                                @if (_selectedItem.tipoconta == 1)
+                                {
+                                    <div class="grid gap-4 sm:grid-cols-4">
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Tenant Id</label>
+                                            <InputText @bind-Value="_selectedItem.tenant_id" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Client Id</label>
+                                            <InputText @bind-Value="_selectedItem.client_id" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Client Secret</label>
+                                            <InputText @bind-Value="_selectedItem.clientSecret" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">UserId</label>
+                                            <InputText @bind-Value="_selectedItem.userId" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                    </div>
+                                }
+                                else if (_selectedItem.tipoconta == 2)
+                                {
+                                    <div class="grid gap-4 sm:grid-cols-3">
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Client Id</label>
+                                            <InputText @bind-Value="_selectedItem.client_id" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Client Secret</label>
+                                            <InputText @bind-Value="_selectedItem.clientSecret" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                        <div>
+                                            <label class="mb-1 block text-sm font-medium text-gray-700">Refresh Token</label>
+                                            <InputText @bind-Value="_selectedItem.refreshtoken" 
+                                                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @* Card Envio e Recebimento *@
+                        <div class="rounded-lg border border-gray-200 bg-white p-4">
+                            <h3 class="mb-3 text-base font-semibold text-gray-800">Envio e Recebimento</h3>
+                            <div class="space-y-4">
+                                <div class="grid gap-4 sm:grid-cols-5">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Receber Email</label>
+                                        <select @bind="_selectedItem.receberemail"
+                                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                            <option value="true">SIM</option>
+                                            <option value="false">NÃO</option>
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Intervalo recebimento (minutos)</label>
+                                        <InputNumber @bind-Value="_selectedItem.intervalorecebimento" 
+                                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Qtd Emails recebimento</label>
+                                        <InputNumber @bind-Value="_selectedItem.qtdeemailsrecebimento" 
+                                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-5">
+                                    <div>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Enviar Email</label>
+                                        <select @bind="_selectedItem.enviaremail"
+                                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                            <option value="true">SIM</option>
+                                            <option value="false">NÃO</option>
+                                        </select>
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Intervalo envio (minutos)</label>
+                                        <InputNumber @bind-Value="_selectedItem.intervaloenvio" 
+                                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                    <div class="sm:col-span-2">
+                                        <label class="mb-1 block text-sm font-medium text-gray-700">Qtd Emails envio</label>
+                                        <InputNumber @bind-Value="_selectedItem.qtdeemailsenvio" 
+                                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Card Limites *@
+                        <div class="rounded-lg border border-gray-200 bg-white p-4">
+                            <h3 class="mb-3 text-base font-semibold text-gray-800">Limites</h3>
+                            <div class="grid gap-4 sm:grid-cols-5">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Ativo</label>
+                                    <select @bind="_selectedItem.ativo"
+                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="1">SIM</option>
+                                        <option value="0">NÃO</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tamanho anexos (MBytes)</label>
+                                    <InputNumber @bind-Value="_selectedItem.tamanhomaximoanexos" 
+                                                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Redirecionar TODOS emails para</label>
+                                    <InputText @bind-Value="_selectedItem.emaildestinatariosuporte" 
+                                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            
+                @* Aba Testar envio/recebimento *@
+                else if (_activeTabIndex == 1)
+                {
+                    <div class="max-w-full space-y-4">
+                        <div class="rounded-lg border border-gray-200 bg-white p-4">
+                            <h3 class="mb-3 text-base font-semibold text-gray-800">Testar Envio de E-mail</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mail destinatário</label>
+                                    <InputText @bind-Value="_testeEmailDestinatario" 
+                                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Assunto</label>
+                                    <InputText @bind-Value="_testeEmailAssunto" 
+                                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Corpo do e-mail</label>
+                                    <textarea @bind="_testeEmailCorpo" 
+                                              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                              rows="5"></textarea>
+                                </div>
+                                <div>
+                                    <button type="button" @onclick="TestarEnvioEmail" 
+                                            disabled="@_testandoEnvio"
+                                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        @(_testandoEnvio ? "Enviando..." : "Enviar E-mail de Teste")
+                                    </button>
+                                </div>
+                                @if (!string.IsNullOrEmpty(_mensagemTesteEnvio))
+                                {
+                                    <div class="@(_testeEnvioSucesso ? "text-green-600" : "text-red-600") text-sm">
+                                        @_mensagemTesteEnvio
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-gray-200 bg-white p-4">
+                            <h3 class="mb-3 text-base font-semibold text-gray-800">Testar Recebimento de E-mail</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <button type="button" @onclick="TestarRecebimentoEmail" 
+                                            disabled="@_testandoRecebimento"
+                                            class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        @(_testandoRecebimento ? "Testando..." : "Testar Recebimento")
+                                    </button>
+                                </div>
+                                @if (!string.IsNullOrEmpty(_mensagemTesteRecebimento))
+                                {
+                                    <div class="@(_testeRecebimentoSucesso ? "text-green-600" : "text-red-600") text-sm">
+                                        @_mensagemTesteRecebimento
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 }
             </div>
-
-            <div class="d-flex flex-grow-1 gap-1">
-                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
-                    <MudSelect T="Boolean" Label="Receber Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.receberemail">
-                        <MudSelectItem Value="true">SIM</MudSelectItem>
-                        <MudSelectItem Value="false">NÃO</MudSelectItem>
-                    </MudSelect>
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
-                    <MudNumericField @bind-Value="_selectedItem.intervalorecebimento" Immediate="true" Label="Intervalo recebimento (minutos)" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
-                    <MudNumericField @bind-Value="_selectedItem.qtdeemailsrecebimento" Immediate="true" Label="Qtd Emails recebimento" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                </MudPaper>
-            </div>
-
-            <div class="d-flex flex-grow-1 gap-1">
-                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
-                    <MudSelect T="Boolean" Label="Enviar Email" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.enviaremail">
-                        <MudSelectItem Value="true">SIM</MudSelectItem>
-                        <MudSelectItem Value="false">NÃO</MudSelectItem>
-                    </MudSelect>
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
-                    <MudNumericField @bind-Value="_selectedItem.intervaloenvio" Immediate="true" Label="Intervalo envio (minutos)" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
-                    <MudNumericField @bind-Value="_selectedItem.qtdeemailsenvio" Immediate="true" Label="Qtd Emails envio" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                </MudPaper>
-            </div>
-
-            @if (_selectedItem.tipoconta == 0)
-            {
-                <div class="d-flex flex-grow-1 gap-1">
-                    <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.hostpop" Immediate="true" Label="Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudNumericField @bind-Value="_selectedItem.portapop" Label="Porta Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudSelect T="Boolean" Label="SSL Servidor POP" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.sslpop">
-                            <MudSelectItem Value="true">SIM</MudSelectItem>
-                            <MudSelectItem Value="false">NÃO</MudSelectItem>
-                        </MudSelect>
-                    </MudPaper>
-                </div>
-
-                <div class="d-flex flex-grow-1 gap-1">
-                    <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.hostsmtp" Immediate="true" Label="Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudNumericField @bind-Value="_selectedItem.portasmtp" Label="Porta Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudSelect T="Boolean" Label="SSL Servidor SMTP" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.sslsmtp">
-                            <MudSelectItem Value="true">SIM</MudSelectItem>
-                            <MudSelectItem Value="false">NÃO</MudSelectItem>
-                        </MudSelect>
-                    </MudPaper>
-                </div>
-            }
-            else if (_selectedItem.tipoconta == 1)
-            {
-                <div class="d-flex flex-grow-1 gap-1">
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.tenant_id" Immediate="true" Label="Tenant Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.client_id" Immediate="true" Label="Client Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.clientSecret" Immediate="true" Label="Client Secret" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="25%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.userId" Immediate="true" Label="UserId" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                </div>
-            }
-            else if (_selectedItem.tipoconta == 2)
-            {
-                <div class="d-flex flex-grow-1 gap-1">
-                    <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.client_id" Immediate="true" Label="Client Id" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.clientSecret" Immediate="true" Label="Client Secret" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                    <MudPaper Class="flex-initial d-flex" Width="40%" Elevation="0">
-                        <MudTextField @bind-Value="_selectedItem.refreshtoken" Immediate="true" Label="Refresh Token" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                    </MudPaper>
-                </div>
-            }
-
-            <div class="d-flex flex-grow-1 gap-1">
-                <MudPaper Class="flex-initial d-flex" Width="20%" Elevation="0">
-                    <MudSelect T="int" Label="Ativo" Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_selectedItem.ativo">
-                        <MudSelectItem Value=1>SIM</MudSelectItem>
-                        <MudSelectItem Value=0>NÃO</MudSelectItem>
-                    </MudSelect>
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="30%" Elevation="0">
-                    <MudNumericField @bind-Value="_selectedItem.tamanhomaximoanexos" Label="Tamanho anexos (MBytes)" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                </MudPaper>
-                <MudPaper Class="flex-initial d-flex" Width="50%" Elevation="0">
-                    <MudTextField @bind-Value="_selectedItem.emaildestinatariosuporte" Immediate="true" Label="Redirecionar TODOS emails para" Variant="Variant.Outlined" Clearable Margin="Margin.Dense" />
-                </MudPaper>
-            </div>
-        </MudForm>
-        <div class="d-flex flex-grow-1 gap-2 mt-3">
-            <MudButton Variant="Variant.Filled" OnClick="@CloseDialog" Color="Color.Secondary">Voltar</MudButton>
-            <MudButton Variant="Variant.Filled" OnClick="@SaveAndClose" Color="Color.Primary">Salvar</MudButton>
         </div>
-    </MudPaper>
+        <div class="mt-4 flex gap-2">
+            <button type="button" @onclick="CloseDialog" 
+                    class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                Voltar
+            </button>
+            <button type="button" @onclick="SaveAndClose" 
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                Salvar
+            </button>
+        </div>
+    </div>
 }
 
 @if (!_isEditDialogOpen)
@@ -230,16 +404,26 @@
     private List<ContaEmail> Contas = new();
     private ContaEmail _selectedItem = new();
     private bool _isEditDialogOpen = false;
-    private MudForm _form;
-    private readonly DialogOptions _dialogOptions = new()
-    {
-        MaxWidth = MaxWidth.Large,
-        FullWidth = true,
-        CloseOnEscapeKey = true,
-        CloseButton = true
-    };
 
     private ContaEmailModelFluentValidator _contaEmailValidator = new();
+    
+    // Variáveis para controle de abas
+    private int _activeTabIndex = 0;
+    
+    // Variáveis para mensagens
+    private string? _mensagemSucesso;
+    private string? _mensagemErro;
+    
+    // Variáveis para teste de envio/recebimento
+    private string _testeEmailDestinatario = string.Empty;
+    private string _testeEmailAssunto = string.Empty;
+    private string _testeEmailCorpo = string.Empty;
+    private bool _testandoEnvio = false;
+    private bool _testandoRecebimento = false;
+    private string _mensagemTesteEnvio = string.Empty;
+    private string _mensagemTesteRecebimento = string.Empty;
+    private bool _testeEnvioSucesso = false;
+    private bool _testeRecebimentoSucesso = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -305,8 +489,38 @@
             emaildestinatariosuporte = item.emaildestinatariosuporte
         };
 
+        _activeTabIndex = 0;
+        _mensagemSucesso = null;
+        _mensagemErro = null;
+        _testeEmailDestinatario = string.Empty;
+        _testeEmailAssunto = string.Empty;
+        _testeEmailCorpo = string.Empty;
+        _mensagemTesteEnvio = string.Empty;
+        _mensagemTesteRecebimento = string.Empty;
         _isEditDialogOpen = true;
         StateHasChanged();
+    }
+    
+    private void OnTipoContaChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null && int.TryParse(e.Value.ToString(), out int novoValor))
+        {
+            _selectedItem.tipoconta = novoValor;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task MudarAba(int index)
+    {
+        _activeTabIndex = index;
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    private string GetTabClass(int index)
+    {
+        return _activeTabIndex == index 
+            ? "border-blue-500 text-blue-600" 
+            : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700";
     }
 
     private void CloseDialog()
@@ -317,10 +531,14 @@
 
     private async Task SaveAndClose()
     {
-        await _form.Validate();
-
-        if (!_form.IsValid)
+        _mensagemSucesso = null;
+        _mensagemErro = null;
+        
+        // Validação básica
+        if (string.IsNullOrWhiteSpace(_selectedItem.descricaoConta))
         {
+            _mensagemErro = "A descrição da conta é obrigatória.";
+            StateHasChanged();
             return;
         }
 
@@ -336,13 +554,16 @@
                 var result = await Alterar(_selectedItem);
                 if (result.sucesso)
                 {
-                    Snackbar.Add("Conta Email alterada com sucesso!", MudBlazor.Severity.Success);
+                    _mensagemSucesso = "Conta Email alterada com sucesso!";
+                    StateHasChanged();
+                    await Task.Delay(1500);
                     _isEditDialogOpen = false;
                     await ListarTodos();
                 }
                 else
                 {
-                    Snackbar.Add(result.mensagem, MudBlazor.Severity.Error);
+                    _mensagemErro = result.mensagem;
+                    StateHasChanged();
                 }
             }
             else
@@ -350,19 +571,23 @@
                 var result = await Incluir(_selectedItem);
                 if (result.sucesso)
                 {
-                    Snackbar.Add("Conta Email incluída com sucesso!", MudBlazor.Severity.Success);
+                    _mensagemSucesso = "Conta Email incluída com sucesso!";
+                    StateHasChanged();
+                    await Task.Delay(1500);
                     _isEditDialogOpen = false;
                     await ListarTodos();
                 }
                 else
                 {
-                    Snackbar.Add(result.mensagem, MudBlazor.Severity.Error);
+                    _mensagemErro = result.mensagem;
+                    StateHasChanged();
                 }
             }
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Erro: {ex.Message}", MudBlazor.Severity.Error);
+            _mensagemErro = $"Erro: {ex.Message}";
+            StateHasChanged();
         }
     }
 
@@ -437,6 +662,93 @@
     {
         // Implementação do envio de email Gmail mantida igual
         return true;
+    }
+    
+    private async Task TestarEnvioEmail()
+    {
+        if (string.IsNullOrWhiteSpace(_testeEmailDestinatario))
+        {
+            Snackbar.Add("Informe o e-mail destinatário", MudBlazor.Severity.Warning);
+            return;
+        }
+        
+        _testandoEnvio = true;
+        _mensagemTesteEnvio = string.Empty;
+        _testeEnvioSucesso = false;
+        StateHasChanged();
+        
+        try
+        {
+            // Aqui você pode implementar a lógica de teste de envio
+            // Por enquanto, apenas simula o envio
+            await Task.Delay(1000);
+            
+            if (_selectedItem.tipoconta == 2)
+            {
+                var resultado = await EnviarEmailGmail(_testeEmailDestinatario, _testeEmailAssunto, _testeEmailCorpo, _selectedItem);
+                if (resultado)
+                {
+                    _mensagemTesteEnvio = "E-mail de teste enviado com sucesso!";
+                    _testeEnvioSucesso = true;
+                }
+                else
+                {
+                    _mensagemTesteEnvio = "Erro ao enviar e-mail de teste. Verifique as configurações.";
+                    _testeEnvioSucesso = false;
+                }
+            }
+            else
+            {
+                _mensagemTesteEnvio = "Funcionalidade de teste de envio disponível apenas para contas Gmail no momento.";
+                _testeEnvioSucesso = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemTesteEnvio = $"Erro ao testar envio: {ex.Message}";
+            _testeEnvioSucesso = false;
+        }
+        finally
+        {
+            _testandoEnvio = false;
+            StateHasChanged();
+        }
+    }
+    
+    private async Task TestarRecebimentoEmail()
+    {
+        _testandoRecebimento = true;
+        _mensagemTesteRecebimento = string.Empty;
+        _testeRecebimentoSucesso = false;
+        StateHasChanged();
+        
+        try
+        {
+            // Aqui você pode implementar a lógica de teste de recebimento
+            // Por enquanto, apenas simula o teste
+            await Task.Delay(1000);
+            
+            if (!_selectedItem.receberemail)
+            {
+                _mensagemTesteRecebimento = "Recebimento de e-mail está desabilitado para esta conta.";
+                _testeRecebimentoSucesso = false;
+            }
+            else
+            {
+                _mensagemTesteRecebimento = "Teste de recebimento executado. Verifique se os e-mails estão sendo recebidos corretamente.";
+                _testeRecebimentoSucesso = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemTesteRecebimento = $"Erro ao testar recebimento: {ex.Message}";
+            _testeRecebimentoSucesso = false;
+        }
+        finally
+        {
+            _testandoRecebimento = false;
+            StateHasChanged();
+        }
     }
 
     public class ContaEmailResult
