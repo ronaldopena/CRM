@@ -1,0 +1,31 @@
+@page "/acesso-banco-dados"
+@inject HttpClient Http
+
+<PageTitle>Acesso Banco Dados | SIECON</PageTitle>
+
+<div class="mx-auto max-w-7xl p-4 md:p-6">
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Acesso Banco Dados</h1>
+    </div>
+    <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
+        <div class="space-y-4">
+            <p class="text-sm text-gray-600">
+                Esta página permite gerenciar o acesso ao banco de dados do sistema.
+            </p>
+            
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <h2 class="mb-2 text-base font-semibold text-gray-800">Informações do Banco de Dados</h2>
+                <p class="text-sm text-gray-600">
+                    Funcionalidade em desenvolvimento. Em breve você poderá visualizar e gerenciar as configurações de acesso ao banco de dados.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}
