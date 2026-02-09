@@ -5,9 +5,9 @@
 <PageTitle>Contas de E-mail | Parâmetros | SIECON CRM</PageTitle>
 
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+    <div class="rounded-t-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 md:px-6">
         <div class="flex items-center justify-between">
-            <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema -> Contas de E-mail</h1>
+            <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Parâmetros do Sistema -> Contas de E-mail</h1>
             @if (_mostrarEdicao)
             {
                 <button type="button" @onclick="VoltarParaGrid"
@@ -17,10 +17,10 @@
             }
         </div>
     </div>
-    <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
+    <div class="border-x border-b border-gray-200 bg-white dark:bg-[#1a2233] dark:border-gray-700 px-4 py-6 md:px-6">
         @if (!_mostrarEdicao)
         {
-            <h2 class="mb-4 text-base font-semibold text-gray-800">Contas de E-mail</h2>
+            <h2 class="mb-4 text-base font-semibold text-gray-800 dark:text-gray-200">Contas de E-mail</h2>
         }
 
         @if (_mostrarEdicao)
@@ -57,34 +57,34 @@
                         @if (_activeTabIndex == 0)
                         {
                             @* Aba Configuração *@
-                            <section class="rounded-lg border border-gray-200 p-4">
-                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Identificação</h3>
+                            <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Identificação</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="sm:col-span-2">
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Descrição da conta</label>
-                                    <InputText @bind-Value="_editando.descricaoConta" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Ex.: Suporte" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Descrição da conta</label>
+                                    <InputText @bind-Value="_editando.descricaoConta" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" placeholder="Ex.: Suporte" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Nome remetente</label>
-                                    <InputText @bind-Value="_editando.nomeRemetente" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Nome remetente</label>
+                                    <InputText @bind-Value="_editando.nomeRemetente" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mail remetente</label>
-                                    <InputText @bind-Value="_editando.emailRemetente" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" type="email" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">E-mail remetente</label>
+                                    <InputText @bind-Value="_editando.emailRemetente" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" type="email" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tipo de conta</label>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de conta</label>
                                     <select value="@_editando.tipoconta" 
                                             @onchange="@((ChangeEventArgs e) => OnTipoContaChanged(e))"
-                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm">
                                         <option value="0">Padrão (SMTP/POP)</option>
                                         <option value="1">Office 365</option>
                                         <option value="2">Gmail</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Ativo</label>
-                                    <select @bind="_editando.ativo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Ativo</label>
+                                    <select @bind="_editando.ativo" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm">
                                         <option value="1">Sim</option>
                                         <option value="0">Não</option>
                                     </select>
@@ -95,47 +95,47 @@
                         @* Card Acesso POP/IMAP - Mostrar apenas quando tipoconta == 0 *@
                         @if (_editando.tipoconta == 0)
                         {
-                            <section class="rounded-lg border border-gray-200 p-4">
-                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Acesso (POP/IMAP e SMTP)</h3>
+                            <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Acesso (POP/IMAP e SMTP)</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Usuário</label>
-                                    <InputText @bind-Value="_editando.usuario" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Usuário</label>
+                                    <InputText @bind-Value="_editando.usuario" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Senha</label>
-                                    <InputText @bind-Value="_editando.senha" type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
+                                    <InputText @bind-Value="_editando.senha" type="password" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Host POP</label>
-                                    <InputText @bind-Value="_editando.hostpop" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Host POP</label>
+                                    <InputText @bind-Value="_editando.hostpop" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Porta POP</label>
-                                    <InputNumber @bind-Value="_editando.portapop" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Porta POP</label>
+                                    <InputNumber @bind-Value="_editando.portapop" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <InputCheckbox @bind-Value="_editando.sslpop" id="sslpop" class="h-4 w-4 rounded border-gray-300" />
-                                    <label for="sslpop" class="text-sm font-medium text-gray-700">SSL POP</label>
+                                    <InputCheckbox @bind-Value="_editando.sslpop" id="sslpop" class="h-4 w-4 rounded border-gray-300 dark:border-gray-600" />
+                                    <label for="sslpop" class="text-sm font-medium text-gray-700 dark:text-gray-300">SSL POP</label>
                                 </div>
                             </div>
                             </section>
 
                             @* Card SMTP - Mostrar apenas quando tipoconta == 0 *@
-                            <section class="rounded-lg border border-gray-200 p-4">
-                                <h3 class="mb-3 text-sm font-semibold text-gray-700">SMTP</h3>
+                            <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">SMTP</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Host SMTP</label>
-                                    <InputText @bind-Value="_editando.hostsmtp" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Host SMTP</label>
+                                    <InputText @bind-Value="_editando.hostsmtp" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Porta SMTP</label>
-                                    <InputNumber @bind-Value="_editando.portasmtp" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Porta SMTP</label>
+                                    <InputNumber @bind-Value="_editando.portasmtp" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <InputCheckbox @bind-Value="_editando.sslsmtp" id="sslsmtp" class="h-4 w-4 rounded border-gray-300" />
-                                    <label for="sslsmtp" class="text-sm font-medium text-gray-700">SSL SMTP</label>
+                                    <InputCheckbox @bind-Value="_editando.sslsmtp" id="sslsmtp" class="h-4 w-4 rounded border-gray-300 dark:border-gray-600" />
+                                    <label for="sslsmtp" class="text-sm font-medium text-gray-700 dark:text-gray-300">SSL SMTP</label>
                                 </div>
                             </div>
                             </section>
@@ -144,85 +144,85 @@
                         @* Card OAuth - Mostrar apenas quando tipoconta == 1 ou 2 *@
                         @if (_editando.tipoconta == 1 || _editando.tipoconta == 2)
                         {
-                            <section class="rounded-lg border border-gray-200 p-4">
-                                <h3 class="mb-3 text-sm font-semibold text-gray-700">OAuth (@(_editando.tipoconta == 1 ? "Office 365" : "Gmail"))</h3>
+                            <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">OAuth (@(_editando.tipoconta == 1 ? "Office 365" : "Gmail"))</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tenant ID</label>
-                                    <InputText @bind-Value="_editando.tenant_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Tenant ID</label>
+                                    <InputText @bind-Value="_editando.tenant_id" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Client ID</label>
-                                    <InputText @bind-Value="_editando.client_id" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Client ID</label>
+                                    <InputText @bind-Value="_editando.client_id" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Client Secret</label>
-                                    <InputText @bind-Value="_editando.clientSecret" type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Client Secret</label>
+                                    <InputText @bind-Value="_editando.clientSecret" type="password" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">User ID</label>
-                                    <InputText @bind-Value="_editando.userId" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">User ID</label>
+                                    <InputText @bind-Value="_editando.userId" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div class="sm:col-span-2">
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Refresh Token</label>
-                                    <InputText @bind-Value="_editando.refresh_token" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Refresh Token</label>
+                                    <InputText @bind-Value="_editando.refresh_token" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                             </div>
                             </section>
                         }
 
-                        <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Envio e Recebimento</h3>
+                        <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Envio e Recebimento</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="flex items-center gap-2">
-                                    <InputCheckbox @bind-Value="_editando.enviaremail" id="enviaremail" class="h-4 w-4 rounded border-gray-300" />
-                                    <label for="enviaremail" class="text-sm font-medium text-gray-700">Enviar e-mail</label>
+                                    <InputCheckbox @bind-Value="_editando.enviaremail" id="enviaremail" class="h-4 w-4 rounded border-gray-300 dark:border-gray-600" />
+                                    <label for="enviaremail" class="text-sm font-medium text-gray-700 dark:text-gray-300">Enviar e-mail</label>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <InputCheckbox @bind-Value="_editando.receberemail" id="receberemail" class="h-4 w-4 rounded border-gray-300" />
-                                    <label for="receberemail" class="text-sm font-medium text-gray-700">Receber e-mail</label>
+                                    <InputCheckbox @bind-Value="_editando.receberemail" id="receberemail" class="h-4 w-4 rounded border-gray-300 dark:border-gray-600" />
+                                    <label for="receberemail" class="text-sm font-medium text-gray-700 dark:text-gray-300">Receber e-mail</label>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Intervalo recebimento (min)</label>
-                                    <InputNumber @bind-Value="_editando.intervalorecebimento" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Intervalo recebimento (min)</label>
+                                    <InputNumber @bind-Value="_editando.intervalorecebimento" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Intervalo envio (min)</label>
-                                    <InputNumber @bind-Value="_editando.intervaloenvio" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Intervalo envio (min)</label>
+                                    <InputNumber @bind-Value="_editando.intervaloenvio" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Qtde e-mails recebimento</label>
-                                    <InputNumber @bind-Value="_editando.qtdeemailsrecebimento" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Qtde e-mails recebimento</label>
+                                    <InputNumber @bind-Value="_editando.qtdeemailsrecebimento" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Qtde e-mails envio</label>
-                                    <InputNumber @bind-Value="_editando.qtdeemailsenvio" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Qtde e-mails envio</label>
+                                    <InputNumber @bind-Value="_editando.qtdeemailsenvio" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tentativas de envio</label>
-                                    <InputNumber @bind-Value="_editando.qtdetentativasenvio" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Tentativas de envio</label>
+                                    <InputNumber @bind-Value="_editando.qtdetentativasenvio" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                             </div>
                         </section>
 
-                        <section class="rounded-lg border border-gray-200 p-4">
-                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Limites</h3>
+                        <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Limites</h3>
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tamanho máx. anexos (MB)</label>
-                                    <InputNumber @bind-Value="_editando.tamanhomaximoanexos" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Tamanho máx. anexos (MB)</label>
+                                    <InputNumber @bind-Value="_editando.tamanhomaximoanexos" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mail destinatários suporte</label>
-                                    <InputText @bind-Value="_editando.emaildestinatariosuporte" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">E-mail destinatários suporte</label>
+                                    <InputText @bind-Value="_editando.emaildestinatariosuporte" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mails por dia</label>
-                                    <InputNumber @bind-Value="_editando.EmailsPorDia" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">E-mails por dia</label>
+                                    <InputNumber @bind-Value="_editando.EmailsPorDia" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">E-mails mala direta por dia</label>
-                                    <InputNumber @bind-Value="_editando.EmailsMalaDiretaPorDia" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">E-mails mala direta por dia</label>
+                                    <InputNumber @bind-Value="_editando.EmailsMalaDiretaPorDia" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" />
                                 </div>
                             </div>
                         </section>
@@ -231,25 +231,25 @@
                         else if (_activeTabIndex == 1)
                         {
                             @* Aba Testar envio/recebimento *@
-                            <section class="rounded-lg border border-gray-200 p-4">
-                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Testar Envio de E-mail</h3>
+                            <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Testar Envio de E-mail</h3>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="mb-1 block text-sm font-medium text-gray-700">E-mail destinatário</label>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">E-mail destinatário</label>
                                         <InputText @bind-Value="_testeEmailDestinatario" 
-                                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                                   class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" 
                                                    placeholder="email@exemplo.com" />
                                     </div>
                                     <div>
-                                        <label class="mb-1 block text-sm font-medium text-gray-700">Assunto</label>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Assunto</label>
                                         <InputText @bind-Value="_testeEmailAssunto" 
-                                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                                   class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" 
                                                    placeholder="Teste de envio" />
                                     </div>
                                     <div>
-                                        <label class="mb-1 block text-sm font-medium text-gray-700">Corpo do e-mail</label>
+                                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Corpo do e-mail</label>
                                         <textarea @bind="_testeEmailCorpo" 
-                                                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                                  class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" 
                                                   rows="5"
                                                   placeholder="Digite o corpo do e-mail de teste..."></textarea>
                                     </div>
@@ -269,8 +269,8 @@
                                 </div>
                             </section>
 
-                            <section class="rounded-lg border border-gray-200 p-4">
-                                <h3 class="mb-3 text-sm font-semibold text-gray-700">Testar Recebimento de E-mail</h3>
+                            <section class="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#1a2233] p-4">
+                                <h3 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Testar Recebimento de E-mail</h3>
                                 <div class="space-y-4">
                                     <div>
                                         <button type="button" @onclick="TestarRecebimentoEmail" 

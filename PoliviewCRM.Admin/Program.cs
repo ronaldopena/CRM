@@ -11,6 +11,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 var apiBaseAddress = builder.Configuration.GetValue<string>("urlapicrm") ?? builder.HostEnvironment.BaseAddress;
 
 builder.Services.AddScoped<IAuthTokenService, AuthTokenService>();
+builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddScoped<AuthTokenHandler>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddAuthorizationCore();

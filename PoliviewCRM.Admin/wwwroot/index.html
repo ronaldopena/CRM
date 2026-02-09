@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 
 <head>
     <meta charset="utf-8" />
@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { outfit: ['Outfit', 'sans-serif'] },
@@ -71,9 +72,22 @@
         <a class="dismiss">🗙</a>
     </div>
     <script>
+        // Funções de localStorage
         window.getLocalStorageItem = function(key) { return localStorage.getItem(key); };
         window.setLocalStorageItem = function(key, value) { localStorage.setItem(key, value); };
         window.removeLocalStorageItem = function(key) { localStorage.removeItem(key); };
+        
+        // Função para aplicar tema
+        window.applyTheme = function(theme) {
+            document.documentElement.classList.remove('dark', 'light');
+            document.documentElement.classList.add(theme);
+        };
+        
+        // Inicializar tema antes do Blazor carregar
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.classList.add(theme);
+        })();
     </script>
     <script src="_framework/blazor.webassembly.js"></script>
 </body>

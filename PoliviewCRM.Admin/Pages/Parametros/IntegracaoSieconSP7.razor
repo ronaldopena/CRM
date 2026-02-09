@@ -4,11 +4,11 @@
 <PageTitle>Integração SIECONSP7 | Parâmetros | SIECON CRM</PageTitle>
 
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
-        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    <div class="rounded-t-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Parâmetros do Sistema</h1>
     </div>
-    <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Integração SIECONSP7</h2>
+    <div class="border-x border-b border-gray-200 bg-white dark:bg-[#1a2233] dark:border-gray-700 px-4 py-6 md:px-6">
+        <h2 class="mb-4 text-base font-semibold text-gray-800 dark:text-gray-200">Integração SIECONSP7</h2>
 
         @if (_carregandoIntegracao)
         {
@@ -49,30 +49,30 @@
                 }
                 <div class="grid gap-4 sm:grid-cols-1">
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Servidor</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Servidor</label>
                         <InputText @bind-Value="_integracao.Servidor"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Servidor" />
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" placeholder="Servidor" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Usuário</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Usuário</label>
                         <InputText @bind-Value="_integracao.Usuario"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Usuário" />
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" placeholder="Usuário" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Senha</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Senha</label>
                         <InputText @bind-Value="_integracao.Senha" type="password"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Senha" />
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" placeholder="Senha" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Caminho Servidor</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Caminho Servidor</label>
                         <InputText @bind-Value="_integracao.CaminhoServidor"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm"
                             placeholder="Caminho do servidor (path DB)" />
                     </div>
                     <div>
-                        <label class="mb-1 block text-sm font-medium text-gray-700">Porta Servidor</label>
+                        <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Porta Servidor</label>
                         <InputText @bind-Value="_integracao.PortaServidor"
-                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Porta" />
+                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" placeholder="Porta" />
                     </div>
                     <div>
                         <button type="button" @onclick="SalvarIntegracaoSieconSP7"

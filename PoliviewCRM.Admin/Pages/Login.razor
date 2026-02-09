@@ -8,20 +8,35 @@
 @inject IAuthTokenService AuthTokenService
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
+@inject IThemeService ThemeService
 
 <PageTitle>Entrar | SIECON</PageTitle>
 
 <div class="relative min-h-screen bg-gradient-to-br from-primary-500 to-secondary-500 p-4 sm:p-6">
     <div class="relative flex min-h-screen w-full flex-col items-center justify-center">
+        <div class="absolute top-4 right-4">
+            <button type="button" @onclick="ToggleTheme"
+                class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 dark:bg-gray-800/20 dark:hover:bg-gray-800/30"
+                title="@(_currentTheme == "dark" ? "Alternar para tema claro" : "Alternar para tema escuro")">
+                @if (_currentTheme == "dark")
+                {
+                    <Icon Name="sun" Class="h-5 w-5" />
+                }
+                else
+                {
+                    <Icon Name="moon" Class="h-5 w-5" />
+                }
+            </button>
+        </div>
         <div class="w-full max-w-md">
             <!-- Card de login em destaque -->
-            <div class="rounded-2xl border border-gray-200 bg-white px-6 py-8 shadow-lg sm:px-8 sm:py-10">
+            <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a2233] px-6 py-8 shadow-lg sm:px-8 sm:py-10">
                 <div>
                     <div class="mb-5 sm:mb-8">
                         <div class="mb-4 flex h-16 items-center justify-center">
                             <img src="/images/logo.png" alt="SIECON" class="h-full w-auto object-contain" style="max-height: 50px;" />
                         </div>
-                        <p class="text-center text-sm text-gray-500">
+                        <p class="text-center text-sm text-gray-500 dark:text-gray-400">
                             Digite seu e-mail e senha para entrar!
                         </p>
                     </div>
@@ -31,25 +46,25 @@
                             <DataAnnotationsValidator />
                             <div class="space-y-5">
                                 <div>
-                                    <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700">
+                                    <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         E-mail<span class="text-red-500">*</span>
                                     </label>
                                     <InputText id="email" @bind-Value="model.Email" type="email"
                                         placeholder="seu@email.com"
-                                        class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                                        class="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1a2233] px-4 py-2.5 text-sm text-gray-800 dark:text-gray-200 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                                     <ValidationMessage For="@(() => model.Email)" class="mt-1 text-xs text-red-500" />
                                 </div>
 
                                 <div>
-                                    <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700">
+                                    <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         Senha<span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
                                         <InputText id="password" @bind-Value="model.Password"
                                             type="@(mostrarSenha ? "text" : "password")" placeholder="Digite sua senha"
-                                            class="h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-sm placeholder:text-gray-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
+                                            class="h-11 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#1a2233] py-2.5 pl-4 pr-11 text-sm text-gray-800 dark:text-gray-200 shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20" />
                                         <button type="button" @onclick="(() => mostrarSenha = !mostrarSenha)"
-                                            class="absolute right-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer text-gray-500 hover:text-gray-700">
+                                            class="absolute right-4 top-1/2 z-30 -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
                                             @if (mostrarSenha)
                                             {
                                                 <svg class="h-5 w-5 fill-current" width="20" height="20" viewBox="0 0 20 20"
@@ -81,7 +96,7 @@
                                             class="mr-3 h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
                                         Manter-me conectado
                                     </label>
-                                    <NavLink href="/recuperar-senha" class="text-sm text-primary-600 hover:text-primary-700">
+                                    <NavLink href="/recuperar-senha" class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
                                         Esqueceu a senha?
                                     </NavLink>
                                 </div>
@@ -103,9 +118,9 @@
                         </EditForm>
 
                         <div class="mt-5">
-                            <p class="text-center text-sm font-normal text-gray-700">
+                            <p class="text-center text-sm font-normal text-gray-700 dark:text-gray-300">
                                 Não tem uma conta?
-                                <NavLink href="/cadastro" class="text-primary-600 hover:text-primary-700">Cadastrar</NavLink>
+                                <NavLink href="/cadastro" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">Cadastrar</NavLink>
                             </p>
                         </div>
                     </div>
@@ -149,8 +164,33 @@
     private bool mostrarSenha;
     private bool estaEnviando;
     private string? mensagemErro;
+    private string _currentTheme = "light";
 
     private CancellationTokenSource? _alertaCts;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _currentTheme = await ThemeService.GetThemeAsync();
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+    
+    private void OnThemeChanged(string theme)
+    {
+        _currentTheme = theme;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleThemeAsync();
+    }
+    
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+        _alertaCts?.Cancel();
+    }
 
     private void MostrarErro(string msg)
     {
@@ -234,7 +274,12 @@
         }
     }
 
-    public void Dispose() => _alertaCts?.Cancel();
+    public async ValueTask DisposeAsync()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+        _alertaCts?.Cancel();
+        await Task.CompletedTask;
+    }
 
     private class LoginModel
     {

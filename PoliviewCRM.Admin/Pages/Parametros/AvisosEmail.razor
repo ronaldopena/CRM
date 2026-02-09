@@ -5,11 +5,11 @@
 <PageTitle>Avisos por Email | Parâmetros | SIECON CRM</PageTitle>
 
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
-        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    <div class="rounded-t-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Parâmetros do Sistema</h1>
     </div>
-    <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Avisos por Email</h2>
+    <div class="border-x border-b border-gray-200 bg-white dark:bg-[#1a2233] dark:border-gray-700 px-4 py-6 md:px-6">
+        <h2 class="mb-4 text-base font-semibold text-gray-800 dark:text-gray-200">Avisos por Email</h2>
 
         @* Navegação de abas *@
         <div class="mb-6 border-b border-gray-200">
@@ -83,48 +83,48 @@
                         }
                         <div class="space-y-6">
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-gray-700">Tamanho Máximo dos Anexos em MBytes</label>
+                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Tamanho Máximo dos Anexos em MBytes</label>
                                 <div class="flex items-center gap-2">
                                     <InputNumber @bind-Value="_configuracoes.TamanhoMaximoAnexos" 
-                                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                        class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" 
                                         min="0" />
-                                    <span class="text-sm text-gray-500">Mbytes</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Mbytes</span>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-gray-700">Email para receber erros do sistema (administrador)</label>
+                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Email para receber erros do sistema (administrador)</label>
                                 <InputText @bind-Value="_configuracoes.emailErrosAdmin" 
-                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 dark:placeholder-gray-500 px-3 py-2 text-sm" 
                                     placeholder="email1@exemplo.com;email2@exemplo.com" />
-                                <p class="mt-1 text-xs text-gray-500">Separe múltiplos emails com ponto e vírgula (;)</p>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Separe múltiplos emails com ponto e vírgula (;)</p>
                             </div>
 
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Tempo lembrar de responder pesquisa satisfação</label>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Tempo lembrar de responder pesquisa satisfação</label>
                                     <div class="flex items-center gap-2">
                                         <InputNumber @bind-Value="_configuracoes.DiasLembrarPesquisaSatisfacao" 
-                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" 
                                             min="0" />
-                                        <span class="text-sm text-gray-500">dias</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">dias</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-sm font-medium text-gray-700">Quantidade de avisos</label>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Quantidade de avisos</label>
                                     <div class="flex items-center gap-2">
                                         <InputNumber @bind-Value="_configuracoes.qtdeAvisosLembrarPesquisa" 
-                                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                            class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" 
                                             min="0" />
-                                        <span class="text-sm text-gray-500">avisos</span>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">avisos</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-gray-700">Código documento (email) para aviso de chamado concluído</label>
+                                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Código documento (email) para aviso de chamado concluído</label>
                                 <InputNumber @bind-Value="_configuracoes.documentoChamadoConcluido" 
-                                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" 
+                                    class="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-[#1a2233] dark:text-gray-200 px-3 py-2 text-sm" 
                                     min="0" />
                             </div>
 

@@ -17,7 +17,8 @@
  * ============================================================================
  */
 
-:root {
+:root,
+:root.light {
     /* CORES PRIMÁRIAS - Alterar aqui para mudar em todo o app */
     --color-primary: #023A51;
     --color-primary-light: #035a7a;
@@ -47,36 +48,80 @@
     --color-secondary-700: #2a4e70;
     --color-secondary-800: #1c344e;
     --color-secondary-900: #0e1a2c;
+    
+    /* Cores de fundo e texto para tema light */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --border-color: #e5e7eb;
+}
+
+/* Dark Theme */
+:root.dark {
+    /* Mantém as cores primárias e secundárias */
+    --color-primary: #023A51;
+    --color-secondary: #4682B4;
+    
+    /* Cores de fundo e texto para tema dark - baseado nas imagens de referência */
+    --bg-primary: #141b2d; /* Fundo principal da página - azul-marinho muito escuro */
+    --bg-secondary: #1a2233; /* Cards e containers - azul-acinzentado escuro ligeiramente mais claro */
+    --bg-tertiary: #1f2937; /* Elementos secundários */
+    --bg-input: #1a2233; /* Fundo dos inputs - mesmo dos cards */
+    --text-primary: #f9fafb; /* Texto principal - branco/cinza muito claro */
+    --text-secondary: #d1d5db; /* Texto secundário - cinza claro */
+    --text-tertiary: #9ca3af; /* Texto terciário - cinza médio */
+    --border-color: #374151; /* Bordas sutis - cinza escuro */
+    --border-color-input: #2d3748; /* Bordas dos inputs - cinza escuro mais sutil */
 }
 
 body {
     font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+:root.dark body {
+    background-color: var(--bg-primary);
 }
 
 .menu-link {
-    color: #667085;
+    color: var(--text-secondary);
     transition: all 0.2s;
 }
 .menu-link:hover {
-    background-color: #f2f4f7;
-    color: #344054;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
 }
 .menu-link.active {
     background-color: var(--color-primary-50);
     color: var(--color-primary);
 }
 
+:root.dark .menu-link.active {
+    background-color: rgba(2, 58, 81, 0.3);
+    color: var(--color-secondary-300);
+}
+
 .menu-dropdown-item {
-    color: #667085;
+    color: var(--text-secondary);
     transition: all 0.2s;
 }
 .menu-dropdown-item:hover {
-    background-color: #f2f4f7;
-    color: #344054;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
 }
 .menu-dropdown-item.active {
     background-color: var(--color-primary-50);
     color: var(--color-primary);
+}
+
+:root.dark .menu-dropdown-item.active {
+    background-color: rgba(2, 58, 81, 0.3);
+    color: var(--color-secondary-300);
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -216,4 +261,102 @@ code {
 
 .hover\:text-secondary:hover {
     color: var(--color-secondary-dark);
+}
+
+/* ============================================================================
+ * TEMA DARK - Cards e Formulários
+ * ============================================================================
+ * Cards e formulários seguem o padrão dark mode com fundos escuros
+ * baseado nas imagens de referência fornecidas
+ * ============================================================================ */
+
+/* Cards principais - fundo escuro no dark mode */
+:root.dark .card-light,
+:root.dark div[class*="bg-white"],
+:root.dark section.rounded-lg,
+:root.dark div.rounded-lg.border {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Labels dentro de cards - texto claro no dark mode */
+:root.dark .card-light label,
+:root.dark .card-light section label,
+:root.dark .card-light div label,
+:root.dark section.rounded-lg label,
+:root.dark div.rounded-lg.border label {
+    color: var(--text-secondary) !important;
+}
+
+/* Inputs dentro de cards - fundo escuro no dark mode */
+:root.dark .card-light input,
+:root.dark .card-light select,
+:root.dark .card-light textarea,
+:root.dark .card-light section input,
+:root.dark .card-light section select,
+:root.dark .card-light section textarea,
+:root.dark .card-light div input,
+:root.dark .card-light div select,
+:root.dark .card-light div textarea,
+:root.dark section.rounded-lg input,
+:root.dark section.rounded-lg select,
+:root.dark section.rounded-lg textarea,
+:root.dark div.rounded-lg.border input,
+:root.dark div.rounded-lg.border select,
+:root.dark div.rounded-lg.border textarea,
+:root.dark input[type="text"],
+:root.dark input[type="email"],
+:root.dark input[type="password"],
+:root.dark input[type="number"],
+:root.dark select,
+:root.dark textarea {
+    background-color: var(--bg-input) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color-input) !important;
+}
+
+/* Placeholders dentro de cards - cinza médio no dark mode */
+:root.dark .card-light input::placeholder,
+:root.dark .card-light textarea::placeholder,
+:root.dark .card-light section input::placeholder,
+:root.dark .card-light section textarea::placeholder,
+:root.dark .card-light div input::placeholder,
+:root.dark .card-light div textarea::placeholder,
+:root.dark section.rounded-lg input::placeholder,
+:root.dark section.rounded-lg textarea::placeholder,
+:root.dark div.rounded-lg.border input::placeholder,
+:root.dark div.rounded-lg.border textarea::placeholder,
+:root.dark input::placeholder,
+:root.dark textarea::placeholder {
+    color: var(--text-tertiary) !important;
+}
+
+/* Títulos dentro de cards - texto claro no dark mode */
+:root.dark .card-light h3,
+:root.dark .card-light h2,
+:root.dark .card-light h1,
+:root.dark .card-light section h3,
+:root.dark .card-light section h2,
+:root.dark .card-light section h1,
+:root.dark .card-light div h3,
+:root.dark .card-light div h2,
+:root.dark .card-light div h1,
+:root.dark section.rounded-lg h3,
+:root.dark section.rounded-lg h2,
+:root.dark section.rounded-lg h1,
+:root.dark div.rounded-lg.border h3,
+:root.dark div.rounded-lg.border h2,
+:root.dark div.rounded-lg.border h1 {
+    color: var(--text-primary) !important;
+}
+
+/* Textos dentro de cards - texto claro no dark mode */
+:root.dark .card-light p:not([class*="text-"]),
+:root.dark .card-light span:not([class*="text-"]),
+:root.dark section.rounded-lg p:not([class*="text-"]),
+:root.dark section.rounded-lg span:not([class*="text-"]),
+:root.dark div.rounded-lg.border p:not([class*="text-"]),
+:root.dark div.rounded-lg.border span:not([class*="text-"]) {
+    color: var(--text-secondary) !important;
 }
