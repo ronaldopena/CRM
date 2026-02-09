@@ -7,7 +7,7 @@
 
 <div class="flex h-screen overflow-hidden font-outfit bg-gray-50 dark:bg-gray-900">
     <aside
-        class="@(SidebarOpen ? "translate-x-0 lg:w-[290px] lg:px-5" : "-translate-x-full lg:w-20 lg:px-2") sidebar fixed left-0 top-0 z-[9999] flex h-screen w-[290px] flex-col overflow-y-auto border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-5 transition-all duration-300 lg:static">
+        class="@(SidebarOpen ? "translate-x-0 lg:w-[290px] lg:px-5" : "-translate-x-full lg:translate-x-0 lg:w-20 lg:px-2") sidebar fixed left-0 top-0 z-[9999] flex h-screen w-[290px] flex-col overflow-y-auto border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-5 transition-all duration-300 lg:static">
         <div class="flex items-center justify-start gap-2 border-b border-gray-100 dark:border-gray-700 pb-7 pt-8">
             <div class="@GetLogoContainerClass()">
                 <img src="/images/logo.png" alt="SIECON" class="h-full w-auto object-contain" style="max-height: 40px;" />
@@ -21,6 +21,7 @@
                     <li>
                         <NavLink href="/acesso-banco-dados"
                             class="@GetMenuItemClass()"
+                            title="@GetTooltip("Acesso Banco Dados")"
                             Match="NavLinkMatch.All"
                             @onclick="() => ExpandirSidebarSeRecolhido()">
                             <Icon Name="database" Class="h-6 w-6 flex-shrink-0" />
@@ -31,7 +32,9 @@
                     @* Parâmetros *@
                     <li>
                         <div class="relative">
-                            <button type="button" @onclick="() => { ExpandirSidebarSeRecolhido(); ToggleParametros(); }"
+                            <button type="button" 
+                                @onclick="() => { ExpandirSidebarSeRecolhido(); ToggleParametros(); }"
+                                title="@GetTooltip("Parâmetros")"
                                 class="@GetParametrosButtonClass()">
                                 <Icon Name="cog6tooth" Class="h-6 w-6 flex-shrink-0" />
                                 <span class="@GetMenuItemTextClass()">Parâmetros</span>
@@ -60,6 +63,7 @@
                     @* Sair *@
                     <li>
                         <button type="button" @onclick="Sair"
+                            title="@GetTooltip("Sair")"
                             class="@GetSairButtonClass()">
                             <Icon Name="arrow-right-on-rectangle" Class="h-6 w-6 flex-shrink-0" />
                             <span class="@GetMenuItemTextClass()">Sair</span>
@@ -294,6 +298,12 @@
             classes.Add("lg:hidden");
         }
         return string.Join(" ", classes);
+    }
+
+    private string GetTooltip(string text)
+    {
+        // Retorna o texto do tooltip apenas quando o sidebar está recolhido
+        return !SidebarOpen ? text : "";
     }
 
     private string GetChevronClass()
