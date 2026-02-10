@@ -30,6 +30,22 @@ namespace Poliview.crm.api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>Retorna o caminho completo da pasta onde a aplicação (API/Admin) está instalada.</summary>
+        [HttpGet("caminho-instalacao-admin")]
+        public IActionResult CaminhoInstalacaoAdmin()
+        {
+            try
+            {
+                var caminho = Path.GetFullPath(AppContext.BaseDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                return Ok(new { caminhoInstalacaoAdmin = caminho });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("espacocliente/{cpf}")]
         public IActionResult EspacoCliente(string cpf)
         {

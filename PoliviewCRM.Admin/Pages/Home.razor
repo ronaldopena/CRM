@@ -1,5 +1,6 @@
 @page "/"
 @inject HttpClient Http
+@inject IConfiguration Configuration
 
 <PageTitle>Home | SIECON CRM</PageTitle>
 
@@ -32,12 +33,20 @@
                     <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_parametros.urlExterna ?? "—")</dd>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">URL acesso APICRM</dt>
+                    <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_urlApicrm ?? "—")</dd>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Versão do Portal</dt>
                     <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">@(_parametros.versaoportal ?? "—")</dd>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4 sm:col-span-2">
                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pasta de instalação do CRM</dt>
                     <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_parametros.PastaInstalacaoCRM ?? "—")</dd>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4 sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pasta de Instalação do Admin (CAMINHO COMPLETO)</dt>
+                    <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_caminhoInstalacaoAdmin ?? "—")</dd>
                 </div>
             </div>
         }
@@ -46,6 +55,8 @@
 
 @code {
     private ParametrosHomeDto? _parametros;
+    private string? _caminhoInstalacaoAdmin;
+    private string? _urlApicrm;
     private bool _carregando = true;
     private string? _mensagemErro;
 
@@ -58,15 +69,30 @@
         public string? PastaInstalacaoCRM { get; set; }
     }
 
+    private class CaminhoInstalacaoAdminDto
+    {
+        public string? caminhoInstalacaoAdmin { get; set; }
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        _urlApicrm = Configuration["urlapicrm"];
         try
         {
-            var response = await Http.GetAsync("parametros");
-            if (response.IsSuccessStatusCode)
-                _parametros = await response.Content.ReadFromJsonAsync<ParametrosHomeDto>();
+            var taskParametros = Http.GetAsync("parametros");
+            var taskCaminhoAdmin = Http.GetAsync("parametros/caminho-instalacao-admin");
+            await Task.WhenAll(taskParametros, taskCaminhoAdmin);
+
+            if (taskParametros.Result.IsSuccessStatusCode)
+                _parametros = await taskParametros.Result.Content.ReadFromJsonAsync<ParametrosHomeDto>();
             else
                 _mensagemErro = "Não foi possível carregar os parâmetros do sistema.";
+
+            if (taskCaminhoAdmin.Result.IsSuccessStatusCode)
+            {
+                var dto = await taskCaminhoAdmin.Result.Content.ReadFromJsonAsync<CaminhoInstalacaoAdminDto>();
+                _caminhoInstalacaoAdmin = dto?.caminhoInstalacaoAdmin;
+            }
         }
         catch (Exception ex)
         {
