@@ -70,6 +70,37 @@
                             }
                         </div>
                     </li>
+
+                    @* Serviços *@
+                    <li>
+                        <div class="relative">
+                            <button type="button"
+                                @onclick="() => { ExpandirSidebarSeRecolhido(); ToggleServicos(); }"
+                                title="@GetTooltip("Serviços")"
+                                class="@GetServicosButtonClass()">
+                                <Icon Name="server" Class="h-6 w-6 flex-shrink-0" />
+                                <span class="@GetMenuItemTextClass()">Serviços</span>
+                                <Icon Name="chevron-down" Class="@GetChevronServicosClass()" />
+                            </button>
+                            @if (ServicosExpandido && SidebarOpen)
+                            {
+                                <ul class="mt-1 flex flex-col gap-0.5 pl-9">
+                                    @foreach (var item in SubmenusServicos)
+                                    {
+                                        <li>
+                                            <NavLink href="@($"/servicos/{item.Slug}")"
+                                                class="menu-dropdown-item flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium"
+                                                Match="NavLinkMatch.All"
+                                                @onclick="() => ExpandirSidebarSeRecolhido()">
+                                                <Icon Name="@GetIconNameServicos(item.Slug)" Class="h-5 w-5" />
+                                                @item.Titulo
+                                            </NavLink>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </li>
                     
                     @* Sair *@
                     <li>
@@ -130,7 +161,14 @@
 @code {
     private bool SidebarOpen { get; set; } = true;
     private bool ParametrosExpandido { get; set; }
+    private bool ServicosExpandido { get; set; }
     private string _currentTheme = "light";
+
+    private static readonly List<(string Titulo, string Slug)> SubmenusServicos = new()
+    {
+        ("Integração", "integracao"),
+        ("E-mail", "email")
+    };
 
     @* private static readonly List<(string Titulo, string Slug)> SubmenusParametros = new()
     {
@@ -188,6 +226,7 @@
         _currentTheme = await ThemeService.GetThemeAsync();
         ThemeService.ThemeChanged += OnThemeChanged;
         AtualizarEstadoParametros();
+        AtualizarEstadoServicos();
         NavigationManager.LocationChanged += OnLocationChanged;
     }
     
@@ -200,6 +239,7 @@
     private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         AtualizarEstadoParametros();
+        AtualizarEstadoServicos();
         InvokeAsync(StateHasChanged);
     }
 
@@ -207,6 +247,12 @@
     {
         var path = new Uri(NavigationManager.Uri).AbsolutePath;
         ParametrosExpandido = path.StartsWith("/parametros", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void AtualizarEstadoServicos()
+    {
+        var path = new Uri(NavigationManager.Uri).AbsolutePath;
+        ServicosExpandido = path.StartsWith("/servicos", StringComparison.OrdinalIgnoreCase);
     }
 
     public void Dispose()
@@ -240,6 +286,11 @@
         ParametrosExpandido = !ParametrosExpandido;
     }
 
+    private void ToggleServicos()
+    {
+        ServicosExpandido = !ServicosExpandido;
+    }
+
     private async Task Sair()
     {
         await AuthTokenService.ClearAsync();
@@ -268,6 +319,22 @@
     {
         var classes = new List<string> { "menu-link", "flex", "w-full", "items-center", "gap-3", "rounded-lg", "px-3", "py-2.5", "text-sm", "font-medium" };
         if (ParametrosExpandido)
+        {
+            classes.Add("menu-link");
+            classes.Add("active");
+        }
+        if (!SidebarOpen)
+        {
+            classes.Add("lg:justify-center");
+            classes.Add("lg:px-2");
+        }
+        return string.Join(" ", classes);
+    }
+
+    private string GetServicosButtonClass()
+    {
+        var classes = new List<string> { "menu-link", "flex", "w-full", "items-center", "gap-3", "rounded-lg", "px-3", "py-2.5", "text-sm", "font-medium" };
+        if (ServicosExpandido)
         {
             classes.Add("menu-link");
             classes.Add("active");
@@ -329,6 +396,30 @@
             classes.Add("lg:hidden");
         }
         return string.Join(" ", classes);
+    }
+
+    private string GetChevronServicosClass()
+    {
+        var classes = new List<string> { "ml-auto", "h-5", "w-5", "transition-transform" };
+        if (ServicosExpandido)
+        {
+            classes.Add("rotate-180");
+        }
+        if (!SidebarOpen)
+        {
+            classes.Add("lg:hidden");
+        }
+        return string.Join(" ", classes);
+    }
+
+    private string GetIconNameServicos(string slug)
+    {
+        return slug.ToLower() switch
+        {
+            "integracao" => "arrow-path-rounded-square",
+            "email" => "envelope",
+            _ => "document-text"
+        };
     }
 
     private string GetIconName(string slug)
