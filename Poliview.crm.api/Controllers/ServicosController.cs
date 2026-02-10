@@ -16,6 +16,44 @@ namespace Poliview.crm.api.Controllers
             _connectionString = configuration["conexao"];
         }
 
+        /// <summary>Executa o serviço de integração e retorna o console output.</summary>
+        [HttpPost("integracao/executar")]
+        public async Task<IActionResult> ExecutarServicoIntegracao()
+        {
+            try
+            {
+                // Obter PastaInstalacaoCRM da tabela OPE_PARAMETRO
+                var parametros = ParametrosService.consultar(_connectionString);
+                if (string.IsNullOrWhiteSpace(parametros.PastaInstalacaoCRM))
+                {
+                    return BadRequest(new { error = "Pasta de instalação do CRM (PastaInstalacaoCRM) não configurada na tabela OPE_PARAMETRO." });
+                }
+
+                // Construir o caminho da pasta de integração
+                var pastaIntegracao = Path.Combine(parametros.PastaInstalacaoCRM, "Servicos", "Integracao");
+
+                if (!Directory.Exists(pastaIntegracao))
+                {
+                    return BadRequest(new { error = $"Pasta de integração não encontrada: {pastaIntegracao}" });
+                }
+
+                // Procurar o primeiro executável .exe na pasta
+                var executaveis = Directory.GetFiles(pastaIntegracao, "*.exe");
+                if (executaveis.Length == 0)
+                {
+                    return BadRequest(new { error = $"Nenhum executável (.exe) encontrado na pasta: {pastaIntegracao}" });
+                }
+
+                var caminhoExe = executaveis[0]; // Usa o primeiro .exe encontrado
+
+                return await ExecutarProcesso(caminhoExe);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Erro ao executar serviço de integração: {ex.Message}", stackTrace = ex.StackTrace });
+            }
+        }
+
         /// <summary>Executa o serviço de e-mail (Poliview.crm.service.email.exe) e retorna o console output.</summary>
         [HttpPost("email/executar")]
         public async Task<IActionResult> ExecutarServicoEmail()
@@ -36,6 +74,20 @@ namespace Poliview.crm.api.Controllers
                 {
                     return BadRequest(new { error = $"Executável não encontrado no caminho: {caminhoExe}" });
                 }
+
+                return await ExecutarProcesso(caminhoExe);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Erro ao executar serviço de e-mail: {ex.Message}", stackTrace = ex.StackTrace });
+            }
+        }
+
+        /// <summary>Executa um processo e retorna o console output.</summary>
+        private async Task<IActionResult> ExecutarProcesso(string caminhoExe)
+        {
+            try
+            {
 
                 // Configurar e executar o processo
                 var outputBuilder = new StringBuilder();
@@ -105,7 +157,7 @@ namespace Poliview.crm.api.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = $"Erro ao executar serviço: {ex.Message}", stackTrace = ex.StackTrace });
+                return StatusCode(500, new { error = $"Erro ao executar processo: {ex.Message}", stackTrace = ex.StackTrace });
             }
         }
     }

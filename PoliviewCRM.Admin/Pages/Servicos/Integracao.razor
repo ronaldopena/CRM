@@ -1,11 +1,146 @@
 @page "/servicos/integracao"
+@inject HttpClient Http
 <PageTitle>Integração | Serviços | SIECON CRM</PageTitle>
 <div class="mx-auto max-w-7xl p-4 md:p-6">
     <div class="rounded-t-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 md:px-6">
         <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Serviços</h1>
     </div>
     <div class="border-x border-b border-gray-200 bg-white dark:bg-[#1a2233] dark:border-gray-700 px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800 dark:text-gray-200">Integração</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Conteúdo em implementação.</p>
+        <h2 class="mb-4 text-base font-semibold text-gray-800 dark:text-gray-200">Serviço de Integração</h2>
+        
+        <div class="max-w-4xl space-y-4">
+            @if (!string.IsNullOrEmpty(_mensagemErro))
+            {
+                <div class="rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+                    @_mensagemErro
+                </div>
+            }
+
+            <div class="flex items-center gap-3">
+                <button type="button" @onclick="ExecutarServico" disabled="@_executando"
+                    class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    @if (_executando)
+                    {
+                        <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Executando...</span>
+                    }
+                    else
+                    {
+                        <span>Executar Serviço de Integração</span>
+                    }
+                </button>
+
+                @if (_resultado != null && !_executando)
+                {
+                    <button type="button" @onclick="LimparResultado"
+                        class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-medium text-white hover:bg-gray-600">
+                        Limpar
+                    </button>
+                }
+            </div>
+
+            @if (_resultado != null)
+            {
+                <div class="space-y-3">
+                    @if (_resultado.sucesso)
+                    {
+                        <div class="rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3">
+                            <p class="text-sm font-medium text-green-800 dark:text-green-300">✓ Serviço executado com sucesso (Exit Code: @_resultado.exitCode)</p>
+                            @if (!string.IsNullOrWhiteSpace(_resultado.caminhoExecutavel))
+                            {
+                                <p class="mt-1 text-xs text-green-700 dark:text-green-400">Executável: @_resultado.caminhoExecutavel</p>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3">
+                            <p class="text-sm font-medium text-yellow-800 dark:text-yellow-300">⚠ Serviço finalizado com código de saída: @_resultado.exitCode</p>
+                            @if (!string.IsNullOrWhiteSpace(_resultado.caminhoExecutavel))
+                            {
+                                <p class="mt-1 text-xs text-yellow-700 dark:text-yellow-400">Executável: @_resultado.caminhoExecutavel</p>
+                            }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(_resultado.output))
+                    {
+                        <div class="rounded-lg border border-gray-300 dark:border-gray-600">
+                            <div class="border-b border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 px-3 py-2">
+                                <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Console Output</h3>
+                            </div>
+                            <pre class="overflow-x-auto whitespace-pre-wrap break-words bg-gray-900 px-4 py-3 text-xs text-green-400 font-mono max-h-96 overflow-y-auto">@_resultado.output</pre>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(_resultado.stderr))
+                    {
+                        <div class="rounded-lg border border-red-300 dark:border-red-700">
+                            <div class="border-b border-red-300 dark:border-red-700 bg-red-100 dark:bg-red-900/30 px-3 py-2">
+                                <h3 class="text-sm font-semibold text-red-800 dark:text-red-200">Error Output</h3>
+                            </div>
+                            <pre class="overflow-x-auto whitespace-pre-wrap break-words bg-gray-900 px-4 py-3 text-xs text-red-400 font-mono max-h-96 overflow-y-auto">@_resultado.stderr</pre>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
     </div>
 </div>
+
+@code {
+    private bool _executando;
+    private string? _mensagemErro;
+    private ServicoIntegracaoResultado? _resultado;
+
+    private class ServicoIntegracaoResultado
+    {
+        public int exitCode { get; set; }
+        public string? output { get; set; }
+        public string? stderr { get; set; }
+        public string? caminhoExecutavel { get; set; }
+        public bool sucesso { get; set; }
+    }
+
+    private async Task ExecutarServico()
+    {
+        _executando = true;
+        _mensagemErro = null;
+        _resultado = null;
+        StateHasChanged();
+
+        try
+        {
+            var response = await Http.PostAsync("servicos/integracao/executar", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                _resultado = await response.Content.ReadFromJsonAsync<ServicoIntegracaoResultado>();
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao executar serviço: {response.StatusCode} - {errorContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = $"Erro: {ex.Message}";
+        }
+        finally
+        {
+            _executando = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LimparResultado()
+    {
+        _resultado = null;
+        _mensagemErro = null;
+    }
+}
+
