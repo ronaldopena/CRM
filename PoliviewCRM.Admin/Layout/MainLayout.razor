@@ -8,9 +8,9 @@
 <div class="flex h-screen overflow-hidden font-outfit bg-gray-50 dark:bg-gray-900">
     <aside
         class="@(SidebarOpen ? "translate-x-0 lg:w-[290px] lg:px-5" : "-translate-x-full lg:translate-x-0 lg:w-20 lg:px-2") sidebar fixed left-0 top-0 z-[9999] flex h-screen w-[290px] flex-col overflow-y-auto border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 px-5 transition-all duration-300 lg:static">
-        <div class="flex items-center justify-start gap-2 border-b border-gray-100 dark:border-gray-700 pb-7 pt-8">
+        <div class="@GetLogoAreaClass() border-b border-gray-100 dark:border-gray-700 pb-7 pt-8">
             <div class="@GetLogoContainerClass()">
-                <img src="/images/logo.png" alt="SIECON" class="h-full w-auto object-contain" style="max-height: 40px;" />
+                <img src="/images/logo.png" alt="SIECON" class="@GetLogoImageClass()" />
             </div>
         </div>
         <nav class="flex flex-col overflow-y-auto py-4">
@@ -358,12 +358,48 @@
         return string.Join(" ", classes);
     }
 
+    private string GetLogoAreaClass()
+    {
+        // Área do logo: centralizada quando expandido, canto superior esquerdo quando recolhido
+        var classes = new List<string> { "flex", "items-center", "h-16", "min-h-16" };
+        if (SidebarOpen)
+        {
+            classes.Add("justify-center");
+        }
+        else
+        {
+            classes.Add("justify-start");
+        }
+        return string.Join(" ", classes);
+    }
+
     private string GetLogoContainerClass()
     {
-        var classes = new List<string> { "flex", "h-16", "items-center", "justify-center" };
-        if (!SidebarOpen)
+        var classes = new List<string> { "flex", "h-16", "items-center" };
+        if (SidebarOpen)
         {
-            classes.Add("lg:hidden");
+            classes.Add("justify-center");
+        }
+        else
+        {
+            classes.Add("justify-start");
+            classes.Add("w-full");
+        }
+        return string.Join(" ", classes);
+    }
+
+    private string GetLogoImageClass()
+    {
+        // Imagem do logo: tamanho normal quando expandido, proporcional ao espaço quando recolhido
+        var classes = new List<string> { "h-full", "w-auto", "object-contain" };
+        if (SidebarOpen)
+        {
+            classes.Add("max-h-10"); // 40px quando menu expandido
+        }
+        else
+        {
+            classes.Add("max-h-8");   // 32px de altura quando recolhido
+            classes.Add("max-w-full"); // largura máxima = 100% do sidebar (cabe em lg:w-20 = 80px)
         }
         return string.Join(" ", classes);
     }
