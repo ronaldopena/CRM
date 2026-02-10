@@ -10,6 +10,7 @@ namespace Poliview.crm.services
     {
         public ContaEmailResposta Listar();
         public Task<ContaEmail> ListarPorId(int idconta);
+        public Task<IEnumerable<EmailQuarentena>> ListarQuarentenaPorContaEmail(int idContaEmail);
         public Task<Retorno> Update(ContaEmail obj);
         public Task<Retorno> Create(ContaEmail obj);
         public Task<Retorno> Delete(int idconta);
@@ -55,6 +56,26 @@ namespace Poliview.crm.services
             using var connection = new SqlConnection(_connectionString);
             var query = $"select * from CAD_CONTA_EMAIL where id={idconta} ";
             return await connection.QueryFirstAsync<ContaEmail>(query);
+        }
+
+        public async Task<IEnumerable<EmailQuarentena>> ListarQuarentenaPorContaEmail(int idContaEmail)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"
+SELECT
+    id        AS Id,
+    data      AS Data,
+    remetente AS Remetente,
+    destinatario AS Destinatario,
+    assunto   AS Assunto,
+    corpo     AS Corpo,
+    nome      AS Nome,
+    idcontaemail AS IdContaEmail
+FROM OPE_EMAIL_QUARENTENA
+WHERE idcontaemail = @idContaEmail
+ORDER BY data DESC;";
+
+            return await connection.QueryAsync<EmailQuarentena>(query, new { idContaEmail });
         }
 
         public async Task<Retorno> Update(ContaEmail obj)

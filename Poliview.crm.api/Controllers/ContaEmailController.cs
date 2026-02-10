@@ -30,6 +30,21 @@ namespace Poliview.crm.api.Controllers
             }
         }
 
+        /// <summary>Lista e-mails em quarentena da conta (OPE_EMAIL_QUARENTENA). Somente leitura.</summary>
+        [HttpGet("quarentena/{id}")]
+        public async Task<IActionResult> ListarEmailsEmQuarentena(int id)
+        {
+            try
+            {
+                var retorno = await _service.ListarQuarentenaPorContaEmail(id);
+                return Ok(retorno);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("{idContaEmail}")]
         public IActionResult ListarPorId(int idContaEmail)
         {
