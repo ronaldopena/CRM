@@ -1,0 +1,80 @@
+@page "/"
+@inject HttpClient Http
+
+<PageTitle>Home | SIECON CRM</PageTitle>
+
+<div class="mx-auto max-w-7xl p-4 md:p-6">
+    <div class="rounded-t-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Identificação do CRM</h1>
+    </div>
+    <div class="border-x border-b border-gray-200 bg-white dark:bg-[#1a2233] dark:border-gray-700 px-4 py-6 md:px-6">
+        @if (_carregando)
+        {
+            <p class="text-sm text-gray-500 dark:text-gray-400">Carregando...</p>
+        }
+        else if (!string.IsNullOrEmpty(_mensagemErro))
+        {
+            <div class="rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">@_mensagemErro</div>
+        }
+        else if (_parametros is not null)
+        {
+            <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Versão do CRM</dt>
+                    <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">@(_parametros.versao ?? "—")</dd>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pasta de instalação do SIECON</dt>
+                    <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_parametros.caminhoSiecon ?? "—")</dd>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Acesso externo</dt>
+                    <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_parametros.urlExterna ?? "—")</dd>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Versão do Portal</dt>
+                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">@(_parametros.versaoportal ?? "—")</dd>
+                </div>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50 p-4 sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Pasta de instalação do CRM</dt>
+                    <dd class="mt-1 break-all text-sm text-gray-900 dark:text-gray-100">@(_parametros.PastaInstalacaoCRM ?? "—")</dd>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ParametrosHomeDto? _parametros;
+    private bool _carregando = true;
+    private string? _mensagemErro;
+
+    private class ParametrosHomeDto
+    {
+        public string? versao { get; set; }
+        public string? caminhoSiecon { get; set; }
+        public string? urlExterna { get; set; }
+        public string? versaoportal { get; set; }
+        public string? PastaInstalacaoCRM { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await Http.GetAsync("parametros");
+            if (response.IsSuccessStatusCode)
+                _parametros = await response.Content.ReadFromJsonAsync<ParametrosHomeDto>();
+            else
+                _mensagemErro = "Não foi possível carregar os parâmetros do sistema.";
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+}

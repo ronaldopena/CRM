@@ -32,7 +32,8 @@ namespace Poliview.crm.services
                         "NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDBInteg as DS_PathDbInteg, DS_PortaServidorInteg as DS_portaServidorInteg, " +
                         "ID_JornadaSLA, ID_JornadaRecurso, " +
                         "NR_SLACritico, NR_SLAAlerta, cast(coalesce(horasUteisCalcSLA, 0) as bit) as horasUteisCalcSLA, " +
-                        "DiasLembrarPesquisaSatisfacao, qtdeAvisosLembrarPesquisa, documentoChamadoConcluido " +
+                        "DiasLembrarPesquisaSatisfacao, qtdeAvisosLembrarPesquisa, documentoChamadoConcluido, " +
+                        "coalesce(versaoportal,'') as versaoportal, coalesce(PastaInstalacaoCRM,'') as PastaInstalacaoCRM " +
                         "from ope_parametro where cd_bancodados = 1 and cd_mandante = 1";
 
             // Console.WriteLine(query);

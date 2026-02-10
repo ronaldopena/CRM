@@ -66,6 +66,10 @@ namespace Poliview.crm.domain
         public int? qtdeAvisosLembrarPesquisa { get; set; }
         /// <summary>Código documento (email) para aviso de chamado concluído</summary>
         public int? documentoChamadoConcluido { get; set; }
+        /// <summary>Versão do Portal (OPE_PARAMETRO.versaoportal)</summary>
+        public string? versaoportal { get; set; }
+        /// <summary>Pasta de instalação do CRM (OPE_PARAMETRO.PastaInstalacaoCRM)</summary>
+        public string? PastaInstalacaoCRM { get; set; }
     }
 
     public class ConfigEspacoCliente
