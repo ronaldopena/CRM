@@ -177,5 +177,22 @@ namespace Poliview.crm.api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("caminhos")]
+        public IActionResult AtualizarCaminhos([FromBody] ParametrosCaminhosRequisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarCaminhos(
+                    _connectionString,
+                    body.PastaInstalacaoCRM,
+                    body.DS_PathInstallSistemaSiecon);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

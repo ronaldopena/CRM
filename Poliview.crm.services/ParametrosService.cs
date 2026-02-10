@@ -134,5 +134,15 @@ namespace Poliview.crm.services
                 documentoChamadoConcluido 
             });
         }
+
+        public static int AtualizarCaminhos(string _connectionString, string? PastaInstalacaoCRM, string? DS_PathInstallSistemaSiecon)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                PastaInstalacaoCRM = @PastaInstalacaoCRM,
+                DS_PathInstallSistemaSiecon = @DS_PathInstallSistemaSiecon
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { PastaInstalacaoCRM, DS_PathInstallSistemaSiecon });
+        }
     }
 }
