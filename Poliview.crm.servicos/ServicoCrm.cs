@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Diagnostics;
+using System.IO;
 using System.ServiceProcess;
 using System.Threading;
 using System.Configuration;
@@ -97,13 +98,7 @@ namespace Poliview.crm.servicos
 
         private void Execute(object state)
         {
-            if (_executando)
-            {
-                EventLog.WriteEntry(_nomeServico, "Execução anterior ainda em andamento, pulando ciclo", EventLogEntryType.Warning);
-                return;
-            }
 
-            _executando = true;
 
             try
             {
@@ -139,10 +134,18 @@ namespace Poliview.crm.servicos
                 return;
             }
 
+            var caminhoCompleto = Path.GetFullPath(Path.Combine(caminho, executavel));
+
+            if (ProcessoJaEmExecucao(caminhoCompleto))
+            {
+                EventLog.WriteEntry(_nomeServico, $"O processo já está em execução no servidor: {caminhoCompleto}", EventLogEntryType.Information);
+                return;
+            }
+
             var startInfo = new ProcessStartInfo
             {
-                FileName = $@"{caminho}\{executavel}",
-                WorkingDirectory = $"{caminho}"
+                FileName = caminhoCompleto,
+                WorkingDirectory = caminho
             };
 
             try
@@ -165,6 +168,51 @@ namespace Poliview.crm.servicos
             {
                 EventLog.WriteEntry(_nomeServico, $"Erro ao gerar processo para {nomeServico}: {ex.Message}", EventLogEntryType.Error);
             }
+        }
+
+        /// <summary>
+        /// Verifica se já existe um processo em execução com o mesmo caminho do executável.
+        /// </summary>
+        private static bool ProcessoJaEmExecucao(string caminhoExecutavel)
+        {
+            if (string.IsNullOrWhiteSpace(caminhoExecutavel))
+                return false;
+
+            var caminhoNormalizado = Path.GetFullPath(caminhoExecutavel).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            try
+            {
+                foreach (var process in Process.GetProcesses())
+                {
+                    try
+                    {
+                        if (process.MainModule != null && !string.IsNullOrEmpty(process.MainModule.FileName))
+                        {
+                            var pathProcesso = Path.GetFullPath(process.MainModule.FileName).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                            if (string.Equals(pathProcesso, caminhoNormalizado, StringComparison.OrdinalIgnoreCase))
+                            {
+                                process.Dispose();
+                                return true;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Acesso negado ou processo encerrado; ignorar e seguir
+                    }
+                    finally
+                    {
+                        process.Dispose();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Em caso de falha ao listar processos, considera que não está em execução e deixa o IniciarProcesso tentar iniciar
+                return false;
+            }
+
+            return false;
         }
 
         private void GravarDataExecucao(string nomeServico)
