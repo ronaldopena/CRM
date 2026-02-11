@@ -29,14 +29,19 @@
         </div>
         <div class="w-full max-w-md">
             <!-- Card de login em destaque -->
-            <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a2233] px-6 py-8 shadow-lg sm:px-8 sm:py-10">
+            <div
+                class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a2233] px-6 py-8 shadow-lg sm:px-8 sm:py-10">
                 <div>
                     <div class="mb-5 sm:mb-8">
                         <div class="mb-4 flex h-16 items-center justify-center">
-                            <img src="/images/logo.png" alt="SIECON" class="h-full w-auto object-contain" style="max-height: 50px;" />
+                            <img src="/images/logo.png" alt="SIECON" class="h-full w-auto object-contain"
+                                style="max-height: 50px;" />
                         </div>
                         <p class="text-center text-sm text-gray-500 dark:text-gray-400">
-                            Digite seu e-mail e senha para entrar!
+                            <b>SIECON CRM - ADMIN</b>
+                        </p>
+                        <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                            Versão 4.4.0
                         </p>
                     </div>
 
@@ -45,7 +50,8 @@
                             <DataAnnotationsValidator />
                             <div class="space-y-5">
                                 <div>
-                                    <label for="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <label for="email"
+                                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         E-mail<span class="text-red-500">*</span>
                                     </label>
                                     <InputText id="email" @bind-Value="model.Email" type="email"
@@ -55,7 +61,8 @@
                                 </div>
 
                                 <div>
-                                    <label for="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    <label for="password"
+                                        class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                         Senha<span class="text-red-500">*</span>
                                     </label>
                                     <div class="relative">
@@ -88,18 +95,6 @@
                                         class="mt-1 text-xs text-red-500" />
                                 </div>
 
-                                <div class="flex items-center justify-between">
-                                    <label
-                                        class="flex cursor-pointer select-none items-center text-sm font-normal text-gray-700">
-                                        <input type="checkbox" @bind="model.ManterConectado"
-                                            class="mr-3 h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                                        Manter-me conectado
-                                    </label>
-                                    <NavLink href="/recuperar-senha" class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
-                                        Esqueceu a senha?
-                                    </NavLink>
-                                </div>
-
                                 <div>
                                     <button type="submit" disabled="@estaEnviando"
                                         class="flex w-full items-center justify-center rounded-lg bg-primary-500 px-4 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-primary-600 disabled:opacity-50">
@@ -116,12 +111,6 @@
                             </div>
                         </EditForm>
 
-                        <div class="mt-5">
-                            <p class="text-center text-sm font-normal text-gray-700 dark:text-gray-300">
-                                Não tem uma conta?
-                                <NavLink href="/cadastro" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">Cadastrar</NavLink>
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -166,25 +155,25 @@
     private string _currentTheme = "light";
 
     private CancellationTokenSource? _alertaCts;
-    
+
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         _currentTheme = await ThemeService.GetThemeAsync();
         ThemeService.ThemeChanged += OnThemeChanged;
     }
-    
+
     private void OnThemeChanged(string theme)
     {
         _currentTheme = theme;
         InvokeAsync(StateHasChanged);
     }
-    
+
     private async Task ToggleTheme()
     {
         await ThemeService.ToggleThemeAsync();
     }
-    
+
     public void Dispose()
     {
         ThemeService.ThemeChanged -= OnThemeChanged;
@@ -248,7 +237,7 @@
                     await AuthTokenService.SetTokenAsync(loginResposta.token);
                     if (AuthStateProvider is CustomAuthStateProvider provider)
                         provider.NotifyAuthenticationStateChanged();
-                    NavigationManager.NavigateTo("/parametros/integracao-sieconsp7", forceLoad: true);
+                    NavigationManager.NavigateTo("/", forceLoad: true);
                 }
                 else
                     MostrarErro("Resposta inválida da API.");
