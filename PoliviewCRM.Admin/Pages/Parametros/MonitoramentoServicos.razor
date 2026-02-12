@@ -1,9 +1,329 @@
 @page "/parametros/monitoramento-servicos"
+@inject HttpClient Http
+@inject IJSRuntime JS
+@using Poliview.crm.domain
+
 <PageTitle>Monitoramento de Serviços | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
         <h2 class="mb-4 text-base font-semibold text-gray-800">Monitoramento de Serviços</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+
+        @if (_mostrarEdicao)
+        {
+            @* Tela de edição (incluir ou alterar) *@
+            <div class="space-y-4">
+                @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                {
+                    <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                }
+                @if (!string.IsNullOrEmpty(_mensagemErro))
+                {
+                    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                }
+                <div class="flex justify-between">
+                    <button type="button" @onclick="VoltarParaGrid"
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        ← Voltar
+                    </button>
+                </div>
+                @if (_editando is not null)
+                {
+                    <div class="max-w-4xl space-y-6">
+                        <section class="rounded-lg border border-gray-200 p-4">
+                            <h3 class="mb-3 text-sm font-semibold text-gray-700">Dados do Serviço</h3>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Nome do Serviço</label>
+                                    @if (_ehAlteracao)
+                                    {
+                                        <input type="text" value="@_editando.NomeServico" readonly class="w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2 text-sm" />
+                                    }
+                                    else
+                                    {
+                                        <InputText @bind-Value="_editando.NomeServico" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Ex.: EMAIL, SLA, INTEGRACAO" />
+                                    }
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Ativo</label>
+                                    <select @bind="_editando.Ativo" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+                                        <option value="S">Sim</option>
+                                        <option value="N">Não</option>
+                                    </select>
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Caminho do Serviço</label>
+                                    <InputText @bind-Value="_editando.CaminhoServico" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Ex.: C:\Deploy\CRM\Servicos\Email" />
+                                </div>
+                                <div class="sm:col-span-2">
+                                    <label class="mb-1 block text-sm font-medium text-gray-700">Executável</label>
+                                    <InputText @bind-Value="_editando.ExecutavelServico" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Ex.: Poliview.crm.service.email.exe" />
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="flex gap-2">
+                            <button type="button" @onclick="Salvar" disabled="@_salvando"
+                                class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50">
+                                @(_salvando ? "Salvando..." : "Salvar")
+                            </button>
+                            <button type="button" @onclick="VoltarParaGrid"
+                                class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            @* Grid de listagem *@
+            @if (!string.IsNullOrEmpty(_mensagemSucesso))
+            {
+                <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+            }
+            @if (!string.IsNullOrEmpty(_mensagemErro))
+            {
+                <div class="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+            }
+            @if (_carregando)
+            {
+                <p class="text-sm text-gray-500">Carregando...</p>
+            }
+            else
+            {
+                <div class="mb-4 flex gap-2">
+                    <button type="button" @onclick="Incluir"
+                        class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+                        Incluir
+                    </button>
+                </div>
+                @if (_lista is null || _lista.Count == 0)
+                {
+                    <p class="text-sm text-gray-500">Nenhum serviço cadastrado.</p>
+                }
+                else
+                {
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Nome</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Caminho</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Executável</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Ativo</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Última execução</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Último processamento</th>
+                                    <th class="px-4 py-2 font-medium text-gray-700">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach (var item in _lista!)
+                                {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-2">@item.NomeServico</td>
+                                        <td class="px-4 py-2">@item.CaminhoServico</td>
+                                        <td class="px-4 py-2">@item.ExecutavelServico</td>
+                                        <td class="px-4 py-2">@(item.Ativo == "S" ? "Sim" : "Não")</td>
+                                        <td class="px-4 py-2">@FormatarData(item.DataUltimaExecucao)</td>
+                                        <td class="px-4 py-2">@FormatarData(item.DataUltimoProcessamento)</td>
+                                        <td class="px-4 py-2">
+                                            <button type="button" @onclick="() => Alterar(item)" class="mr-2 text-primary-600 hover:underline">Alterar</button>
+                                            <button type="button" @onclick="() => Excluir(item)" class="text-red-600 hover:underline">Excluir</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            }
+        }
     </div>
 </div>
+
+@code {
+    private List<Poliview.crm.domain.Servicos>? _lista;
+    private bool _carregando;
+    private bool _mostrarEdicao;
+    private Poliview.crm.domain.Servicos? _editando;
+    private bool _salvando;
+    private string? _mensagemErro;
+    private string? _mensagemSucesso;
+    private bool _ehAlteracao;
+
+    private static string FormatarData(DateTime dt)
+    {
+        if (dt == default) return "-";
+        return dt.ToString("dd/MM/yyyy HH:mm");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarLista();
+    }
+
+    private async Task CarregarLista()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        try
+        {
+            var response = await Http.GetAsync("servicos");
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<ListarServicosResposta>();
+                _lista = data?.objeto?.ToList() ?? new List<Poliview.crm.domain.Servicos>();
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _mensagemErro = $"Erro ao carregar: {response.StatusCode}. {body}";
+                _lista = new List<Poliview.crm.domain.Servicos>();
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+            _lista = new List<Poliview.crm.domain.Servicos>();
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private void Incluir()
+    {
+        _editando = new Poliview.crm.domain.Servicos
+        {
+            NomeServico = "",
+            CaminhoServico = "",
+            ExecutavelServico = "",
+            Ativo = "S"
+        };
+        _ehAlteracao = false;
+        _mostrarEdicao = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+    }
+
+    private void Alterar(Poliview.crm.domain.Servicos item)
+    {
+        _editando = new Poliview.crm.domain.Servicos
+        {
+            NomeServico = item.NomeServico ?? "",
+            CaminhoServico = item.CaminhoServico ?? "",
+            ExecutavelServico = item.ExecutavelServico ?? "",
+            Ativo = item.Ativo ?? "N",
+            DataUltimaExecucao = item.DataUltimaExecucao,
+            DataUltimoProcessamento = item.DataUltimoProcessamento
+        };
+        _ehAlteracao = true;
+        _mostrarEdicao = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+    }
+
+    private async Task VoltarParaGrid()
+    {
+        _mostrarEdicao = false;
+        _editando = null;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        await CarregarLista();
+    }
+
+    private async Task Salvar()
+    {
+        if (_editando is null) return;
+        if (string.IsNullOrWhiteSpace(_editando.NomeServico))
+        {
+            _mensagemErro = "Informe o nome do serviço.";
+            return;
+        }
+        _salvando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            HttpResponseMessage response;
+            if (!_ehAlteracao)
+            {
+                response = await Http.PostAsJsonAsync("servicos", _editando);
+            }
+            else
+            {
+                response = await Http.PutAsJsonAsync("servicos", _editando);
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var ret = System.Text.Json.JsonSerializer.Deserialize<Retorno>(body);
+                if (ret?.sucesso == true)
+                {
+                    await VoltarParaGrid();
+                    _mensagemSucesso = "Registro salvo com sucesso.";
+                }
+                else
+                {
+                    _mensagemErro = ret?.mensagem ?? body;
+                }
+            }
+            else
+            {
+                _mensagemErro = response.StatusCode == System.Net.HttpStatusCode.Unauthorized
+                    ? "Não autorizado. Faça login novamente."
+                    : (string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body);
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _salvando = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Excluir(Poliview.crm.domain.Servicos item)
+    {
+        var confirmar = await JS.InvokeAsync<bool>("confirm", $"Excluir o serviço \"{item.NomeServico}\"?");
+        if (!confirmar) return;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var response = await Http.DeleteAsync($"servicos/{Uri.EscapeDataString(item.NomeServico ?? "")}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var ret = System.Text.Json.JsonSerializer.Deserialize<Retorno>(body);
+                if (ret?.sucesso == true)
+                {
+                    _mensagemSucesso = "Serviço excluído com sucesso.";
+                    await CarregarLista();
+                }
+                else
+                {
+                    _mensagemErro = ret?.mensagem ?? body;
+                }
+            }
+            else
+            {
+                _mensagemErro = string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        StateHasChanged();
+    }
+}

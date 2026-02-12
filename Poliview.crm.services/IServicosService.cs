@@ -1,11 +1,15 @@
-﻿using Poliview.crm.domain;
+using Poliview.crm.domain;
+using Poliview.crm.models;
 
 namespace Poliview.crm.services
 {
     public interface IServicosService
     {
-        public List<Servicos> ListarTodos();
-        public List<Servicos> ListarAtivos();
-        public void ExecutarAtivos();
+        List<Servicos> ListarTodos();
+        List<Servicos> ListarAtivos();
+        void ExecutarAtivos();
+        Task<Retorno> Create(Servicos obj);
+        Task<Retorno> Update(Servicos obj);
+        Task<Retorno> Delete(string nomeServico);
     }
 }

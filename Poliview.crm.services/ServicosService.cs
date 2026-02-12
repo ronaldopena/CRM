@@ -1,5 +1,6 @@
-﻿using Dapper;
+using Dapper;
 using Poliview.crm.domain;
+using Poliview.crm.models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
@@ -84,6 +85,83 @@ namespace Poliview.crm.services
             using var connection = new SqlConnection(_connectionString);
             var query = "select * from OPE_SERVICOS where Ativo='S'";
             return connection.Query<Servicos>(query).ToList();
+        }
+
+        public async Task<Retorno> Create(Servicos obj)
+        {
+            var ret = new Retorno();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = @"INSERT INTO OPE_SERVICOS (NomeServico, CaminhoServico, ExecutavelServico, Ativo)
+                             VALUES (@NomeServico, @CaminhoServico, @ExecutavelServico, @Ativo)";
+                await connection.ExecuteAsync(query, new
+                {
+                    obj.NomeServico,
+                    obj.CaminhoServico,
+                    obj.ExecutavelServico,
+                    Ativo = string.IsNullOrEmpty(obj.Ativo) ? "N" : (obj.Ativo == "S" || obj.Ativo == "1" ? "S" : "N")
+                });
+                ret.sucesso = true;
+                ret.mensagem = "Serviço incluído com sucesso.";
+            }
+            catch (Exception ex)
+            {
+                ret.sucesso = false;
+                ret.mensagem = ex.Message;
+            }
+            return ret;
+        }
+
+        public async Task<Retorno> Update(Servicos obj)
+        {
+            var ret = new Retorno();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = @"UPDATE OPE_SERVICOS SET CaminhoServico = @CaminhoServico, ExecutavelServico = @ExecutavelServico, Ativo = @Ativo
+                             WHERE NomeServico = @NomeServico";
+                var rows = await connection.ExecuteAsync(query, new
+                {
+                    obj.NomeServico,
+                    obj.CaminhoServico,
+                    obj.ExecutavelServico,
+                    Ativo = string.IsNullOrEmpty(obj.Ativo) ? "N" : (obj.Ativo == "S" || obj.Ativo == "1" ? "S" : "N")
+                });
+                ret.sucesso = rows > 0;
+                ret.mensagem = rows > 0 ? "Serviço alterado com sucesso." : "Serviço não encontrado.";
+            }
+            catch (Exception ex)
+            {
+                ret.sucesso = false;
+                ret.mensagem = ex.Message;
+            }
+            return ret;
+        }
+
+        public async Task<Retorno> Delete(string nomeServico)
+        {
+            var ret = new Retorno();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nomeServico))
+                {
+                    ret.sucesso = false;
+                    ret.mensagem = "Nome do serviço não informado.";
+                    return ret;
+                }
+                using var connection = new SqlConnection(_connectionString);
+                var query = "DELETE FROM OPE_SERVICOS WHERE NomeServico = @NomeServico";
+                var rows = await connection.ExecuteAsync(query, new { NomeServico = nomeServico });
+                ret.sucesso = rows > 0;
+                ret.mensagem = rows > 0 ? "Serviço excluído com sucesso." : "Serviço não encontrado.";
+            }
+            catch (Exception ex)
+            {
+                ret.sucesso = false;
+                ret.mensagem = ex.Message;
+            }
+            return ret;
         }
     }
 }

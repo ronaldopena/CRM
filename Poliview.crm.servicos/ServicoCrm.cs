@@ -99,7 +99,6 @@ namespace Poliview.crm.servicos
         private void Execute(object state)
         {
 
-
             try
             {
                 var result = this.ListarServicos();
@@ -108,7 +107,10 @@ namespace Poliview.crm.servicos
                 {
                     foreach (ServicosCRM item in result)
                     {
-                        IniciarProcesso(item.NomeServico, item.CaminhoServico, item.ExecutavelServico);
+                        var nomeServico = item.NomeServico;
+                        var caminhoServico = item.CaminhoServico;
+                        var executavelServico = item.ExecutavelServico;
+                        ThreadPool.QueueUserWorkItem(_ => IniciarProcesso(nomeServico, caminhoServico, executavelServico));
                     }
                 }
                 else
@@ -128,13 +130,27 @@ namespace Poliview.crm.servicos
 
         private void IniciarProcesso(string nomeServico, string caminho, string executavel)
         {
+            EventLog.WriteEntry(_nomeServico, $"Processo: {nomeServico}-{caminho}\\{executavel}", EventLogEntryType.Information);
             if (string.IsNullOrEmpty(caminho) || string.IsNullOrEmpty(executavel))
             {
                 EventLog.WriteEntry(_nomeServico, $"Caminho ou executável inválido para o serviço {nomeServico}", EventLogEntryType.Error);
                 return;
             }
 
+            var caminhoPasta = Path.GetFullPath(caminho.Trim());
             var caminhoCompleto = Path.GetFullPath(Path.Combine(caminho, executavel));
+
+            if (!Directory.Exists(caminhoPasta))
+            {
+                EventLog.WriteEntry(_nomeServico, $"Erro ao iniciar o serviço {nomeServico}: o caminho não existe. Caminho: {caminhoPasta}", EventLogEntryType.Error);
+                return;
+            }
+
+            if (!File.Exists(caminhoCompleto))
+            {
+                EventLog.WriteEntry(_nomeServico, $"Erro ao iniciar o serviço {nomeServico}: o executável não foi encontrado. Caminho completo: {caminhoCompleto}", EventLogEntryType.Error);
+                return;
+            }
 
             if (ProcessoJaEmExecucao(caminhoCompleto))
             {
@@ -145,7 +161,9 @@ namespace Poliview.crm.servicos
             var startInfo = new ProcessStartInfo
             {
                 FileName = caminhoCompleto,
-                WorkingDirectory = caminho
+                WorkingDirectory = caminho,
+                UseShellExecute = true,
+                Verb = "runas"
             };
 
             try

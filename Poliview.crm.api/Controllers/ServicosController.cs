@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Poliview.crm.domain;
 using Poliview.crm.services;
 using System.Diagnostics;
 using System.Text;
@@ -10,10 +11,72 @@ namespace Poliview.crm.api.Controllers
     public class ServicosController : ControllerBase
     {
         private readonly string _connectionString;
+        private readonly IServicosService _servicosService;
 
         public ServicosController(IConfiguration configuration)
         {
             _connectionString = configuration["conexao"];
+            _servicosService = new ServicosService(configuration);
+        }
+
+        /// <summary>Lista todos os serviços de monitoramento (OPE_SERVICOS).</summary>
+        [HttpGet("")]
+        public IActionResult Listar()
+        {
+            try
+            {
+                var lista = _servicosService.ListarTodos();
+                return Ok(new { sucesso = true, mensagem = "ok", objeto = lista });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>Inclui um novo serviço.</summary>
+        [HttpPost("")]
+        public async Task<IActionResult> Create([FromBody] Servicos obj)
+        {
+            try
+            {
+                var retorno = await _servicosService.Create(obj);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>Altera um serviço existente (identificado por NomeServico).</summary>
+        [HttpPut("")]
+        public async Task<IActionResult> Update([FromBody] Servicos obj)
+        {
+            try
+            {
+                var retorno = await _servicosService.Update(obj);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>Exclui um serviço pelo nome.</summary>
+        [HttpDelete("{nomeServico}")]
+        public async Task<IActionResult> Delete(string nomeServico)
+        {
+            try
+            {
+                var retorno = await _servicosService.Delete(nomeServico);
+                return retorno.sucesso ? Ok(retorno) : BadRequest(retorno.mensagem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         /// <summary>Executa o serviço de integração e retorna o console output.</summary>
