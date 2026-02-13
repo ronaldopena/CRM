@@ -212,5 +212,29 @@ namespace Poliview.crm.api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("politica-senhas")]
+        public IActionResult AtualizarPoliticaSenhas([FromBody] ParametrosPoliticaSenhasRequisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarPoliticaSenhas(
+                    _connectionString,
+                    body.senhaVencimentoDias,
+                    body.senhaComprimento,
+                    body.senhaMinimoMaiusculo,
+                    body.senhaMinimoMinusculo,
+                    body.senhaMinimoNumerico,
+                    body.senhaMinimoAlfanumerico,
+                    body.senhaTentativasLogin,
+                    body.senhaCoincidir,
+                    body.senhaPadrao);
+                return Ok(new Poliview.crm.models.Retorno { sucesso = true, mensagem = "Política de senhas salva com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

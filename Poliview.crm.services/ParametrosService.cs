@@ -21,7 +21,7 @@ namespace Poliview.crm.services
                         "avisoMostrar, " +
                         "avisoHtml, " +
                         "avisoArquivo, " +
-                        "senhaVencimentoDias, senhaComprimento, senhaMinimoMaiusculo, senhaMinimoMinusculo, senhaMinimoNumerico, senhaMinimoAlfanumerico, senhaTentativasLogin, senhaCoincidir, " +
+                        "senhaVencimentoDias, senhaComprimento, senhaMinimoMaiusculo, senhaMinimoMinusculo, senhaMinimoNumerico, senhaMinimoAlfanumerico, senhaTentativasLogin, senhaCoincidir, senhaPadrao, " +
                         "emailDestinatarioSuporte, " +
                         "coalesce(QTD_EmailsEnvioSMTP,0) as qtdeEmailsEnvio, " +
                         "TipoAutenticacaoEmail as TipoAutenticacaoEmail, " +
@@ -109,10 +109,11 @@ namespace Poliview.crm.services
                 NR_SLAAlerta = @NR_SLAAlerta,
                 horasUteisCalcSLA = @horasUteisCalcSLA
                 WHERE cd_bancodados = 1 AND cd_mandante = 1";
-            return connection.Execute(query, new { 
-                NR_SLACritico, 
-                NR_SLAAlerta, 
-                horasUteisCalcSLA = horasUteisCalcSLA ? 1 : 0 
+            return connection.Execute(query, new
+            {
+                NR_SLACritico,
+                NR_SLAAlerta,
+                horasUteisCalcSLA = horasUteisCalcSLA ? 1 : 0
             });
         }
 
@@ -126,12 +127,13 @@ namespace Poliview.crm.services
                 qtdeAvisosLembrarPesquisa = @qtdeAvisosLembrarPesquisa,
                 documentoChamadoConcluido = @documentoChamadoConcluido
                 WHERE cd_bancodados = 1 AND cd_mandante = 1";
-            return connection.Execute(query, new { 
-                TamanhoMaximoAnexos, 
-                emailErrosAdmin, 
-                DiasLembrarPesquisaSatisfacao, 
-                qtdeAvisosLembrarPesquisa, 
-                documentoChamadoConcluido 
+            return connection.Execute(query, new
+            {
+                TamanhoMaximoAnexos,
+                emailErrosAdmin,
+                DiasLembrarPesquisaSatisfacao,
+                qtdeAvisosLembrarPesquisa,
+                documentoChamadoConcluido
             });
         }
 
@@ -154,6 +156,23 @@ namespace Poliview.crm.services
                 empreendimentoTesteEspacoCliente = @empreendimentoTesteEspacoCliente
                 WHERE cd_bancodados = 1 AND cd_mandante = 1";
             return connection.Execute(query, new { habilitarEspacoCliente, leituraobrigatoria, empreendimentoTesteEspacoCliente });
+        }
+
+        public static int AtualizarPoliticaSenhas(string _connectionString, int senhaVencimentoDias, int senhaComprimento, int senhaMinimoMaiusculo, int senhaMinimoMinusculo, int senhaMinimoNumerico, int senhaMinimoAlfanumerico, int senhaTentativasLogin, int senhaCoincidir, string? senhaPadrao)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                senhaVencimentoDias = @senhaVencimentoDias,
+                senhaComprimento = @senhaComprimento,
+                senhaMinimoMaiusculo = @senhaMinimoMaiusculo,
+                senhaMinimoMinusculo = @senhaMinimoMinusculo,
+                senhaMinimoNumerico = @senhaMinimoNumerico,
+                senhaMinimoAlfanumerico = @senhaMinimoAlfanumerico,
+                senhaTentativasLogin = @senhaTentativasLogin,
+                senhaCoincidir = @senhaCoincidir,
+                senhaPadrao = @senhaPadrao
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { senhaVencimentoDias, senhaComprimento, senhaMinimoMaiusculo, senhaMinimoMinusculo, senhaMinimoNumerico, senhaMinimoAlfanumerico, senhaTentativasLogin, senhaCoincidir, senhaPadrao });
         }
     }
 }

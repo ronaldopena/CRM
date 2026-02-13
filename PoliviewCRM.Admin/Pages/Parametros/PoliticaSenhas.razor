@@ -1,9 +1,189 @@
 @page "/parametros/politica-senhas"
+@inject HttpClient Http
+
 <PageTitle>Política de Senhas | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Política de Senhas</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+        <h2 class="mb-4 text-base font-semibold text-gray-800">Administração de Políticas de senhas</h2>
+
+        @if (_carregando)
+        {
+            <p class="text-sm text-gray-500">Carregando...</p>
+        }
+        else if (!string.IsNullOrEmpty(_mensagemErro) && _paramCarregado == false)
+        {
+            <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+        }
+        else
+        {
+            <div class="max-w-2xl space-y-4">
+                @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                {
+                    <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                }
+                @if (!string.IsNullOrEmpty(_mensagemErro))
+                {
+                    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                }
+
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Vencimento Após</label>
+                        <InputNumber @bind-Value="_senhaVencimentoDias" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                        <span class="text-sm text-gray-500">Dias</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Comprimento Mínimo</label>
+                        <InputNumber @bind-Value="_senhaComprimento" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                        <span class="text-sm text-gray-500">Caracteres</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Número Mínimo de caracteres maiúsculos</label>
+                        <InputNumber @bind-Value="_senhaMinimoMaiusculo" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                        <span class="text-sm text-gray-500">Caracteres</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Número Mínimo de caracteres minúsculos</label>
+                        <InputNumber @bind-Value="_senhaMinimoMinusculo" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                        <span class="text-sm text-gray-500">caracteres</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Número mínimo de dígitos numéricos</label>
+                        <InputNumber @bind-Value="_senhaMinimoNumerico" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Número mínimo de dígitos alfanuméricos</label>
+                        <InputNumber @bind-Value="_senhaMinimoAlfanumerico" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Tentativas de login antes de bloquear a conta</label>
+                        <InputNumber @bind-Value="_senhaTentativasLogin" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Senha não pode coincidir</label>
+                        <InputNumber @bind-Value="_senhaCoincidir" class="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm" min="0" />
+                        <span class="text-sm text-gray-500">com senhas anteriores</span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <label class="w-48 text-sm font-medium text-gray-700">Senha padrão</label>
+                        <InputText @bind-Value="_senhaPadrao" class="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                    </div>
+                </div>
+
+                <div>
+                    <button type="button" @onclick="Salvar" disabled="@_salvando"
+                        class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        @(_salvando ? "Salvando..." : "Salvar")
+                    </button>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@code {
+    private int _senhaVencimentoDias;
+    private int _senhaComprimento;
+    private int _senhaMinimoMaiusculo;
+    private int _senhaMinimoMinusculo;
+    private int _senhaMinimoNumerico;
+    private int _senhaMinimoAlfanumerico;
+    private int _senhaTentativasLogin;
+    private int _senhaCoincidir;
+    private string _senhaPadrao = "";
+    private bool _carregando = true;
+    private bool _paramCarregado;
+    private bool _salvando;
+    private string? _mensagemSucesso;
+    private string? _mensagemErro;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarParametros();
+    }
+
+    private async Task CarregarParametros()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var response = await Http.GetAsync("parametros");
+            if (response.IsSuccessStatusCode)
+            {
+                var param = await response.Content.ReadFromJsonAsync<Poliview.crm.domain.Parametros>();
+                if (param != null)
+                {
+                    _senhaVencimentoDias = param.senhaVencimentoDias;
+                    _senhaComprimento = param.senhaComprimento;
+                    _senhaMinimoMaiusculo = param.senhaMinimoMaiusculo;
+                    _senhaMinimoMinusculo = param.senhaMinimoMinusculo;
+                    _senhaMinimoNumerico = param.senhaMinimoNumerico;
+                    _senhaMinimoAlfanumerico = param.senhaMinimoAlfanumerico;
+                    _senhaTentativasLogin = param.senhaTentativasLogin;
+                    _senhaCoincidir = param.senhaCoincidir;
+                    _senhaPadrao = param.senhaPadrao ?? "";
+                    _paramCarregado = true;
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _mensagemErro = string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private async Task Salvar()
+    {
+        _salvando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var body = new ParametrosPoliticaSenhasRequisicao
+            {
+                senhaVencimentoDias = _senhaVencimentoDias,
+                senhaComprimento = _senhaComprimento,
+                senhaMinimoMaiusculo = _senhaMinimoMaiusculo,
+                senhaMinimoMinusculo = _senhaMinimoMinusculo,
+                senhaMinimoNumerico = _senhaMinimoNumerico,
+                senhaMinimoAlfanumerico = _senhaMinimoAlfanumerico,
+                senhaTentativasLogin = _senhaTentativasLogin,
+                senhaCoincidir = _senhaCoincidir,
+                senhaPadrao = _senhaPadrao ?? ""
+            };
+            var response = await Http.PutAsJsonAsync("parametros/politica-senhas", body);
+            var responseBody = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                _mensagemSucesso = "Política de senhas salva com sucesso.";
+            }
+            else
+            {
+                _mensagemErro = string.IsNullOrWhiteSpace(responseBody) ? response.ReasonPhrase : responseBody;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _salvando = false;
+        }
+    }
+}

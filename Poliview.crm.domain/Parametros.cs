@@ -18,6 +18,7 @@ namespace Poliview.crm.domain
         public string? avisoHtml { get; set; }
         public string? avisoArquivo { get; set; }
         public Boolean avisoMostrar { get; set; }
+        public int senhaVencimentoDias { get; set; }
         public int senhaComprimento { get; set; }
         public int senhaMinimoMaiusculo { get; set; }
         public int senhaMinimoMinusculo { get; set; }
@@ -25,6 +26,8 @@ namespace Poliview.crm.domain
         public int senhaMinimoAlfanumerico { get; set; }
         public int senhaTentativasLogin { get; set; }
         public int senhaCoincidir { get; set; }
+        /// <summary>Senha padrão (OPE_PARAMETRO.senhaPadrao)</summary>
+        public string? senhaPadrao { get; set; }
         public int TipoAutenticacaoEmail { get; set; }
         public int intervaloRecebimentoEmailMinutos { get; set; }
         public int intervaloEnvioEmailMinutos { get; set; }
