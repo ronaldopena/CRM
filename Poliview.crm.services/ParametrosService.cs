@@ -28,7 +28,7 @@ namespace Poliview.crm.services
                         "HR_EmailIntervaloPop3/ 60 as intervaloRecebimentoEmailMinutos, " +
                         "HR_EmailIntervalo / 60 as intervaloEnvioEmailMinutos, " +
                         "tipoAcessoSiecon, usuarioApiSiecon, senhaApiSiecon, urlApiSiecon, TamanhoMaximoAnexos as tamanhoMaximoAnexos, emailErrosAdmin, " +
-                        "habilitarEspacoCliente, empreendimentoTesteEspacoCliente, " +
+                        "habilitarEspacoCliente, cast(coalesce(leituraobrigatoria, 0) as int) as leituraobrigatoria, empreendimentoTesteEspacoCliente, " +
                         "NM_ServidorInteg, NM_UsuarioInteg, DS_SenhaUserInteg, DS_PathDBInteg as DS_PathDbInteg, DS_PortaServidorInteg as DS_portaServidorInteg, " +
                         "ID_JornadaSLA, ID_JornadaRecurso, " +
                         "NR_SLACritico, NR_SLAAlerta, cast(coalesce(horasUteisCalcSLA, 0) as bit) as horasUteisCalcSLA, " +
@@ -143,6 +143,17 @@ namespace Poliview.crm.services
                 DS_PathInstallSistemaSiecon = @DS_PathInstallSistemaSiecon
                 WHERE cd_bancodados = 1 AND cd_mandante = 1";
             return connection.Execute(query, new { PastaInstalacaoCRM, DS_PathInstallSistemaSiecon });
+        }
+
+        public static int AtualizarEspacoCliente(string _connectionString, int habilitarEspacoCliente, int leituraobrigatoria, int empreendimentoTesteEspacoCliente)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var query = @"UPDATE ope_parametro SET
+                habilitarEspacoCliente = @habilitarEspacoCliente,
+                leituraobrigatoria = @leituraobrigatoria,
+                empreendimentoTesteEspacoCliente = @empreendimentoTesteEspacoCliente
+                WHERE cd_bancodados = 1 AND cd_mandante = 1";
+            return connection.Execute(query, new { habilitarEspacoCliente, leituraobrigatoria, empreendimentoTesteEspacoCliente });
         }
     }
 }

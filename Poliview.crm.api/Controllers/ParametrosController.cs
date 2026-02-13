@@ -194,5 +194,23 @@ namespace Poliview.crm.api.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("espacocliente")]
+        public IActionResult AtualizarEspacoCliente([FromBody] ParametrosEspacoClienteRequisicao body)
+        {
+            try
+            {
+                ParametrosService.AtualizarEspacoCliente(
+                    _connectionString,
+                    body.habilitarEspacoCliente,
+                    body.leituraobrigatoria,
+                    body.empreendimentoTesteEspacoCliente);
+                return Ok(new Poliview.crm.models.Retorno { sucesso = true, mensagem = "Configuração salva com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

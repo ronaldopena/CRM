@@ -37,6 +37,8 @@ namespace Poliview.crm.domain
         public int tamanhoMaximoAnexos { get; set; }
         public string emailErrosAdmin { get; set; }
         public int habilitarEspacoCliente { get; set; }
+        /// <summary>Obrigar cliente a ler todas as mensagens (OPE_PARAMETRO.leituraobrigatoria)</summary>
+        public int leituraobrigatoria { get; set; }
         public int empreendimentoTesteEspacoCliente { get; set; }
         public string nomeremetente { get; set; }
         public string emailremetente { get; set; }

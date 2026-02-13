@@ -1,9 +1,143 @@
 @page "/parametros/espaco-cliente"
+@inject HttpClient Http
+
 <PageTitle>Espaço Cliente | Parâmetros | SIECON CRM</PageTitle>
+
 <div class="mx-auto max-w-7xl p-4 md:p-6">
-    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6"><h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1></div>
+    <div class="rounded-t-lg bg-gray-100 px-4 py-3 md:px-6">
+        <h1 class="text-lg font-semibold text-gray-800">Parâmetros do Sistema</h1>
+    </div>
     <div class="border-x border-b border-gray-200 bg-white px-4 py-6 md:px-6">
-        <h2 class="mb-4 text-base font-semibold text-gray-800">Espaço Cliente</h2>
-        <p class="text-sm text-gray-500">Conteúdo em implementação.</p>
+        <h2 class="mb-4 text-base font-semibold text-gray-800">Configuração para o Espaço Cliente</h2>
+
+        @if (_carregando)
+        {
+            <p class="text-sm text-gray-500">Carregando...</p>
+        }
+        else if (!string.IsNullOrEmpty(_mensagemErro) && _habilitarEspacoCliente == null)
+        {
+            <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+        }
+        else
+        {
+            <div class="max-w-2xl space-y-4">
+                @if (!string.IsNullOrEmpty(_mensagemSucesso))
+                {
+                    <div class="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">@_mensagemSucesso</div>
+                }
+                @if (!string.IsNullOrEmpty(_mensagemErro))
+                {
+                    <div class="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">@_mensagemErro</div>
+                }
+
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="habilitar" @bind="_habilitarEspacoClienteChecked" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                    <label for="habilitar" class="text-sm font-medium text-gray-700">Habilitar Espaço Cliente</label>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <input type="checkbox" id="leitura" @bind="_leituraObrigatoriaChecked" class="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                    <label for="leitura" class="text-sm font-medium text-gray-700">Obrigar cliente a ler todas as mensagens?</label>
+                </div>
+
+                <div>
+                    <label for="empreendimento" class="mb-1 block text-sm font-medium text-gray-700">Empreendimento Teste</label>
+                    <InputNumber id="empreendimento" @bind-Value="_empreendimentoTeste" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                </div>
+
+                <div>
+                    <button type="button" @onclick="Salvar" disabled="@_salvando"
+                        class="rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                        @(_salvando ? "Salvando..." : "Salvar")
+                    </button>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@code {
+    private bool? _habilitarEspacoCliente;
+    private bool _habilitarEspacoClienteChecked;
+    private bool _leituraObrigatoriaChecked;
+    private int _empreendimentoTeste;
+    private bool _carregando = true;
+    private bool _salvando;
+    private string? _mensagemSucesso;
+    private string? _mensagemErro;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarParametros();
+    }
+
+    private async Task CarregarParametros()
+    {
+        _carregando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var response = await Http.GetAsync("parametros");
+            if (response.IsSuccessStatusCode)
+            {
+                var param = await response.Content.ReadFromJsonAsync<Poliview.crm.domain.Parametros>();
+                if (param != null)
+                {
+                    _habilitarEspacoCliente = param.habilitarEspacoCliente != 0;
+                    _habilitarEspacoClienteChecked = param.habilitarEspacoCliente != 0;
+                    _leituraObrigatoriaChecked = param.leituraobrigatoria != 0;
+                    _empreendimentoTeste = param.empreendimentoTesteEspacoCliente;
+                }
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _mensagemErro = string.IsNullOrWhiteSpace(body) ? response.ReasonPhrase : body;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _carregando = false;
+        }
+    }
+
+    private async Task Salvar()
+    {
+        _salvando = true;
+        _mensagemErro = null;
+        _mensagemSucesso = null;
+        try
+        {
+            var body = new
+            {
+                habilitarEspacoCliente = _habilitarEspacoClienteChecked ? 1 : 0,
+                leituraobrigatoria = _leituraObrigatoriaChecked ? 1 : 0,
+                empreendimentoTesteEspacoCliente = _empreendimentoTeste
+            };
+            var response = await Http.PutAsJsonAsync("parametros/espacocliente", body);
+            var responseBody = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                _mensagemSucesso = "Configuração salva com sucesso.";
+                _habilitarEspacoCliente = _habilitarEspacoClienteChecked;
+            }
+            else
+            {
+                _mensagemErro = string.IsNullOrWhiteSpace(responseBody) ? response.ReasonPhrase : responseBody;
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensagemErro = ex.Message;
+        }
+        finally
+        {
+            _salvando = false;
+        }
+    }
+}
